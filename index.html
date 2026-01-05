@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rawkuma Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --glass: rgba(255, 255, 255, 0.1); --accent: #8b5cf6; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #0f172a; color: white; }
+        nav { background: #1e293b; padding: 15px; font-weight: bold; font-size: 22px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .container { padding: 15px; }
+        
+        .manga-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .card { 
+            text-decoration: none; color: inherit; display: block; 
+            background: rgba(30, 41, 59, 0.7); border-radius: 12px; overflow: hidden;
+            transition: 0.3s; border: 1px solid var(--glass);
+        }
+        .card:active { transform: scale(0.96); }
+        
+        /* ပုံအရွယ်အစားကို ဖုန်းနဲ့ ပိုကိုက်အောင် ညှိထားပါတယ် */
+        .card img { width: 100%; height: 220px; object-fit: cover; }
+        
+        .card-info { padding: 10px; }
+        
+        /* ဒီအပိုင်းက အဓိကပြင်လိုက်တဲ့နေရာပါ */
+        .title { 
+            font-size: 13px; 
+            font-weight: 600; 
+            line-height: 1.4; 
+            color: #f8fafc;
+            /* height ကန့်သတ်ချက်ကို ဖယ်လိုက်ပြီး အကုန်ပေါ်အောင်လုပ်ထားပါတယ် */
+            display: block; 
+            margin-bottom: 5px;
+        }
+
+        .ch-tag {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav>Rawkuma</nav>
+    <div class="container">
+        <h3 style="border-left: 4px solid var(--accent); padding-left: 10px; font-size: 16px; margin-bottom: 20px;">LATEST UPDATES</h3>
+        <div class="manga-grid" id="main-list"></div>
+    </div>
+
+    <script>
+        const mangaList = [
+            { 
+                id: "gomibako", 
+                title: "Gomibako Gurashi no Seijo-sama", 
+                cover: "https://i.ibb.co/LDFt7Mwv/1.jpg",
+                lastCh: "Ch. 02"
+            },
+            { 
+                id: "bullyme", 
+                title: "Please Bully Me, Miss Villainess!", 
+                cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp",
+                lastCh: "Ch. 01"
+            },
+            { 
+                id: "protagonist-path", 
+                title: "How to Walk the Protagonist’s Path to Glory", 
+                cover: "https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg",
+                lastCh: "Ch. 01"
+            }
+        ];
+
+        const grid = document.getElementById('main-list');
+        mangaList.forEach(manga => {
+            grid.innerHTML += `
+                <a href="details.html?id=${manga.id}" class="card">
+                    <img src="${manga.cover}">
+                    <div class="card-info">
+                        <div class="title">${manga.title}</div>
+                        <div class="ch-tag">${manga.lastCh}</div>
+                    </div>
+                </a>`;
+        });
+    </script>
+    
+    <script>
+    // Right Click ပိတ်ခြင်း
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // Keyboard Shortcuts (F12, Ctrl+Shift+I) ပိတ်ခြင်း
+    document.onkeydown = function(e) {
+        if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0) || e.keyCode == 'U'.charCodeAt(0)))) {
+            return false;
+        }
+    }
+</script>
+
+</body>
+</html>
