@@ -3,170 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manga Details - Rawkuma</title>
+    <title>Rawkuma Home</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --accent: #8b5cf6; --glass: rgba(255, 255, 255, 0.1); --bg: #0f172a; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--bg); color: #e2e8f0; overflow-x: hidden; }
+        :root { --glass: rgba(255, 255, 255, 0.1); --accent: #8b5cf6; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #0f172a; color: white; }
+        nav { background: #1e293b; padding: 15px; font-weight: bold; font-size: 22px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .container { padding: 15px; }
         
-        /* Background Glow Motion */
-        .bg-glow { position: fixed; top: -10%; right: -10%; width: 300px; height: 300px; background: var(--accent); filter: blur(120px); border-radius: 50%; opacity: 0.2; z-index: -1; animation: float 8s infinite alternate; }
-        @keyframes float { from { transform: translate(0,0); } to { transform: translate(-30px, 50px); } }
-
-        /* Header Area */
-        .header { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(15px); padding: 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass); }
-        .header a { color: white; text-decoration: none; font-size: 18px; display: flex; align-items: center; gap: 10px; }
-
-        .content { padding: 20px; animation: fadeInUp 0.8s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Glass Card Container */
-        .glass-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-
-        .manga-top { display: flex; gap: 20px; align-items: flex-start; }
-        .manga-top img { width: 140px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 2px solid var(--glass); }
+        .manga-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
-        .info { flex: 1; }
-        .info h2 { margin: 0 0 10px 0; font-size: 20px; color: #fff; line-height: 1.3; }
-        .meta { font-size: 13px; color: #94a3b8; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
-        .meta i { color: #fbbf24; }
-
-        .genre-tag { font-size: 10px; background: rgba(139, 92, 246, 0.2); color: #c4b5fd; padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(139, 92, 246, 0.3); }
-
-        /* Summary Section with See More */
-        .summary-box { margin-top: 25px; position: relative; }
-        .summary-box h4 { margin: 0 0 10px 0; color: var(--accent); font-size: 13px; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-        
-        .summary-wrapper { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; border-left: 3px solid var(--accent); }
-        .summary-text { 
-            font-size: 14px; line-height: 1.7; color: #cbd5e1;
-            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; 
-            overflow: hidden; transition: all 0.5s ease;
+        .card { 
+            text-decoration: none; color: inherit; display: block; 
+            background: rgba(30, 41, 59, 0.7); border-radius: 12px; overflow: hidden;
+            transition: 0.3s; border: 1px solid var(--glass);
         }
-        .summary-text.expanded { -webkit-line-clamp: unset; display: block; }
-
-        .see-more-btn { 
-            background: none; border: none; color: var(--accent); font-weight: bold; font-size: 13px; 
-            margin-top: 10px; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 5px;
+        .card:active { transform: scale(0.96); }
+        
+        /* ပုံအရွယ်အစားကို ဖုန်းနဲ့ ပိုကိုက်အောင် ညှိထားပါတယ် */
+        .card img { width: 100%; height: 220px; object-fit: cover; }
+        
+        .card-info { padding: 10px; }
+        
+        /* ဒီအပိုင်းက အဓိကပြင်လိုက်တဲ့နေရာပါ */
+        .title { 
+            font-size: 13px; 
+            font-weight: 600; 
+            line-height: 1.4; 
+            color: #f8fafc;
+            /* height ကန့်သတ်ချက်ကို ဖယ်လိုက်ပြီး အကုန်ပေါ်အောင်လုပ်ထားပါတယ် */
+            display: block; 
+            margin-bottom: 5px;
         }
 
-        /* Chapter List */
-        .chapter-section { margin-top: 35px; }
-        .chapter-list { display: grid; gap: 12px; margin-top: 15px; }
-        .chapter-item { 
-            background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 15px; 
-            display: flex; justify-content: space-between; align-items: center;
-            text-decoration: none; color: white; transition: 0.3s ease; border: 1px solid var(--glass);
+        .ch-tag {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
         }
-        .chapter-item:hover { background: rgba(139, 92, 246, 0.1); border-color: var(--accent); }
-        .chapter-item .ch-name { font-weight: 600; font-size: 15px; }
-        .chapter-item .ch-date { font-size: 11px; color: #64748b; }
-
     </style>
 </head>
 <body>
-    <div class="bg-glow"></div>
-    
-    <div class="header">
-        <a href="index.html"><i class="fas fa-arrow-left"></i> <span>Back</span></a>
-    </div>
-
-    <div class="content">
-        <div class="glass-card">
-            <div class="manga-top">
-                <img id="m-cover" src="" alt="Cover">
-                <div class="info">
-                    <h2 id="m-title">Loading...</h2>
-                    <div class="meta">
-                        <span><i class="fas fa-star"></i> <span id="m-rating">0.0</span></span>
-                        <span><i class="fas fa-sync"></i> <span id="m-status">Ongoing</span></span>
-                    </div>
-                    <div id="m-genres" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
-                </div>
-            </div>
-
-            <div class="summary-box">
-                <h4><i class="fas fa-book-open"></i> SUMMARY</h4>
-                <div class="summary-wrapper">
-                    <div id="m-desc" class="summary-text"></div>
-                    <button id="see-more" class="see-more-btn">
-                        <span>Show More</span> <i class="fas fa-chevron-down"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="chapter-section">
-                <h4><i class="fas fa-layer-group"></i> LATEST RELEASES</h4>
-                <div id="ch-list" class="chapter-list"></div>
-            </div>
-        </div>
+    <nav>Rawkuma</nav>
+    <div class="container">
+        <h3 style="border-left: 4px solid var(--accent); padding-left: 10px; font-size: 16px; margin-bottom: 20px;">LATEST UPDATES</h3>
+        <div class="manga-grid" id="main-list"></div>
     </div>
 
     <script>
-        const mangaData = {
-            "gomibako": {
-                title: "Gomibako Gurashi no Seijo-sama",
+        const mangaList = [
+            { 
+                id: "gomibako", 
+                title: "Gomibako Gurashi no Seijo-sama", 
                 cover: "https://i.ibb.co/LDFt7Mwv/1.jpg",
-                rating: "7.0",
-                status: "Ongoing",
-                genres: ["Fantasy", "Slice of Life", "Romance", "Manga"],
-                desc: "သာမန်အရပ်သူလေးဖြစ်တဲ့ သူတော်စင်အလုပ်သင် Mio ဟာ မာနကြီးတဲ့ အထက်တန်းလွှာ စီနီယာတွေရဲ့ အနိုင်ကျင့်ခိုင်းစေတာကို ခံရတဲ့အပြင် နောက်ဆုံးမှာ ဘုရားကျောင်းကနေ နှင်ထုတ်ခံရပြီး အမှိုက်ပုံထဲ ပစ်ချခံလိုက်ရပါတယ်။​ပုံမှန်ဆိုရင် ညစ်ပတ်ပြီး နံစော်နေရမယ့် နေရာဖြစ်ပေမဲ့ ပစ္စည်းတွေကို ပြုပြင်နိုင်စွမ်း ရှိတဲ့ Mio အတွက်ကတော့ ဒီအမှိုက်ပုံဟာ စိတ်တိုင်းကျ ပြုပြင်ဖန်တီးနိုင်တဲ့ အကောင်းဆုံး နေရာတစ်ခု ဖြစ်နေပါတော့တယ်။ စွန့်ပစ်ပစ္စည်းတွေကို ပြန်လည်ပြုပြင်ရင်း အမှိုက်ပုံထဲ ဇိမ်ကျကျ နေထိုင်နေတဲ့ သူမဟာ မတော်တဆ စွန့်စားသွားလာသူတွေကို ကုသပေးခြင်း၊ ရှေးဟောင်းပစ္စည်းတွေကို ပြင်ဆင်ပေးခြင်းတို့ လုပ်ဆောင်ရင်း သူမရဲ့ ဘဝသစ်မှာ ရည်မှန်းချက် ပန်းတိုင်အသစ်တစ်ခုကို ရှာတွေ့သွားပါတော့တ။",
-                chapters: [
-                    { name: "Chapter 02", date: "Jan 5, 2026" },
-                    { name: "Chapter 01", date: "Jan 1, 2026" }
-                ]
+                lastCh: "Ch. 02"
             },
-            "bullyme": {
-                title: "Please Bully Me, Miss Villainess!",
+            { 
+                id: "bullyme", 
+                title: "Please Bully Me, Miss Villainess!", 
                 cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp",
-                rating: "4.7",
-                status: "Ongoing",
-                genres: ["Fantasy", "Historical", "Romance", "Shoujo Ai", "Manhua"],
-                desc: "စာဖတ်သူတိုင်း မုန်းကြတဲ့ Otome ဂိမ်းထဲက ဗီလိန်အမျိုးသမီးအဖြစ် ဝင်ရောက်သွားတဲ့ Yvonne ဟာ ပုံမှန်အတိုင်းဆိုရင် ဇာတ်လိုက်မင်းသမီးလေးကို အနိုင်ကျင့်ပြီး ဇာတ်လမ်းသွားအောင် ကူညီပေးရမှာ ဖြစ်ပါတယ်။ ​ဒါပေမဲ့ ဇာတ်လိုက်မင်းသမီးလေး Elsa ပုံစံက တစ်မျိုးဖြစ်နေပါတယ်။ ဇာတ်လိုက်မင်းသားတွေနဲ့ ဇာတ်လမ်းမဖြစ်ဘဲ Yvonne နားကိုပဲ တားမရဆီးမရ ကပ်နေတာကြောင့် Yvonne ခမျာ အနားမလာဖို့တောင် ပြန်ပြောနေရပါတယ်။ ​Elsa ကတော့ Yvonne ရေ... ဒီနေ့ရော ငါ့ကို ဘယ်လိုအနိုင်ကျင့်ဦးမှာလဲ ဆိုပြီးတောင် မျှော်လင့်တကြီး မေးနေတာကြောင့် ဗီလိန်မလေးတစ်ယောက် ဘာဆက်လုပ်ရမလဲ အခက်တွေ့နေရပါတော့တယ်။",
-                chapters: [
-                    { name: "Chapter 01", date: "Dec 30, 2025" }
-                ]
+                lastCh: "Ch. 01"
+            },
+            { 
+                id: "protagonist-path", 
+                title: "How to Walk the Protagonist’s Path to Glory", 
+                cover: "https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg",
+                lastCh: "Ch. 01"
             }
-        };
+        ];
 
-        const params = new URLSearchParams(window.location.search);
-        const id = params.get('id');
-        const manga = mangaData[id];
-
-        if (manga) {
-            document.getElementById('m-title').innerText = manga.title;
-            document.getElementById('m-cover').src = manga.cover;
-            document.getElementById('m-rating').innerText = manga.rating;
-            document.getElementById('m-status').innerText = manga.status;
-            document.getElementById('m-desc').innerText = manga.desc;
-            
-            // Genres
-            manga.genres.forEach(g => {
-                document.getElementById('m-genres').innerHTML += `<span class="genre-tag">${g}</span>`;
-            });
-
-            // Chapters
-            manga.chapters.forEach(ch => {
-                document.getElementById('ch-list').innerHTML += `
-                    <a href="reader.html?id=${id}&ch=${ch.name}" class="chapter-item">
-                        <span class="ch-name">${ch.name}</span>
-                        <span class="ch-date">${ch.date} <i class="fas fa-chevron-right" style="margin-left:5px;"></i></span>
-                    </a>`;
-            });
-
-            // See More Logic
-            const seeMoreBtn = document.getElementById('see-more');
-            const desc = document.getElementById('m-desc');
-            
-            seeMoreBtn.addEventListener('click', () => {
-                desc.classList.toggle('expanded');
-                if (desc.classList.contains('expanded')) {
-                    seeMoreBtn.innerHTML = '<span>Show Less</span> <i class="fas fa-chevron-up"></i>';
-                } else {
-                    seeMoreBtn.innerHTML = '<span>Show More</span> <i class="fas fa-chevron-down"></i>';
-                }
-            });
-        }
+        const grid = document.getElementById('main-list');
+        mangaList.forEach(manga => {
+            grid.innerHTML += `
+                <a href="details.html?id=${manga.id}" class="card">
+                    <img src="${manga.cover}">
+                    <div class="card-info">
+                        <div class="title">${manga.title}</div>
+                        <div class="ch-tag">${manga.lastCh}</div>
+                    </div>
+                </a>`;
+        });
     </script>
+    
+    <script>
+    // Right Click ပိတ်ခြင်း
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // Keyboard Shortcuts (F12, Ctrl+Shift+I) ပိတ်ခြင်း
+    document.onkeydown = function(e) {
+        if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0) || e.keyCode == 'U'.charCodeAt(0)))) {
+            return false;
+        }
+    }
+</script>
+
 </body>
 </html>
