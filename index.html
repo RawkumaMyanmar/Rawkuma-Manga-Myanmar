@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="my">
 <head>
@@ -69,37 +70,45 @@
         const db = getFirestore();
         const provider = new GoogleAuthProvider();
 
-        // Login with Redirect (Phone Browser အတွက် ပိုအဆင်ပြေပါတယ်)
+        // Login with Redirect
         document.getElementById('login-btn').onclick = () => {
             signInWithRedirect(auth, provider);
         };
 
-        // Redirect ပြီး ပြန်လာတဲ့အခါ Data သိမ်းမယ်
-        getRedirectResult(auth).then(async (result) => {
-            if (result && result.user) {
-                const user = result.user;
-                const userRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userRef);
-                if (!userSnap.exists()) {
-                    await setDoc(userRef, { name: user.displayName, email: user.email, coins: 0 });
-                }
-            }
-        });
-
-        // User ရှိမရှိ စစ်မယ်
+        // Auth State Observer (အကောင့်ဝင်ပြီးရင် UI ပြောင်းမယ့်အပိုင်း)
         onAuthStateChanged(auth, async (user) => {
+            const loginBtn = document.getElementById('login-btn');
+            const userDisplay = document.getElementById('user-display');
+            const userNameTxt = document.getElementById('user-name');
+            const userCoinTxt = document.getElementById('user-coin');
+
             if (user) {
-                document.getElementById('login-btn').style.display = 'none';
-                document.getElementById('user-display').style.display = 'flex';
-                document.getElementById('user-name').innerText = user.displayName.split(' ')[0];
+                loginBtn.style.display = 'none';
+                userDisplay.style.display = 'flex';
+                userNameTxt.innerText = "Welcome, " + user.displayName.split(' ')[0];
                 
                 const userRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userRef);
+                
                 if (userSnap.exists()) {
-                    document.getElementById('user-coin').innerText = userSnap.data().coins;
+                    userCoinTxt.innerText = userSnap.data().coins;
+                } else {
+                    // အကောင့်ဝင်ထားပြီး DB မှာ Data မရှိသေးရင် အလိုအလျောက် ဆောက်ပေးမယ်
+                    await setDoc(userRef, { 
+                        name: user.displayName, 
+                        email: user.email, 
+                        coins: 0 
+                    });
+                    userCoinTxt.innerText = "0";
                 }
+            } else {
+                loginBtn.style.display = 'block';
+                userDisplay.style.display = 'none';
             }
         });
+
+        // Redirect Result ကိုလည်း handle လုပ်ထားပေးပါတယ်
+        getRedirectResult(auth).catch((error) => console.error(error));
     </script>
 
     <script>
