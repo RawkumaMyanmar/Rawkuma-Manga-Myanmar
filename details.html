@@ -3,125 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manga Details | Rawkuma</title>
+    <title>Manga Details - Rawkuma</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.05); --accent: #8b5cf6; --bg: #0f172a; --card-bg: #1e293b; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: white; }
+        :root { --accent: #8b5cf6; --glass: rgba(255, 255, 255, 0.1); --bg: #0f172a; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--bg); color: #e2e8f0; overflow-x: hidden; }
         
-        .header { height: 300px; position: relative; overflow: hidden; }
-        .header img { width: 100%; height: 100%; object-fit: cover; filter: blur(10px) brightness(0.5); }
-        .info-box { position: absolute; bottom: 20px; left: 20px; display: flex; gap: 15px; align-items: flex-end; width: 90%; }
-        .info-box img { width: 120px; height: 170px; border-radius: 10px; border: 2px solid var(--accent); filter: none; }
+        .bg-glow { position: fixed; top: -10%; right: -10%; width: 300px; height: 300px; background: var(--accent); filter: blur(120px); border-radius: 50%; opacity: 0.2; z-index: -1; animation: float 8s infinite alternate; }
+        @keyframes float { from { transform: translate(0,0); } to { transform: translate(-30px, 50px); } }
+
+        .header { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(15px); padding: 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass); }
+        .header a { color: white; text-decoration: none; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+
+        .content { padding: 20px; animation: fadeInUp 0.8s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .glass-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+
+        .manga-top { display: flex; gap: 20px; align-items: flex-start; }
+        .manga-top img { width: 140px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 2px solid var(--glass); }
         
-        .container { padding: 20px; }
-        .ch-list { margin-top: 20px; }
-        .ch-item { 
-            background: var(--card-bg); padding: 15px; border-radius: 10px; margin-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid var(--glass);
+        .info { flex: 1; }
+        .info h2 { margin: 0 0 10px 0; font-size: 20px; color: #fff; line-height: 1.3; }
+        .meta { font-size: 13px; color: #94a3b8; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+        .meta i { color: #fbbf24; }
+
+        .genre-tag { font-size: 10px; background: rgba(139, 92, 246, 0.2); color: #c4b5fd; padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+        .summary-box { margin-top: 25px; position: relative; }
+        .summary-box h4 { margin: 0 0 10px 0; color: var(--accent); font-size: 13px; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+        
+        .summary-wrapper { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; border-left: 3px solid var(--accent); }
+        .summary-text { font-size: 14px; line-height: 1.7; color: #cbd5e1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; transition: all 0.5s ease; }
+        .summary-text.expanded { -webkit-line-clamp: unset; display: block; }
+        .see-more-btn { background: none; border: none; color: var(--accent); font-weight: bold; font-size: 13px; margin-top: 10px; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 5px; }
+
+        .chapter-section { margin-top: 35px; }
+        .chapter-list { display: grid; gap: 12px; margin-top: 15px; }
+        .chapter-item { 
+            background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 15px; 
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: 0.3s ease; border: 1px solid var(--glass);
         }
-        .ch-item:active { transform: scale(0.98); }
-        .ch-type-paid { color: #fbbf24; font-size: 12px; font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 4px 8px; border-radius: 5px; }
-        .ch-type-free { color: #10b981; font-size: 12px; }
+        .chapter-item:hover { background: rgba(139, 92, 246, 0.1); border-color: var(--accent); }
+        .chapter-item .ch-name { font-weight: 600; font-size: 15px; color: white; }
+        .ch-badge { font-size: 10px; padding: 3px 8px; border-radius: 5px; font-weight: bold; margin-left: 10px; }
+        .badge-paid { background: #fbbf24; color: #000; }
+        .badge-free { background: #10b981; color: #fff; }
 
         /* Notification Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: var(--card-bg); width: 85%; max-width: 400px; padding: 25px; border-radius: 20px; border: 1px solid var(--accent); text-align: center; }
-        .modal-content i { font-size: 50px; color: #fbbf24; margin-bottom: 15px; }
-        .modal-content h2 { margin: 10px 0; color: white; }
-        .modal-content p { color: #94a3b8; line-height: 1.6; font-size: 14px; }
-        .contact-btn { display: block; background: var(--accent); color: white; text-decoration: none; padding: 12px; border-radius: 10px; margin-top: 20px; font-weight: bold; }
-        .close-btn { margin-top: 15px; color: #64748b; cursor: pointer; display: inline-block; font-size: 13px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-box { background: #1e293b; width: 85%; max-width: 350px; padding: 30px; border-radius: 24px; border: 1px solid var(--accent); text-align: center; animation: pop 0.3s ease; }
+        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-box i { font-size: 50px; color: #fbbf24; margin-bottom: 15px; }
+        .modal-box h3 { margin: 10px 0; color: #fff; }
+        .modal-box p { font-size: 14px; color: #94a3b8; line-height: 1.5; margin-bottom: 20px; }
+        .btn-tg { display: block; background: var(--accent); color: white; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: bold; margin-bottom: 10px; }
+        .btn-close { color: #64748b; font-size: 13px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div id="manga-header" class="header"></div>
+    <div class="bg-glow"></div>
     
-    <div class="container">
-        <h2 id="manga-title">Loading...</h2>
-        <p id="manga-desc" style="color: #94a3b8; font-size: 14px;">Manga details will appear here.</p>
-        
-        <h3 style="border-bottom: 1px solid var(--glass); padding-bottom: 10px; margin-top: 30px;">Chapters</h3>
-        <div class="ch-list" id="chapter-list"></div>
+    <div class="header">
+        <a href="index.html"><i class="fas fa-arrow-left"></i> <span>Back</span></a>
     </div>
 
-    <div class="modal" id="paidModal">
-        <div class="modal-content">
+    <div class="content">
+        <div class="glass-card">
+            <div class="manga-top">
+                <img id="m-cover" src="" alt="Cover">
+                <div class="info">
+                    <h2 id="m-title">Loading...</h2>
+                    <div class="meta">
+                        <span><i class="fas fa-star"></i> <span id="m-rating">0.0</span></span>
+                        <span><i class="fas fa-sync"></i> <span id="m-status">Ongoing</span></span>
+                    </div>
+                    <div id="m-genres" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h4><i class="fas fa-book-open"></i> SUMMARY</h4>
+                <div class="summary-wrapper">
+                    <div id="m-desc" class="summary-text"></div>
+                    <button id="see-more" class="see-more-btn">
+                        <span>Show More</span> <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chapter-section">
+                <h4><i class="fas fa-layer-group"></i> LATEST RELEASES</h4>
+                <div id="ch-list" class="chapter-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="paidModal">
+        <div class="modal-box">
             <i class="fas fa-crown"></i>
-            <h2>Paid Content</h2>
-            <p>ဤအပိုင်းကို ဖတ်ရှုရန် Paid Member ဖြစ်ဖို့ လိုအပ်ပါသည်။<br>Paid Member ဝင်လိုပါက Admin Telegram သို့ ဆက်သွယ်နိုင်ပါသည်။</p>
-            <a href="https://t.me/ThomasGalivlOfficial" class="contact-btn">Contact Admin (Telegram)</a>
-            <div class="close-btn" onclick="closeModal()">နောက်သို့ပြန်သွားမည်</div>
+            <h3>Paid Chapter!</h3>
+            <p>ဤအပိုင်းကို ဖတ်ရှုရန် Paid Member ဖြစ်ဖို့ လိုအပ်ပါသည်။ Admin Telegram သို့ ဆက်သွယ်နိုင်ပါသည်။</p>
+            <a href="https://t.me/ThomasGalivlOfficial" class="btn-tg">Contact Admin (Telegram)</a>
+            <div class="btn-close" onclick="toggleModal(false)">Back to List</div>
         </div>
     </div>
 
     <script>
-        // Data Configuration (ဒီနေရာမှာ Chapter တွေကို free သို့မဟုတ် paid ပြောင်းလို့ရပါတယ်)
         const mangaData = {
             "gomibako": {
                 title: "Gomibako Gurashi no Seijo-sama",
                 cover: "https://i.ibb.co/LDFt7Mwv/1.jpg",
-                desc: "A beautiful story about a saint living in a trash can...",
+                rating: "7.0",
+                status: "Ongoing",
+                genres: ["Fantasy", "Slice of Life", "Romance", "Manga"],
+                desc: "သာမန်အရပ်သူလေးဖြစ်တဲ့ သူတော်စင်အလုပ်သင် Mio ဟာ မာနကြီးတဲ့ အထက်တန်းလွှာ စီနီယာတွေရဲ့ အနိုင်ကျင့်ခိုင်းစေတာကို ခံရတဲ့အပြင် နောက်ဆုံးမှာ ဘုရားကျောင်းကနေ နှင်ထုတ်ခံရပြီး အမှိုက်ပုံထဲ ပစ်ချခံလိုက်ရပါတယ်။...",
                 chapters: [
-                    { id: 1, name: "Chapter 01", type: "free", link: "reader.html?manga=gomibako&ch=1" },
-                    { id: 2, name: "Chapter 02", type: "free", link: "reader.html?manga=gomibako&ch=2" },
-                    { id: 3, name: "Chapter 03", type: "paid" },
-                    { id: 4, name: "Chapter 04", type: "paid" }
+                    { name: "Chapter 02", date: "Jan 5, 2026", type: "free" },
+                    { name: "Chapter 01", date: "Jan 1, 2026", type: "free" },
+                    { name: "Chapter 03 (Coming Soon)", date: "Wait", type: "paid" }
                 ]
             },
             "bullyme": {
                 title: "Please Bully Me, Miss Villainess!",
                 cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp",
-                desc: "An interesting story of a villainess and her journey...",
+                rating: "4.7",
+                status: "Ongoing",
+                genres: ["Fantasy", "Historical", "Romance", "Shoujo Ai", "Manhua"],
+                desc: "စာဖတ်သူတိုင်း မုန်းကြတဲ့ Otome ဂိမ်းထဲက ဗီလိန်အမျိုးသမီးအဖြစ် ဝင်ရောက်သွားတဲ့ Yvonne ဟာ...",
                 chapters: [
-                    { id: 1, name: "Chapter 01", type: "free", link: "reader.html?manga=bullyme&ch=1" },
-                    { id: 2, name: "Chapter 02", type: "paid" }
+                    { name: "Chapter 01", date: "Dec 30, 2025", type: "free" },
+                    { name: "Chapter 02", date: "New", type: "paid" }
                 ]
             },
             "protagonist-path": {
-                title: "How to Walk the Protagonist's Path to Glory",
+                title: "How to Walk the Protagonist’s Path to Glory",
                 cover: "https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg",
-                desc: "အရင်ဘဝက ဖတ်ခဲ့ဖူးတဲ့ ယောကျ်ားလေးအကြိုက် ဟာရမ်ဝတ္ထုထဲကို Kang Nahyun အဖြစ် ကူးပြောင်းရောက်ရှိလာခဲ့ပါတယ်။ တခြားသူတွေလို ထူးခြားတဲ့စွမ်းရည် (Cheat skill) တွေ မပါလာပေမဲ့ ဇွဲနဲ့ကြိုးစားခဲ့ရာကနေ အထက်တန်းကျောင်းတက်ခါနီးမှာ 'လက်ဖြောင့်သေနတ်သမား' အဖြစ် စွမ်းရည်နိုးထလာပြီး စွမ်းရည်ရှင်အကယ်ဒမီကို တက်ခွင့်ရခဲ့ပါတယ်။ သူမရဲ့အစီအစဉ်ကတော့ ရိုးရှင်းပါတယ်။ ဝတ္ထုထဲက ဇာတ်လိုက်မင်းသား Na Yuhan နဲ့ ရင်းနှီးအောင်ပေါင်းပြီး သူ့ရဲ့အောင်မြင်မှုအရိပ်အောက်မှာ ကပ်လိုက်ရင်း ရသမျှအခွင့်အရေးတွေကို လိုက်ကောက်ဖို့ပါပဲ။ ပြီးရင်တော့ ဘေးကင်းကင်းနဲ့ အေးအေးဆေးဆေး အနားယူဖို့ ရည်မှန်းထားပါတယ်။ ဒါပေမဲ့ လက်တွေ့မှာတော့ သူမထင်သလို ဖြစ်မလာဘဲ မူလအစီအစဉ်တွေနဲ့ လွဲချော်လာပါတော့တယ်။ 'Sunshine Heroine' လို့ အမည်တွင်လာတဲ့ Kang Nahyun တစ်ယောက် ဇာတ်လိုက်မင်းသားရဲ့ လမ်းကြောင်းပေါ်မှာ ကပ်လိုက်ရင်း ဘယ်လိုမခန့်မှန်းနိုင်တဲ့ အကယ်ဒမီဘဝကို ဖြတ်သန်းသွားရမလဲဆိုတာ စောင့်ကြည့်ရမှာပါ",
+                rating: "8.9",
+                status: "Ongoing",
+                genres: ["Drama", "Fantasy", "Romance", "Manhwa"],
+                desc: "အရင်ဘဝက ဖတ်ခဲ့ဖူးတဲ့ ယောကျ်ားလေးအကြိုက် ဟာရမ်ဝတ္ထုထဲကို Kang Nahyun အဖြစ် ကူးပြောင်းရောက်ရှိလာခဲ့ပါတယ်။...",
                 chapters: [
-                    { id: 1, name: "Chapter 01", type: "free", link: "reader.html?manga=bullyme&ch=1" },
-                    { id: 2, name: "Chapter 02", type: "paid" }
+                    { name: "Chapter 01", date: "Jan 6, 2026", type: "free" }
                 ]
+            }
         };
 
         const params = new URLSearchParams(window.location.search);
-        const mangaId = params.get('id');
-        const manga = mangaData[mangaId];
+        const id = params.get('id');
+        const manga = mangaData[id];
 
-        if(manga) {
-            document.getElementById('manga-header').innerHTML = `<img src="${manga.cover}"><div class="info-box"><img src="${manga.cover}"></div>`;
-            document.getElementById('manga-title').innerText = manga.title;
-            document.getElementById('manga-desc').innerText = manga.desc;
+        if (manga) {
+            document.getElementById('m-title').innerText = manga.title;
+            document.getElementById('m-cover').src = manga.cover;
+            document.getElementById('m-rating').innerText = manga.rating;
+            document.getElementById('m-status').innerText = manga.status;
+            document.getElementById('m-desc').innerText = manga.desc;
+            
+            manga.genres.forEach(g => {
+                document.getElementById('m-genres').innerHTML += `<span class="genre-tag">${g}</span>`;
+            });
 
-            const list = document.getElementById('chapter-list');
             manga.chapters.forEach(ch => {
                 const item = document.createElement('div');
-                item.className = 'ch-item';
+                item.className = 'chapter-item';
                 item.innerHTML = `
-                    <span>${ch.name}</span>
-                    <span class="${ch.type === 'paid' ? 'ch-type-paid' : 'ch-type-free'}">
-                        ${ch.type === 'paid' ? '<i class="fas fa-lock"></i> Paid' : 'FREE'}
-                    </span>
+                    <span class="ch-name">${ch.name} ${ch.type === 'paid' ? '<span class="ch-badge badge-paid"><i class="fas fa-lock"></i> Paid</span>' : ''}</span>
+                    <span class="ch-date">${ch.date} <i class="fas fa-chevron-right" style="margin-left:5px;"></i></span>
                 `;
                 
                 item.onclick = () => {
                     if(ch.type === 'paid') {
-                        document.getElementById('paidModal').style.display = 'flex';
+                        toggleModal(true);
                     } else {
-                        window.location.href = ch.link;
+                        window.location.href = `reader.html?id=${id}&ch=${ch.name}`;
                     }
                 };
-                list.appendChild(item);
+                document.getElementById('ch-list').appendChild(item);
+            });
+
+            // See More
+            const seeMoreBtn = document.getElementById('see-more');
+            const desc = document.getElementById('m-desc');
+            seeMoreBtn.addEventListener('click', () => {
+                desc.classList.toggle('expanded');
+                seeMoreBtn.innerHTML = desc.classList.contains('expanded') ? '<span>Show Less</span> <i class="fas fa-chevron-up"></i>' : '<span>Show More</span> <i class="fas fa-chevron-down"></i>';
             });
         }
 
-        function closeModal() {
-            document.getElementById('paidModal').style.display = 'none';
+        function toggleModal(show) {
+            document.getElementById('paidModal').style.display = show ? 'flex' : 'none';
         }
     </script>
 </body>
