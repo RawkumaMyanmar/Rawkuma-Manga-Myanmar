@@ -9,7 +9,7 @@
         :root { --glass: rgba(255, 255, 255, 0.05); --accent: #8b5cf6; --bg: #0f172a; --card-bg: #1e293b; }
         body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: white; overflow-x: hidden; }
         
-        /* Ads Section - ပြင်ဆင်ထားသော အပိုင်း */
+        /* Ads Section */
         .ads-banner { 
             background: #1e293b; 
             padding: 15px 10px; 
@@ -131,14 +131,14 @@
     <footer>&copy; 2026 Rawkuma Myanmar. All Rights Reserved.</footer>
 
     <script>
-        // Manga List & Logic အပိုင်းများ (မပြောင်းလဲပါ)
+        // ၁။ Manga List မှာ 'updatedAt' (တင်ခဲ့တဲ့ အချိန်) ကို ထည့်ထားမယ်
         const mangaList = [
-            { id: "gomibako", title: "Gomibako Gurashi no Seijo-sama", cover: "https://i.ibb.co/LDFt7Mwv/1.jpg", type: "jp" },
-            { id: "bullyme", title: "Please Bully Me, Miss Villainess!", cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp", type: "cn" },
-            { id: "protagonist-path", title: "How to Walk the Protagonist’s Path to Glory", cover: "https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg", type: "kr" },
-            { id: "team-leader", title: "Team leader, please stand up straight.", cover: "https://i.ibb.co/jPwj6Rcd/images.jpg", type: "18plus" },
-            { id: "ChildhoodFriendComplex", title: "Childhood Friend Complex (Eunhi)", cover: "https://i.ibb.co/gFXLCgQ3/0489b303-6661-43e1-9b00-1eca0756ec58.webp", type: "kr" },
-            { id: "ReincarnationArchmage", title: "The Reincarnation of the Forbidden Archmage", cover: "https://i.ibb.co/QFQvh5sD/The-Reincarnation-of-the-Forbidden-Archmage.webp", type: "kr" }
+            { id: "gomibako", title: "Gomibako Gurashi no Seijo-sama", cover: "https://i.ibb.co/LDFt7Mwv/1.jpg", type: "jp", updatedAt: "2026-01-05 14:00" },
+            { id: "bullyme", title: "Please Bully Me, Miss Villainess!", cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp", type: "cn", updatedAt: "2026-01-06 10:00" },
+            { id: "protagonist-path", title: "How to Walk the Protagonist’s Path to Glory", cover: "https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg", type: "kr", updatedAt: "2026-01-06 21:00" },
+            { id: "team-leader", title: "Team leader, please stand up straight.", cover: "https://i.ibb.co/jPwj6Rcd/images.jpg", type: "18plus", updatedAt: "2026-01-06 18:00" },
+            { id: "ChildhoodFriendComplex", title: "Childhood Friend Complex (Eunhi)", cover: "https://i.ibb.co/gFXLCgQ3/0489b303-6661-43e1-9b00-1eca0756ec58.webp", type: "kr", updatedAt: "2026-01-04 12:00" },
+            { id: "ReincarnationArchmage", title: "The Reincarnation of the Forbidden Archmage", cover: "https://i.ibb.co/QFQvh5sD/The-Reincarnation-of-the-Forbidden-Archmage.webp", type: "kr", updatedAt: "2026-01-06 09:00" }
         ];
 
         const flags = {
@@ -151,6 +151,11 @@
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('overlay').classList.toggle('active');
+        }
+
+        // ၂။ Latest Updates ဖြစ်အောင် အချိန်အလိုက် Sort လုပ်မယ့် Function
+        function getLatestManga(list) {
+            return [...list].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
         }
 
         function renderManga(list) {
@@ -170,18 +175,24 @@
         function filterManga(category) {
             const titleElement = document.getElementById('page-title');
             let filtered = category === 'all' ? mangaList : mangaList.filter(m => m.type === category);
+            
+            // စီမယ်
+            const sortedData = getLatestManga(filtered);
+
             const titles = { all: 'Latest Updates', jp: 'Manga List', kr: 'Manhwa List', cn: 'Manhua List', '18plus': '18+ Adult Books' };
             titleElement.innerText = titles[category];
-            renderManga(filtered);
+            renderManga(sortedData);
             toggleMenu();
             window.scrollTo(0,0);
         }
 
-        renderManga(mangaList);
+        // စဖွင့်ဖွင့်ချင်းမှာ Latest Updates အတိုင်း ပြစေမယ်
+        renderManga(getLatestManga(mangaList));
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
-            renderManga(mangaList.filter(m => m.title.toLowerCase().includes(term)));
+            const searched = mangaList.filter(m => m.title.toLowerCase().includes(term));
+            renderManga(getLatestManga(searched));
         });
     </script>
 </body>
