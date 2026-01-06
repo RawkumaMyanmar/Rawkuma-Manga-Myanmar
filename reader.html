@@ -3,80 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rawkuma Reader</title>
+    <title>Reader | Rawkuma</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --accent: #8b5cf6; --bg: #0f172a; }
-        body { font-family: sans-serif; margin: 0; background: var(--bg); color: white; overflow-x: hidden; }
-        
-        /* Sticky Header */
-        .reader-nav { 
-            position: fixed; top: 0; width: 100%; background: rgba(15, 23, 42, 0.9); 
-            backdrop-filter: blur(10px); padding: 12px; display: flex; 
-            justify-content: space-between; align-items: center; z-index: 1000;
-            border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box;
+        :root { --bg: #0f172a; --nav-bg: rgba(15, 23, 42, 0.95); --accent: #8b5cf6; }
+        body { font-family: sans-serif; margin: 0; background: var(--bg); color: white; }
+
+        /* Reader Header */
+        nav { 
+            background: var(--nav-bg); padding: 12px 15px; position: fixed; top: 0; width: 100%; 
+            z-index: 1000; display: flex; align-items: center; justify-content: space-between;
+            backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);
+            box-sizing: border-box;
         }
-        .reader-nav a { color: white; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        nav a { color: white; text-decoration: none; font-size: 18px; }
+        .ch-info { text-align: center; flex: 1; }
+        .ch-info div { font-size: 14px; font-weight: bold; color: var(--accent); }
+        .ch-info span { font-size: 11px; color: #94a3b8; }
 
-        /* Images Container */
-        .image-container { margin-top: 50px; display: flex; flex-direction: column; align-items: center; background: #000; }
-        .image-container img { width: 100%; max-width: 800px; display: block; height: auto; }
+        /* Image Container */
+        .viewer { margin-top: 60px; display: flex; flex-direction: column; align-items: center; }
+        .viewer img { width: 100%; max-width: 800px; display: block; height: auto; }
 
-        /* Bottom Controls */
-        .controls { padding: 40px 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; background: var(--bg); }
-        .btn { background: var(--accent); color: white; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 15px; width: 80%; max-width: 300px; text-align: center; }
-        .btn-home { background: rgba(255,255,255,0.1); border: 1px solid var(--glass); }
+        /* Loading Spinner */
+        .loading { padding: 50px; text-align: center; color: var(--accent); }
+
+        /* Bottom Control */
+        .controls { 
+            padding: 30px; display: flex; justify-content: center; gap: 20px; 
+            background: var(--bg); margin-bottom: 50px;
+        }
+        .btn-nav { 
+            background: var(--accent); color: white; padding: 10px 20px; 
+            border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px;
+        }
+        .btn-nav.disabled { background: #334155; pointer-events: none; opacity: 0.5; }
     </style>
 </head>
 <body>
 
-    <div class="reader-nav">
-        <a href="javascript:history.back()"><i class="fas fa-chevron-left"></i> Back</a>
-        <div id="nav-title" style="font-size: 13px; font-weight: bold; text-align: center; color: var(--accent);">Loading...</div>
-        <div style="width: 50px;"></div> 
+    <nav>
+        <a href="javascript:history.back()"><i class="fas fa-chevron-left"></i></a>
+        <div class="ch-info">
+            <div id="manga-title">Manga Name</div>
+            <span id="chapter-name">Chapter ...</span>
+        </div>
+        <a href="index.html"><i class="fas fa-home"></i></a>
+    </nav>
+
+    <div class="viewer" id="image-container">
+        <div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Loading Images...</div>
     </div>
 
-    <div class="image-container" id="manga-viewer">
-        </div>
-
     <div class="controls">
-        <p style="font-size: 13px; color: #94a3b8;">You have reached the end of this chapter.</p>
-        <a href="index.html" class="btn btn-home">HOME</a>
+        <a href="#" id="prev-btn" class="btn-nav">Previous</a>
+        <a href="#" id="next-btn" class="btn-nav">Next Chapter</a>
     </div>
 
     <script>
-        // ၁။ URL ကနေ Data ယူမယ် (details.html က ပို့လိုက်တဲ့ id နဲ့ ch)
-        const params = new URLSearchParams(window.location.search);
-        const mangaId = params.get('manga');
-        const chNum = params.get('ch');
-
-        // ၂။ Manga ပုံများ Data (Chapter 1, 2 စသဖြင့် နံပါတ်နဲ့ သိမ်းထားတာ ပိုအဆင်ပြေပါတယ်)
-        const readerData = {
+        // စမ်းသပ်ရန် Data (ဒါကို နောက်ပိုင်းမှာ Database သို့မဟုတ် သီးသန့် JS file နဲ့ ချိတ်လို့ရပါတယ်)
+        const chapterImages = {
             "gomibako": {
-                "1": [
+                "Chapter 01": [
                     "https://i.ibb.co/LDFt7Mwv/1.jpg",
                     "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp"
                 ],
-                "2": [
-                    "https://i.ibb.co/twk08C60/proxy.jpg"
+                "Chapter 02": [
+                    "https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg"
                 ]
-            },
-            "bullyme": {
-                "1": [
-                    "https://i.ibb.co/zWdPpysG/001.png",
-                    "https://i.ibb.co/bR1VNDXY/002.png",
-                    "https://i.ibb.co/ZR2g2r40/003-png.jpg"
-                ]
-            },
+            }
             "protagonist-path": {
-                "1": [
-                    "https://i.ibb.co/Y4RVzwZj/chapter1-page1.png",
-                    "https://i.ibb.co/M5BJHSFT/chapter1-page2.png",
-                    "https://i.ibb.co/bYgN58K/chapter1-page3.png",
-                    "https://i.ibb.co/Lh5GL6tv/chapter1-page4.png"
-               "https://i.ibb.co/Lh5GL6tv/chapter1-page4.png",
+                "Chapter 01": [
+
+"https://i.ibb.co/Y4RVzwZj/chapter1-page1.png",
+                  "https://i.ibb.co/M5BJHSFT/chapter1-page2.png",
+                  "https://i.ibb.co/bYgN58K/chapter1-page3.png",
+                  "https://i.ibb.co/Lh5GL6tv/chapter1-page4.png",
                   "https://i.ibb.co/wFpSsq7X/chapter1-page5.png",
-                  "https://i.ibb.co/6RdVS34b/chapter1-page6.png",
+"https://i.ibb.co/6RdVS34b/chapter1-page6.png",
 "https://i.ibb.co/G3t3pqky/chapter1-page7.png",
 "https://i.ibb.co/DDbPBqyf/chapter1-page8.png",
 "https://i.ibb.co/ynp5BPb0/chapter1-page9.png",
@@ -104,34 +108,38 @@
 "https://i.ibb.co/WWk2GTYX/chapter1-page31.png",
 "https://i.ibb.co/gLDtfpNH/chapter1-page32.png",
 "https://i.ibb.co/HTkrxxz5/chapter1-page33.png"
-                ]
-            }
+               ],
         };
 
-        const viewer = document.getElementById('manga-viewer');
-        const titleDisplay = document.getElementById('nav-title');
+        const params = new URLSearchParams(window.location.search);
+        const mangaId = params.get('id');
+        const chName = params.get('ch');
 
-        // ၃။ ပုံများကို ထုတ်ပြခြင်း Logic
-        if (mangaId && chNum && readerData[mangaId] && readerData[mangaId][chNum]) {
-            titleDisplay.innerText = "Chapter " + chNum;
-            const images = readerData[mangaId][chNum];
-            
-            images.forEach(imgUrl => {
-                const imgTag = document.createElement('img');
-                imgTag.src = imgUrl;
-                imgTag.loading = "lazy"; // Website မြန်အောင် lazy load သုံးထားပါတယ်
-                viewer.appendChild(imgTag);
+        // UI Update
+        document.getElementById('manga-title').innerText = mangaId.toUpperCase();
+        document.getElementById('chapter-name').innerText = chName;
+
+        const container = document.getElementById('image-container');
+        
+        // ပုံတွေ ဆွဲထုတ်ပြမယ့်အပိုင်း
+        if (chapterImages[mangaId] && chapterImages[mangaId][chName]) {
+            container.innerHTML = ""; // loading ဖျက်မယ်
+            chapterImages[mangaId][chName].forEach(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.loading = "lazy"; // လိုအပ်မှ ပုံကို load လုပ်ဖို့
+                container.appendChild(img);
             });
         } else {
-            titleDisplay.innerText = "Error: Chapter Not Found";
-            viewer.innerHTML = `<div style="padding: 100px 20px; text-align: center; color: #64748b;">
-                <i class="fas fa-exclamation-circle" style="font-size: 40px; margin-bottom: 10px;"></i>
-                <p>ပုံများ ရှာမတွေ့ပါ။ အချက်အလက် မှားယွင်းနေပါသည်။</p>
-            </div>`;
+            container.innerHTML = "<p style='padding:50px;'>No images found for this chapter.</p>";
         }
 
-        // Right Click ပိတ်ထားခြင်း (ပုံများ ကူးယူမှုကို ကာကွယ်ရန်)
-        document.addEventListener('contextmenu', e => e.preventDefault());
+        // Next/Prev ခလုတ်တွေအတွက် (လောလောဆယ် function အကြမ်းပဲ ထည့်ထားပါတယ်)
+        document.getElementById('next-btn').onclick = () => {
+            alert("နောက်တစ်ခန်း တင်ပေးဖို့ ပြင်ဆင်နေဆဲပါ...");
+        };
     </script>
+
+    <script>document.addEventListener('contextmenu', e => e.preventDefault());</script>
 </body>
 </html>
