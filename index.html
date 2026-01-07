@@ -9,49 +9,20 @@
         :root { --glass: rgba(255, 255, 255, 0.05); --accent: #8b5cf6; --bg: #0f172a; --card-bg: #1e293b; }
         body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: white; overflow-x: hidden; }
         
-        /* New Ads Slider Section (အစားထိုးလိုက်သော CSS) */
-        .ads-slider-container {
-            width: 100%;
-            background: #1e293b;
-            overflow: hidden; 
-            border-bottom: 2px solid var(--accent);
-            padding: 10px 0;
-        }
+        /* Ads Slider */
+        .ads-slider-container { width: 100%; background: #1e293b; overflow: hidden; border-bottom: 2px solid var(--accent); padding: 10px 0; }
+        .ads-slider { display: flex; transition: transform 0.5s ease-in-out; width: 100%; }
+        .slide { min-width: 100%; display: flex; justify-content: center; }
+        .slide a { width: 95%; max-width: 600px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .slide img { width: 100%; height: auto; display: block; }
 
-        .ads-slider {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
-            width: 100%;
-        }
-
-        .slide {
-            min-width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-
-        .slide a {
-            width: 95%;
-            max-width: 600px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .slide img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* Navigation & Logo Setup */
+        /* Navigation & Sidebar UI */
         nav { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(10px); padding: 10px 15px; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--glass); }
         .nav-top { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 50px; }
         .menu-btn { font-size: 22px; cursor: pointer; color: white; width: 40px; }
         .logo-text { font-size: 24px; font-weight: 800; color: var(--accent); letter-spacing: 2px; text-align: center; flex-grow: 1; }
         .site-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
 
-        /* Sidebar & Search */
         .sidebar { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: #0f172a; z-index: 2000; transition: 0.3s ease; box-shadow: 10px 0 30px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box; }
         .sidebar.active { left: 0; }
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--glass); padding-bottom: 15px; }
@@ -85,6 +56,25 @@
             <h2 style="font-size: 18px; color: var(--accent); margin:0;">RAWKUMA</h2>
             <i class="fas fa-times" style="cursor:pointer;" onclick="toggleMenu()"></i>
         </div>
+
+        <div class="coin-status-card" style="padding: 15px; background: rgba(251, 191, 36, 0.1); border-radius: 12px; margin-bottom: 20px; border: 1px solid #fbbf24;">
+            <div style="font-size: 12px; color: #fbbf24; text-transform: uppercase; letter-spacing: 1px;">My Balance</div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 22px; color: #fbbf24; font-weight: 800; margin-top: 5px;">
+                <i class="fas fa-coins"></i>
+                <span id="user-coins">0</span>
+            </div>
+            <div id="guest-msg" style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Login to sync your coins</div>
+        </div>
+
+        <div id="login-section">
+            <div class="menu-item" onclick="openLoginModal()"><i class="fas fa-user-lock"></i> Login (Paid Only)</div>
+        </div>
+
+        <div id="user-info" style="display: none;">
+            <div class="menu-item" style="color: var(--accent);"><i class="fas fa-user-circle"></i> <span id="user-email">...</span></div>
+            <div class="menu-item" onclick="logout()" style="color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</div>
+        </div>
+
         <div class="menu-list">
             <div class="menu-item" onclick="filterManga('all')"><i class="fas fa-home"></i> Home</div>
             <div class="menu-item" onclick="filterManga('jp')"><i class="fas fa-book"></i> Manga</div>
@@ -95,23 +85,21 @@
     </div>
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
+    <div id="loginModal" style="display:none; position:fixed; z-index:3000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px);">
+        <div style="background:#1e293b; width:85%; max-width:320px; margin:100px auto; padding:20px; border-radius:15px; border:1px solid var(--accent); text-align:center;">
+            <h3 style="color:var(--accent); margin-top:0;">Paid Member Login</h3>
+            <input type="email" id="email" placeholder="Email" style="width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #475569; background:#0f172a; color:white; outline:none; box-sizing: border-box;">
+            <input type="password" id="password" placeholder="Password" style="width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #475569; background:#0f172a; color:white; outline:none; box-sizing: border-box;">
+            <button onclick="handleLogin()" style="width:100%; background:var(--accent); color:white; border:none; padding:10px; border-radius:5px; margin-top:10px; font-weight:bold; cursor:pointer;">Login</button>
+            <button onclick="closeLoginModal()" style="background:none; border:none; color:#64748b; margin-top:15px; cursor:pointer;">Close</button>
+        </div>
+    </div>
+
     <div class="ads-slider-container">
         <div class="ads-slider" id="adsSlider">
-            <div class="slide">
-                <a href="https://t.me/ThomasGalivlOfficial" target="_blank">
-                    <img src="https://i.ibb.co/9L33QyM/Untitled106-20260106225546.png" alt="Ads 1">
-                </a>
-            </div>
-            <div class="slide">
-                <a href="https://t.me/ThomasGalivlOfficial" target="_blank">
-                    <img src="https://i.ibb.co/F45sCVYY/AIRetouch-20260107-122526348.png" alt="Ads 2">
-                </a>
-            </div>
-            <div class="slide">
-                <a href="https://t.me/Rawkuma_manga" target="_blank">
-                    <img src="https://i.ibb.co/jPvYHcyZ/Untitled110-20260107144035.png" alt="Ads 3">
-                </a>
-            </div>
+            <div class="slide"><a href="#"><img src="https://i.ibb.co/9L33QyM/Untitled106-20260106225546.png"></a></div>
+            <div class="slide"><a href="#"><img src="https://i.ibb.co/F45sCVYY/AIRetouch-20260107-122526348.png"></a></div>
+            <div class="slide"><a href="#"><img src="https://i.ibb.co/jPvYHcyZ/Untitled110-20260107144035.png"></a></div>
         </div>
     </div>
 
@@ -136,81 +124,105 @@
 
     <footer>&copy; 2026 Rawkuma Myanmar. All Rights Reserved.</footer>
 
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <script>
-        // --- Ads Slider Logic ---
-        let currentSlide = 0;
-        function autoSlide() {
-            const slides = document.querySelectorAll('.slide');
-            const slider = document.getElementById('adsSlider');
-            if(!slider || slides.length === 0) return;
-
-            currentSlide++;
-            if (currentSlide >= slides.length) {
-                currentSlide = 0;
-            }
-            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-        }
-        setInterval(autoSlide, 3000);
-        // -----------------------
-
-        const mangaList = [
-            { id: "gomibako", title: "Gomibako Gurashi no Seijo-sama", cover: "https://i.ibb.co/LDFt7Mwv/1.jpg", type: "jp", updatedAt: "2026-01-01 12:00" },
-            { id: "bullyme", title: "Please Bully Me, Miss Villainess!", cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp", type: "cn", updatedAt: "2026-01-06 12:00" },
-            { id: "protagonist-path", title: "How to Walk the Protagonist’s Path to Glory", cover: "https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg", type: "kr", updatedAt: "2026-01-06 12:00" },
-            { id: "team-leader", title: "Team leader, please stand up straight.", cover: "https://i.ibb.co/jPwj6Rcd/images.jpg", type: "18plus", updatedAt: "2026-01-12 12:00" },
-            { id: "ChildhoodFriendComplex", title: "Childhood Friend Complex (Eunhi)", cover: "https://i.ibb.co/gFXLCgQ3/0489b303-6661-43e1-9b00-1eca0756ec58.webp", type: "kr", updatedAt: "2026-01-21 12:00" },
-            { id: "ReincarnationArchmage", title: "The Reincarnation of the Forbidden Archmage", cover: "https://i.ibb.co/QFQvh5sD/The-Reincarnation-of-the-Forbidden-Archmage.webp", type: "kr", updatedAt: "2026-01-09 09:00" }
-        ];
-
-        const flags = {
-            "jp": "https://flagcdn.com/w40/jp.png", "kr": "https://flagcdn.com/w40/kr.png",
-            "cn": "https://flagcdn.com/w40/cn.png", "18plus": "https://flagcdn.com/w40/kr.png" 
-
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
+            authDomain: "rawkuma-8f1ba.firebaseapp.com",
+            projectId: "rawkuma-8f1ba",
+            storageBucket: "rawkuma-8f1ba.firebasestorage.app",
+            messagingSenderId: "8257070386",
+            appId: "1:8257070386:web:74d861728b8378d86f232b"
         };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        const grid = document.getElementById('main-list');
+        // --- Auth Observer ---
+        auth.onAuthStateChanged(user => {
+            const infoBox = document.getElementById('user-info');
+            const loginBtn = document.getElementById('login-section');
+            const guestMsg = document.getElementById('guest-msg');
+            const coinDisplay = document.getElementById('user-coins');
+            
+            if (user) {
+                infoBox.style.display = 'block';
+                loginBtn.style.display = 'none';
+                guestMsg.style.display = 'none';
+                document.getElementById('user-email').innerText = user.email.split('@')[0];
+                
+                db.collection("users").doc(user.uid).onSnapshot(doc => {
+                    if (doc.exists) {
+                        coinDisplay.innerText = (doc.data().coins || 0).toLocaleString();
+                    }
+                });
+            } else {
+                infoBox.style.display = 'none';
+                loginBtn.style.display = 'block';
+                guestMsg.style.display = 'block';
+                coinDisplay.innerText = "0";
+            }
+        });
 
+        // --- App Logic ---
+        function openLoginModal() { document.getElementById('loginModal').style.display = 'block'; }
+        function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
+        function handleLogin() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            auth.signInWithEmailAndPassword(e, p).then(() => { closeLoginModal(); toggleMenu(); }).catch(err => alert(err.message));
+        }
+        function logout() { auth.signOut(); }
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        function getLatestManga(list) {
-            return [...list].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-        }
+        // Ads Slider Auto-play Logic
+        let currentSlide = 0;
+        setInterval(() => {
+            const slides = document.querySelectorAll('.slide');
+            const slider = document.getElementById('adsSlider');
+            if(!slider || slides.length === 0) return;
+            currentSlide = (currentSlide + 1) % slides.length;
+            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }, 3000);
+
+        const mangaList = [
+            { id: "gomibako", title: "Gomibako Gurashi no Seijo-sama", cover: "https://i.ibb.co/LDFt7Mwv/1.jpg", type: "jp", updatedAt: "2026-01-01 12:00" },
+            { id: "bullyme", title: "Please Bully Me, Miss Villainess!", cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp", type: "cn", updatedAt: "2026-01-06 12:00" },
+            { id: "protagonist-path", title: "How to Walk the Protagonist’s Path to Glory", cover: "https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg", type: "kr", updatedAt: "2026-01-06 12:00" },
+            { id: "ChildhoodFriendComplex", title: "Childhood Friend Complex (Eunhi)", cover: "https://i.ibb.co/gFXLCgQ3/0489b303-6661-43e1-9b00-1eca0756ec58.webp", type: "kr", updatedAt: "2026-01-21 12:00" },
+            { id: "ReincarnationArchmage", title: "The Reincarnation of the Forbidden Archmage", cover: "https://i.ibb.co/QFQvh5sD/The-Reincarnation-of-the-Forbidden-Archmage.webp", type: "kr", updatedAt: "2026-01-09 09:00" }
+        ];
+
+        const flags = { "jp": "https://flagcdn.com/w40/jp.png", "kr": "https://flagcdn.com/w40/kr.png", "cn": "https://flagcdn.com/w40/cn.png", "18plus": "https://flagcdn.com/w40/kr.png" };
 
         function renderManga(list) {
+            const grid = document.getElementById('main-list');
             grid.innerHTML = "";
             list.forEach(manga => {
                 grid.innerHTML += `
                     <a href="details.html?id=${manga.id}" class="card">
                         <img class="flag-badge" src="${flags[manga.type]}" alt="flag">
                         <img src="${manga.cover}" loading="lazy">
-                        <div class="card-info">
-                            <div class="title">${manga.title}</div>
-                        </div>
+                        <div class="card-info"><div class="title">${manga.title}</div></div>
                     </a>`;
             });
         }
 
         function filterManga(category) {
-            const titleElement = document.getElementById('page-title');
             let filtered = category === 'all' ? mangaList : mangaList.filter(m => m.type === category);
-            const sortedData = getLatestManga(filtered);
-            const titles = { all: 'Latest Updates', jp: 'Manga List', kr: 'Manhwa List', cn: 'Manhua List', '18plus': '18+ Adult Books' };
-            titleElement.innerText = titles[category];
-            renderManga(sortedData);
+            document.getElementById('page-title').innerText = category.toUpperCase();
+            renderManga(filtered);
             toggleMenu();
-            window.scrollTo(0,0);
         }
 
-        renderManga(getLatestManga(mangaList));
-
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const searched = mangaList.filter(m => m.title.toLowerCase().includes(term));
-            renderManga(getLatestManga(searched));
-        });
+        renderManga([...mangaList].sort((a,b) => new Date(b.updatedAt)-new Date(a.updatedAt)));
     </script>
 </body>
 </html>
