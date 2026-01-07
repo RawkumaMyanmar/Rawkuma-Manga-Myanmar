@@ -9,7 +9,6 @@
         :root { --accent: #8b5cf6; --glass: rgba(255, 255, 255, 0.1); --bg: #0f172a; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--bg); color: #e2e8f0; overflow-x: hidden; }
         
-        /* Loading Spinner Animation */
         .fa-spin { animation: fa-spin 1s infinite linear; }
         @keyframes fa-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(359deg); } }
 
@@ -190,7 +189,7 @@
             });
         }
 
-        // --- AUTH & LOADING LOGIC (UPDATED) ---
+        // --- AUTH & LOADING LOGIC (STABLE) ---
         auth.onAuthStateChanged(user => {
             const hideLoading = () => {
                 const loader = document.getElementById('app-loading');
@@ -198,16 +197,14 @@
             };
 
             if (user) {
+                // User ရှိရင် loading ကို ချက်ချင်းအရင်ပိတ်မယ် (UI မြန်အောင်)
+                hideLoading(); 
+                
+                // ပြီးမှ coin balance ကို စောင့်ကြည့်မယ်
                 db.collection("users").doc(user.uid).onSnapshot(doc => {
                     if (doc.exists) {
                         document.getElementById('header-coins').innerText = (doc.data().coins || 0).toLocaleString();
-                        hideLoading(); 
-                    } else {
-                        hideLoading();
                     }
-                }, (error) => {
-                    console.error("Snapshot error:", error);
-                    hideLoading();
                 });
             } else {
                 hideLoading(); 
@@ -256,7 +253,11 @@
         function handleLogin() {
             const e = document.getElementById('email').value;
             const p = document.getElementById('password').value;
-            auth.signInWithEmailAndPassword(e, p).then(() => closeModal('loginModal')).catch(err => alert(err.message));
+            auth.signInWithEmailAndPassword(e, p).then(() => {
+                closeModal('loginModal');
+                // Login ဝင်ပြီးရင် Page ကို Refresh လုပ်ပေးခြင်းဖြင့် data သေချာပေါ်စေသည်
+                location.reload(); 
+            }).catch(err => alert(err.message));
         }
 
         function closeModal(mId) { document.getElementById(mId).style.display = 'none'; }
