@@ -2,134 +2,101 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rawkuma | Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Reader | Rawkuma</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.05); --accent: #8b5cf6; --bg: #0f172a; --card-bg: #1e293b; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: white; overflow-x: hidden; }
+        :root { --bg: #0f172a; --nav-bg: rgba(15, 23, 42, 0.95); --accent: #8b5cf6; }
+        body { 
+            font-family: sans-serif; margin: 0; background: var(--bg); color: white; 
+            user-select: none; -webkit-user-select: none; 
+            overflow-x: hidden;
+        }
+        nav { 
+            background: var(--nav-bg); padding: 10px 15px; position: fixed; top: 0; width: 100%; 
+            z-index: 1000; display: flex; align-items: center; gap: 10px;
+            backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);
+            box-sizing: border-box;
+        }
+        nav a { color: white; text-decoration: none; font-size: 18px; }
+        .ch-info { flex: 1; display: flex; flex-direction: column; align-items: center; }
         
-        /* Ads Slider */
-        .ads-slider-container { width: 100%; background: #1e293b; overflow: hidden; border-bottom: 2px solid var(--accent); padding: 10px 0; }
-        .ads-slider { display: flex; transition: transform 0.5s ease-in-out; width: 100%; }
-        .slide { min-width: 100%; display: flex; justify-content: center; }
-        .slide a { width: 95%; max-width: 600px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .slide img { width: 100%; height: auto; display: block; }
+        #chapter-select {
+            background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--accent);
+            border-radius: 5px; padding: 2px 8px; font-size: 12px; outline: none; margin-top: 4px;
+        }
+        #chapter-select option { background: var(--bg); color: white; }
 
-        /* Navigation & Sidebar UI */
-        nav { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(10px); padding: 10px 15px; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--glass); }
-        .nav-top { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 50px; }
-        .menu-btn { font-size: 22px; cursor: pointer; color: white; width: 40px; }
-        .logo-text { font-size: 24px; font-weight: 800; color: var(--accent); letter-spacing: 2px; text-align: center; flex-grow: 1; }
-        .site-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
-
-        .sidebar { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: #0f172a; z-index: 2000; transition: 0.3s ease; box-shadow: 10px 0 30px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box; }
-        .sidebar.active { left: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--glass); padding-bottom: 15px; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1500; display: none; backdrop-filter: blur(3px); }
-        .overlay.active { display: block; }
-        .menu-list { list-style: none; padding: 0; }
-        .menu-item { padding: 14px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #cbd5e1; transition: 0.2s; }
-        .menu-item:hover { background: rgba(139, 92, 246, 0.1); color: var(--accent); }
-
-        .search-wrapper { padding: 10px 0; width: 100%; display: flex; justify-content: center; }
-        .search-container { width: 100%; max-width: 450px; position: relative; }
-        .search-container input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--accent); border-radius: 25px; padding: 12px 15px 12px 45px; color: white; outline: none; box-sizing: border-box; font-size: 14px; }
-        .search-container i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--accent); }
+        .viewer { margin-top: 60px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; width: 100%; position: relative; }
         
-        /* Grid Layout */
-        .container { padding: 15px; }
-        .section-title { border-left: 4px solid var(--accent); padding-left: 10px; font-size: 16px; margin-bottom: 20px; text-transform: uppercase; }
-        .manga-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .card { text-decoration: none; color: inherit; background: var(--card-bg); border-radius: 12px; overflow: hidden; position: relative; transition: 0.3s; border: 1px solid var(--glass); }
-        .card img:not(.flag-badge) { width: 100%; height: 230px; object-fit: cover; display: block; }
-        .flag-badge { position: absolute; top: 8px; left: 8px; width: 30px; border-radius: 3px; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); }
-        .card-info { padding: 10px; }
-        .title { font-size: 13px; font-weight: 600; line-height: 1.4; height: 38px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        footer { text-align: center; padding: 30px; font-size: 12px; color: #64748b; border-top: 1px solid var(--glass); margin-top: 20px; }
+        /* Image Security */
+        .viewer img { 
+            width: 100%; max-width: 800px; display: block; height: auto; 
+            pointer-events: none;
+            -webkit-touch-callout: none;
+            border-bottom: 1px solid #1e293b;
+        }
+        
+        /* Watermark Overlay Styling */
+        #protection-layer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 999; pointer-events: none; overflow: hidden;
+            display: flex; flex-wrap: wrap; justify-content: center; align-content: center;
+            opacity: 0.12; /* Watermark အမှိန်နှုန်း */
+        }
+        .wm-text { transform: rotate(-45deg); font-size: 14px; margin: 60px; white-space: nowrap; color: white; font-weight: bold; }
+
+        .status-msg { padding: 80px 20px; text-align: center; }
+        .btn-action { display: inline-block; background: var(--accent); color: white; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-top: 15px; }
+
+        .controls { padding: 30px; display: flex; justify-content: center; gap: 15px; background: var(--bg); margin-bottom: 30px; }
+        .btn-nav { background: var(--accent); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px; }
+        .btn-nav.disabled { background: #334155; pointer-events: none; opacity: 0.5; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h2 style="font-size: 18px; color: var(--accent); margin:0;">RAWKUMA</h2>
-            <i class="fas fa-times" style="cursor:pointer;" onclick="toggleMenu()"></i>
-        </div>
-
-        <div class="coin-status-card" style="padding: 15px; background: rgba(251, 191, 36, 0.1); border-radius: 12px; margin-bottom: 20px; border: 1px solid #fbbf24;">
-            <div style="font-size: 12px; color: #fbbf24; text-transform: uppercase; letter-spacing: 1px;">My Balance</div>
-            <div style="display: flex; align-items: center; gap: 10px; font-size: 22px; color: #fbbf24; font-weight: 800; margin-top: 5px;">
-                <i class="fas fa-coins"></i>
-                <span id="user-coins">0</span>
-            </div>
-            <div id="guest-msg" style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Login to sync your coins</div>
-        </div>
-
-        <div id="login-section">
-            <div class="menu-item" onclick="openLoginModal()"><i class="fas fa-user-lock"></i> Login (Paid Only)</div>
-        </div>
-
-        <div id="user-info" style="display: none;">
-            <div class="menu-item" style="color: var(--accent);"><i class="fas fa-user-circle"></i> <span id="user-email">...</span></div>
-            <div class="menu-item" onclick="logout()" style="color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</div>
-        </div>
-
-        <div class="menu-list">
-            <div class="menu-item" onclick="filterManga('all')"><i class="fas fa-home"></i> Home</div>
-            <div class="menu-item" onclick="filterManga('jp')"><i class="fas fa-book"></i> Manga</div>
-            <div class="menu-item" onclick="filterManga('kr')"><i class="fas fa-scroll"></i> Manhwa</div>
-            <div class="menu-item" onclick="filterManga('cn')"><i class="fas fa-pen-nib"></i> Manhua</div>
-            <div class="menu-item" onclick="filterManga('18plus')"><i class="fas fa-heart"></i> 18+ Books</div>
-        </div>
-    </div>
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
-    <div id="loginModal" style="display:none; position:fixed; z-index:3000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px);">
-        <div style="background:#1e293b; width:85%; max-width:320px; margin:100px auto; padding:20px; border-radius:15px; border:1px solid var(--accent); text-align:center;">
-            <h3 style="color:var(--accent); margin-top:0;">Paid Member Login</h3>
-            <input type="email" id="email" placeholder="Email" style="width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #475569; background:#0f172a; color:white; outline:none; box-sizing: border-box;">
-            <input type="password" id="password" placeholder="Password" style="width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #475569; background:#0f172a; color:white; outline:none; box-sizing: border-box;">
-            <button onclick="handleLogin()" style="width:100%; background:var(--accent); color:white; border:none; padding:10px; border-radius:5px; margin-top:10px; font-weight:bold; cursor:pointer;">Login</button>
-            <button onclick="closeLoginModal()" style="background:none; border:none; color:#64748b; margin-top:15px; cursor:pointer;">Close</button>
-        </div>
-    </div>
-
-    <div class="ads-slider-container">
-        <div class="ads-slider" id="adsSlider">
-            <div class="slide"><a href="#"><img src="https://i.ibb.co/9L33QyM/Untitled106-20260106225546.png"></a></div>
-            <div class="slide"><a href="#"><img src="https://i.ibb.co/F45sCVYY/AIRetouch-20260107-122526348.png"></a></div>
-            <div class="slide"><a href="#"><img src="https://i.ibb.co/jPvYHcyZ/Untitled110-20260107144035.png"></a></div>
-        </div>
-    </div>
+    <div id="protection-layer"></div>
 
     <nav>
-        <div class="nav-top">
-            <i class="fas fa-bars menu-btn" onclick="toggleMenu()"></i>
-            <div class="logo-text">RAWKUMA</div>
-            <img src="https://i.ibb.co/9HNc2CQ4/Untitled105-20260106181717.png" class="site-logo" alt="Logo">
+        <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i></a>
+        <div class="ch-info">
+            <div id="manga-title" style="font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">Manga Name</div>
+            <select id="chapter-select"></select>
         </div>
-        <div class="search-wrapper">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Search stories...">
-            </div>
-        </div>
+        <a href="index.html"><i class="fas fa-home"></i></a>
     </nav>
 
-    <div class="container">
-        <h3 class="section-title" id="page-title">Latest Updates</h3>
-        <div class="manga-grid" id="main-list"></div>
+    <div class="viewer" id="image-container">
+        <div id="loader" style="padding:100px; text-align:center;">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p style="margin-top:10px; color:#64748b;">Securing Content...</p>
+        </div>
     </div>
 
-    <footer>&copy; 2026 Rawkuma Myanmar. All Rights Reserved.</footer>
+    <div class="controls" id="footer-nav" style="display:none;">
+        <a href="#" id="prev-btn" class="btn-nav">PREV</a>
+        <a href="#" id="next-btn" class="btn-nav">NEXT</a>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // --- Firebase Configuration ---
+        // --- Security Level 1: Domain Lockdown ပြင်ဆင်ချက် ---
+        const allowedHosts = [
+            "rawkumamyanmar.github.io", // သင်အခုသုံးနေတဲ့ Domain
+            "rawkuma-8f1ba.web.app", 
+            "rawkuma-8f1ba.firebaseapp.com", 
+            "localhost"
+        ];
+
+        if (!allowedHosts.includes(window.location.hostname)) {
+            document.body.innerHTML = "<div style='padding:50px; text-align:center;'><h3>Security Protection</h3><p>Local viewing is not allowed. Please use the official website.</p></div>";
+            throw new Error("Domain not authorized"); // ကျန်တဲ့ code တွေ ဆက်အလုပ်မလုပ်အောင် တားလိုက်တာပါ
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
             authDomain: "rawkuma-8f1ba.firebaseapp.com",
@@ -142,87 +109,121 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // --- Auth Observer ---
-        auth.onAuthStateChanged(user => {
-            const infoBox = document.getElementById('user-info');
-            const loginBtn = document.getElementById('login-section');
-            const guestMsg = document.getElementById('guest-msg');
-            const coinDisplay = document.getElementById('user-coins');
+        const chapterImages = {
+            "gomibako": {
+                "Chapter 01": ["https://i.ibb.co/LDFt7Mwv/1.jpg"],
+                "Chapter 02": ["https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg"],
+                "Chapter 03": ["https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp"]
+            }
+        };
+
+        const chapterMeta = {
+            "gomibako": { "Chapter 04": { type: "paid" } }
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const mangaId = params.get('id');
+        let currentCh = params.get('ch');
+
+        // Dynamic Watermark: User Email ကို ပုံအပေါ်မှာ ဖြန့်ခင်းခြင်း
+        function applyWatermark(email) {
+            const layer = document.getElementById('protection-layer');
+            layer.innerHTML = "";
+            for (let i = 0; i < 50; i++) {
+                const el = document.createElement('div');
+                el.className = 'wm-text';
+                el.innerText = email;
+                layer.appendChild(el);
+            }
+        }
+
+        function setupDropdown() {
+            const select = document.getElementById('chapter-select');
+            const chapters = Object.keys(chapterImages[mangaId] || {}).sort();
             
-            if (user) {
-                infoBox.style.display = 'block';
-                loginBtn.style.display = 'none';
-                guestMsg.style.display = 'none';
-                document.getElementById('user-email').innerText = user.email.split('@')[0];
-                
-                db.collection("users").doc(user.uid).onSnapshot(doc => {
-                    if (doc.exists) {
-                        coinDisplay.innerText = (doc.data().coins || 0).toLocaleString();
-                    }
-                });
+            chapters.forEach(ch => {
+                const opt = document.createElement('option');
+                opt.value = ch;
+                opt.innerText = ch;
+                if(ch === currentCh) opt.selected = true;
+                select.appendChild(opt);
+            });
+
+            select.onchange = (e) => {
+                window.location.href = `reader.html?id=${mangaId}&ch=${e.target.value}`;
+            };
+
+            const currentIndex = chapters.indexOf(currentCh);
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+
+            if (currentIndex > 0) {
+                prevBtn.onclick = () => window.location.href = `reader.html?id=${mangaId}&ch=${chapters[currentIndex-1]}`;
             } else {
-                infoBox.style.display = 'none';
-                loginBtn.style.display = 'block';
-                guestMsg.style.display = 'block';
-                coinDisplay.innerText = "0";
+                prevBtn.classList.add('disabled');
+            }
+
+            if (currentIndex < chapters.length - 1) {
+                nextBtn.onclick = () => window.location.href = `reader.html?id=${mangaId}&ch=${chapters[currentIndex+1]}`;
+            } else {
+                nextBtn.innerText = "END";
+                nextBtn.classList.add('disabled');
+            }
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!mangaId || !currentCh) {
+                showError("Error", "Missing Data", "index.html", "Go Home");
+                return;
+            }
+
+            document.getElementById('manga-title').innerText = mangaId.toUpperCase();
+            setupDropdown();
+
+            // Watermark ကို Login ဝင်ထားတဲ့ Email နဲ့ပြမယ် (Login မဝင်ရင် Guest လို့ပြမယ်)
+            applyWatermark(user ? user.email : "GUEST-USER");
+
+            const isPaid = chapterMeta[mangaId] && chapterMeta[mangaId][currentCh] && chapterMeta[mangaId][currentCh].type === "paid";
+            
+            if (!isPaid) {
+                renderImages();
+            } else {
+                if (!user) {
+                    showError("Login Required", "ဤအပိုင်းကိုဖတ်ရန် Login ဝင်ပေးပါ။", "details.html?id="+mangaId, "Back");
+                } else {
+                    const purchaseDoc = await db.collection("users").doc(user.uid).collection("purchased_chapters").doc(`${mangaId}_${currentCh}`).get();
+                    if (purchaseDoc.exists) renderImages();
+                    else showError("Access Denied", "ဤအပိုင်းကို မဝယ်ယူရသေးပါ။", "details.html?id="+mangaId, "Buy Now");
+                }
             }
         });
 
-        // --- App Logic ---
-        function openLoginModal() { document.getElementById('loginModal').style.display = 'block'; }
-        function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
-        function handleLogin() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            auth.signInWithEmailAndPassword(e, p).then(() => { closeLoginModal(); toggleMenu(); }).catch(err => alert(err.message));
-        }
-        function logout() { auth.signOut(); }
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
-
-        // Ads Slider Auto-play Logic
-        let currentSlide = 0;
-        setInterval(() => {
-            const slides = document.querySelectorAll('.slide');
-            const slider = document.getElementById('adsSlider');
-            if(!slider || slides.length === 0) return;
-            currentSlide = (currentSlide + 1) % slides.length;
-            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-        }, 3000);
-
-        const mangaList = [
-            { id: "gomibako", title: "Gomibako Gurashi no Seijo-sama", cover: "https://i.ibb.co/LDFt7Mwv/1.jpg", type: "jp", updatedAt: "2026-01-01 12:00" },
-            { id: "bullyme", title: "Please Bully Me, Miss Villainess!", cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp", type: "cn", updatedAt: "2026-01-06 12:00" },
-            { id: "protagonist-path", title: "How to Walk the Protagonist’s Path to Glory", cover: "https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg", type: "kr", updatedAt: "2026-01-06 12:00" },
-            { id: "ChildhoodFriendComplex", title: "Childhood Friend Complex (Eunhi)", cover: "https://i.ibb.co/gFXLCgQ3/0489b303-6661-43e1-9b00-1eca0756ec58.webp", type: "kr", updatedAt: "2026-01-21 12:00" },
-            { id: "ReincarnationArchmage", title: "The Reincarnation of the Forbidden Archmage", cover: "https://i.ibb.co/QFQvh5sD/The-Reincarnation-of-the-Forbidden-Archmage.webp", type: "kr", updatedAt: "2026-01-09 09:00" }
-        ];
-
-        const flags = { "jp": "https://flagcdn.com/w40/jp.png", "kr": "https://flagcdn.com/w40/kr.png", "cn": "https://flagcdn.com/w40/cn.png", "18plus": "https://flagcdn.com/w40/kr.png" };
-
-        function renderManga(list) {
-            const grid = document.getElementById('main-list');
-            grid.innerHTML = "";
-            list.forEach(manga => {
-                grid.innerHTML += `
-                    <a href="details.html?id=${manga.id}" class="card">
-                        <img class="flag-badge" src="${flags[manga.type]}" alt="flag">
-                        <img src="${manga.cover}" loading="lazy">
-                        <div class="card-info"><div class="title">${manga.title}</div></div>
-                    </a>`;
-            });
+        function renderImages() {
+            const container = document.getElementById('image-container');
+            container.innerHTML = ""; 
+            if (chapterImages[mangaId] && chapterImages[mangaId][currentCh]) {
+                chapterImages[mangaId][currentCh].forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.ondragstart = () => false; // Drag ဆွဲတာ တားမြစ်ခြင်း
+                    container.appendChild(img);
+                });
+                document.getElementById('footer-nav').style.display = 'flex';
+            } else {
+                showError("Coming Soon", "ပုံများ မတင်ရသေးပါဗျာ။", "details.html?id="+mangaId, "Go Back");
+            }
         }
 
-        function filterManga(category) {
-            let filtered = category === 'all' ? mangaList : mangaList.filter(m => m.type === category);
-            document.getElementById('page-title').innerText = category.toUpperCase();
-            renderManga(filtered);
-            toggleMenu();
+        function showError(t, m, l, b) {
+            document.getElementById('image-container').innerHTML = `<div class="status-msg"><h3>${t}</h3><p style='color:#94a3b8'>${m}</p><a href="${l}" class="btn-action">${b}</a></div>`;
         }
 
-        renderManga([...mangaList].sort((a,b) => new Date(b.updatedAt)-new Date(a.updatedAt)));
+        // --- Security Level 3: Keyboard Shortcuts Protection ---
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
+                return false;
+            }
+        };
     </script>
 </body>
 </html>
