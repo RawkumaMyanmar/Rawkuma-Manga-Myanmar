@@ -2,124 +2,187 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Reader | Rawkuma</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --bg: #0f172a; --nav-bg: rgba(15, 23, 42, 0.95); --accent: #8b5cf6; }
-        body { font-family: sans-serif; margin: 0; background: var(--bg); color: white; }
+        body { 
+            font-family: sans-serif; margin: 0; background: var(--bg); color: white; 
+            /* Scammer ကာကွယ်ရေး: စာသား Select လုပ်တာ တားမြစ်ခြင်း */
+            user-select: none; -webkit-user-select: none; 
+        }
         nav { 
-            background: var(--nav-bg); padding: 12px 15px; position: fixed; top: 0; width: 100%; 
-            z-index: 1000; display: flex; align-items: center; justify-content: space-between;
+            background: var(--nav-bg); padding: 10px 15px; position: fixed; top: 0; width: 100%; 
+            z-index: 1000; display: flex; align-items: center; gap: 10px;
             backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);
             box-sizing: border-box;
         }
         nav a { color: white; text-decoration: none; font-size: 18px; }
-        .ch-info { text-align: center; flex: 1; }
-        .ch-info div { font-size: 14px; font-weight: bold; color: var(--accent); }
-        .ch-info span { font-size: 11px; color: #94a3b8; }
-        .viewer { margin-top: 60px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .viewer img { width: 100%; max-width: 800px; display: block; height: auto; }
-        .loading { padding: 50px; text-align: center; color: var(--accent); }
-        .controls { padding: 30px; display: flex; justify-content: center; gap: 20px; background: var(--bg); margin-bottom: 50px; }
-        .btn-nav { background: var(--accent); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .ch-info { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        
+        /* Chapter Selector Styling */
+        #chapter-select {
+            background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--accent);
+            border-radius: 5px; padding: 2px 8px; font-size: 12px; outline: none; margin-top: 4px;
+        }
+        #chapter-select option { background: var(--bg); color: white; }
+
+        .viewer { margin-top: 60px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; width: 100%; }
+        
+        /* Scammer ကာကွယ်ရေး: ပုံကို ဖိရုံဖြင့် Save လို့မရအောင် တားမြစ်ခြင်း */
+        .viewer img { 
+            width: 100%; max-width: 800px; display: block; height: auto; 
+            pointer-events: none; /* Image interaction တားမြစ်ခြင်း */
+            -webkit-touch-callout: none; /* iOS download menu ပိတ်ခြင်း */
+        }
+        
+        .status-msg { padding: 50px 20px; text-align: center; }
+        .btn-action { display: inline-block; background: var(--accent); color: white; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-top: 15px; }
+
+        .controls { padding: 30px; display: flex; justify-content: center; gap: 15px; background: var(--bg); margin-bottom: 30px; }
+        .btn-nav { background: var(--accent); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px; }
+        .btn-nav.disabled { background: #334155; pointer-events: none; opacity: 0.5; }
+
+        /* Scammer ကာကွယ်ရေး: HTML Overlay အတုများ တားဆီးရန် */
+        #protection-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; pointer-events: none; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;"> <div id="protection-layer"></div>
 
     <nav>
-        <a href="javascript:history.back()"><i class="fas fa-chevron-left"></i></a>
+        <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i></a>
         <div class="ch-info">
-            <div id="manga-title">Manga Name</div>
-            <span id="chapter-name">Chapter ...</span>
+            <div id="manga-title" style="font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">Manga Name</div>
+            <select id="chapter-select"></select>
         </div>
         <a href="index.html"><i class="fas fa-home"></i></a>
     </nav>
 
     <div class="viewer" id="image-container">
-        <div class="loading" id="loader"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Loading Images...</div>
+        <div id="loader" style="padding:100px; text-align:center;">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+        </div>
     </div>
 
-    <div class="controls">
-        <a href="#" id="prev-btn" class="btn-nav">Previous</a>
-        <a href="#" id="next-btn" class="btn-nav">Next Chapter</a>
+    <div class="controls" id="footer-nav" style="display:none;">
+        <a href="#" id="prev-btn" class="btn-nav">PREV</a>
+        <a href="#" id="next-btn" class="btn-nav">NEXT</a>
     </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
+            authDomain: "rawkuma-8f1ba.firebaseapp.com",
+            projectId: "rawkuma-8f1ba",
+            storageBucket: "rawkuma-8f1ba.firebasestorage.app",
+            messagingSenderId: "8257070386",
+            appId: "1:8257070386:web:74d861728b8378d86f232b"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ပုံများနှင့် Chapter အစီအစဉ် (နမူနာ)
         const chapterImages = {
             "gomibako": {
-                "Chapter 01": [
-                    "https://i.ibb.co/LDFt7Mwv/1.jpg",
-                    "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp"
-                ],
-                "Chapter 02": [
-                    "https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg"
-                ]
-            }, // <-- ဒီကော်မာလေး ကျန်ခဲ့တာပါ
-            "protagonist-path": {
-                "Chapter 01": [
-                    "https://i.ibb.co/Y4RVzwZj/chapter1-page1.png",
-                    "https://i.ibb.co/M5BJHSFT/chapter1-page2.png",
-                    "https://i.ibb.co/bYgN58K/chapter1-page3.png",
-                    "https://i.ibb.co/Lh5GL6tv/chapter1-page4.png",
-                    "https://i.ibb.co/wFpSsq7X/chapter1-page5.png",
-                    "https://i.ibb.co/6RdVS34b/chapter1-page6.png",
-                    "https://i.ibb.co/G3t3pqky/chapter1-page7.png",
-                    "https://i.ibb.co/DDbPBqyf/chapter1-page8.png",
-                    "https://i.ibb.co/ynp5BPb0/chapter1-page9.png",
-                    "https://i.ibb.co/1J23LQFg/chapter1-page10.png",
-                    "https://i.ibb.co/h1yvJ9wP/chapter1-page11.png",
-                    "https://i.ibb.co/fYJ2yw7z/chapter1-page12.png",
-                    "https://i.ibb.co/dykGdmY/chapter1-page13.png",
-                    "https://i.ibb.co/V0SK5CfH/chapter1-page14.png",
-                    "https://i.ibb.co/HT3FqtL6/chapter1-page15.png",
-                    "https://i.ibb.co/cXSCzzDm/chapter1-page16.png",
-                    "https://i.ibb.co/qLqQJ6Qd/chapter1-page17.png",
-                    "https://i.ibb.co/Wv8dKvjd/chapter1-page18.png",
-                    "https://i.ibb.co/rfsS8wJR/chapter1-page19.png",
-                    "https://i.ibb.co/21HTnJ4V/chapter1-page20.png",
-                    "https://i.ibb.co/whTH94g1/chapter1-page21.png",
-                    "https://i.ibb.co/8DCs0T1v/chapter1-page22.png",
-                    "https://i.ibb.co/BV0Sy2V6/chapter1-page23.png",
-                    "https://i.ibb.co/XxtHtS3P/chapter1-page24.png",
-                    "https://i.ibb.co/ch2syH0J/chapter1-page25.png",
-                    "https://i.ibb.co/GvYRGrnp/chapter1-page26.png",
-                    "https://i.ibb.co/8L8syZKn/chapter1-page27.png",
-                    "https://i.ibb.co/gZV2FFpQ/chapter1-page28.png",
-                    "https://i.ibb.co/KzpKpHHs/chapter1-page29.png",
-                    "https://i.ibb.co/v5yFzvF/chapter1-page30.png",
-                    "https://i.ibb.co/WWk2GTYX/chapter1-page31.png",
-                    "https://i.ibb.co/gLDtfpNH/chapter1-page32.png",
-                    "https://i.ibb.co/HTkrxxz5/chapter1-page33.png"
-                ]
-            } // <-- ဒီမှာ bracket ပိတ်တာ လိုနေတာပါ
+                "Chapter 01": ["https://i.ibb.co/LDFt7Mwv/1.jpg"],
+                "Chapter 02": ["https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg"],
+                "Chapter 03": ["https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp"]
+            }
+        };
+
+        const chapterMeta = {
+            "gomibako": { "Chapter 04": { type: "paid" } }
         };
 
         const params = new URLSearchParams(window.location.search);
         const mangaId = params.get('id');
-        const chName = params.get('ch');
+        let currentCh = params.get('ch');
 
-        document.getElementById('manga-title').innerText = mangaId ? mangaId.replace(/-/g, ' ').toUpperCase() : "Unknown";
-        document.getElementById('chapter-name').innerText = chName || "Unknown Chapter";
-
-        const container = document.getElementById('image-container');
-        
-        if (mangaId && chName && chapterImages[mangaId] && chapterImages[mangaId][chName]) {
-            container.innerHTML = ""; 
-            chapterImages[mangaId][chName].forEach(url => {
-                const img = document.createElement('img');
-                img.src = url;
-                img.alt = "Manga Page";
-                img.onerror = () => img.style.display = 'none'; // ပုံပျက်နေရင် ဖျောက်ထားမယ်
-                container.appendChild(img);
+        // ၁။ Chapter List ကို Dropdown မှာ ထည့်ခြင်း
+        function setupDropdown() {
+            const select = document.getElementById('chapter-select');
+            const chapters = Object.keys(chapterImages[mangaId] || {}).sort();
+            
+            chapters.forEach(ch => {
+                const opt = document.createElement('option');
+                opt.value = ch;
+                opt.innerText = ch;
+                if(ch === currentCh) opt.selected = true;
+                select.appendChild(opt);
             });
-        } else {
-            container.innerHTML = "<p style='padding:50px;'>Images not found. Please check ID and Chapter name.</p>";
+
+            select.onchange = (e) => {
+                window.location.href = `reader.html?id=${mangaId}&ch=${e.target.value}`;
+            };
+
+            // ၂။ Next/Prev Logic ပြင်ဆင်ခြင်း
+            const currentIndex = chapters.indexOf(currentCh);
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+
+            if (currentIndex > 0) {
+                prevBtn.onclick = () => window.location.href = `reader.html?id=${mangaId}&ch=${chapters[currentIndex-1]}`;
+            } else {
+                prevBtn.classList.add('disabled');
+            }
+
+            if (currentIndex < chapters.length - 1) {
+                nextBtn.onclick = () => window.location.href = `reader.html?id=${mangaId}&ch=${chapters[currentIndex+1]}`;
+            } else {
+                nextBtn.innerText = "END";
+                nextBtn.classList.add('disabled');
+            }
         }
 
-        document.getElementById('next-btn').onclick = (e) => {
-            e.preventDefault();
-            alert("Coming Soon!");
+        auth.onAuthStateChanged(async (user) => {
+            document.getElementById('manga-title').innerText = mangaId.toUpperCase();
+            setupDropdown();
+
+            const isPaid = chapterMeta[mangaId] && chapterMeta[mangaId][currentCh] && chapterMeta[mangaId][currentCh].type === "paid";
+            
+            if (!isPaid) {
+                renderImages();
+            } else {
+                if (!user) {
+                    showError("Login Required", "Login ဝင်ရန် လိုအပ်ပါသည်။", "details.html?id="+mangaId, "Back");
+                } else {
+                    const purchaseDoc = await db.collection("users").doc(user.uid).collection("purchased_chapters").doc(`${mangaId}_${currentCh}`).get();
+                    if (purchaseDoc.exists) renderImages();
+                    else showError("Access Denied", "ဝယ်ယူရန် လိုအပ်ပါသည်။", "details.html?id="+mangaId, "Buy Now");
+                }
+            }
+        });
+
+        function renderImages() {
+            const container = document.getElementById('image-container');
+            container.innerHTML = ""; 
+            if (chapterImages[mangaId][currentCh]) {
+                chapterImages[mangaId][currentCh].forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    // Scammer ကာကွယ်ရေး: Drag & Drop ပိတ်ခြင်း
+                    img.ondragstart = () => false;
+                    container.appendChild(img);
+                });
+                document.getElementById('footer-nav').style.display = 'flex';
+            }
+        }
+
+        function showError(t, m, l, b) {
+            document.getElementById('image-container').innerHTML = `<div class="status-msg"><h3>${t}</h3><p>${m}</p><a href="${l}" class="btn-action">${b}</a></div>`;
+        }
+
+        // ၃။ Security: DevTools/Inspect ပိတ်ခြင်း (အခြေခံ)
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) || (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
+                return false;
+            }
         };
     </script>
 </body>
