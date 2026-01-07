@@ -9,6 +9,10 @@
         :root { --accent: #8b5cf6; --glass: rgba(255, 255, 255, 0.1); --bg: #0f172a; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--bg); color: #e2e8f0; overflow-x: hidden; }
         
+        /* Loading Spinner Animation */
+        .fa-spin { animation: fa-spin 1s infinite linear; }
+        @keyframes fa-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(359deg); } }
+
         .bg-glow { position: fixed; top: -10%; right: -10%; width: 300px; height: 300px; background: var(--accent); filter: blur(120px); border-radius: 50%; opacity: 0.2; z-index: -1; animation: float 8s infinite alternate; }
         @keyframes float { from { transform: translate(0,0); } to { transform: translate(-30px, 50px); } }
 
@@ -32,7 +36,6 @@
         .summary-text { font-size: 14px; line-height: 1.6; color: #cbd5e1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .summary-text.expanded { -webkit-line-clamp: unset; display: block; }
 
-        /* Chapter Item Styling */
         .chapter-item { 
             background: rgba(255, 255, 255, 0.03); padding: 12px 15px; border-radius: 15px; 
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
@@ -44,7 +47,6 @@
         .badge-paid { background: #fbbf24; color: #000; }
         .badge-free { background: #10b981; color: #fff; }
 
-        /* Modals */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 2000; justify-content: center; align-items: center; }
         .modal-box { background: #1e293b; width: 85%; max-width: 320px; padding: 30px; border-radius: 24px; border: 1px solid var(--accent); text-align: center; }
         .btn-action { display: block; background: var(--accent); color: white; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; border: none; width: 100%; }
@@ -52,6 +54,13 @@
     </style>
 </head>
 <body>
+    <div id="app-loading" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0f172a; z-index:9999; display:flex; justify-content:center; align-items:center;">
+        <div style="text-align:center;">
+            <i class="fas fa-circle-notch fa-spin" style="font-size:40px; color:var(--accent);"></i>
+            <p style="margin-top:15px; font-size:14px; color:#94a3b8;">Checking account...</p>
+        </div>
+    </div>
+
     <div class="bg-glow"></div>
     
     <div class="header">
@@ -112,7 +121,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // --- Firebase Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
             authDomain: "rawkuma-8f1ba.firebaseapp.com",
@@ -125,7 +133,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // --- Data (Updated with price and date) ---
         const mangaData = {
             "gomibako": {
                 title: "Gomibako Gurashi no Seijo-sama",
@@ -136,12 +143,12 @@
                     { name: "Chapter 03", date: "Jan 7, 2026", type: "paid", price: 50 },
                     { name: "Chapter 02", date: "Jan 5, 2026", type: "free", price: 0 },
                     { name: "Chapter 01", date: "Jan 1, 2026", type: "free", price: 0 }
-                    ]
+                ]
             },
-                      "bullyme": {
+            "bullyme": {
                 title: "Please Bully Me, Miss Villainess!",
                 cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp",
-                desc: `...`,
+                desc: `ဗီလိန်မလေးရဲ့ အနိုင်ကျင့်ခြင်းကို ခံရမယ့် ဇာတ်လမ်း။`,
                 genres: ["Fantasy", "Romance"],
                 chapters: [
                     { name: "Chapter 03", date: "Jan 7, 2026", type: "paid", price: 50 },
@@ -149,14 +156,12 @@
                     { name: "Chapter 01", date: "Jan 1, 2026", type: "free", price: 0 }
                 ]
             }
-            // အခြား manga များလည်း အလားတူ ထည့်ပေးပါ
         };
 
         const params = new URLSearchParams(window.location.search);
         const mId = params.get('id');
         const manga = mangaData[mId];
 
-        // --- Core Functions ---
         if (manga) {
             document.getElementById('m-title').innerText = manga.title;
             document.getElementById('m-cover').src = manga.cover;
@@ -169,7 +174,6 @@
             manga.chapters.forEach(ch => {
                 const item = document.createElement('div');
                 item.className = 'chapter-item';
-                
                 const badge = ch.type === 'paid' ? 
                     `<span class="ch-badge badge-paid"><i class="fas fa-lock"></i> ${ch.price} Coins</span>` : 
                     `<span class="ch-badge badge-free">FREE</span>`;
@@ -181,27 +185,48 @@
                     </div>
                     <i class="fas fa-chevron-right" style="color:#64748b;"></i>
                 `;
-                
                 item.onclick = () => handleChapterClick(ch);
                 list.appendChild(item);
             });
         }
+
+        // --- AUTH & LOADING LOGIC (UPDATED) ---
+        auth.onAuthStateChanged(user => {
+            const hideLoading = () => {
+                const loader = document.getElementById('app-loading');
+                if(loader) loader.style.display = 'none';
+            };
+
+            if (user) {
+                db.collection("users").doc(user.uid).onSnapshot(doc => {
+                    if (doc.exists) {
+                        document.getElementById('header-coins').innerText = (doc.data().coins || 0).toLocaleString();
+                        hideLoading(); 
+                    } else {
+                        hideLoading();
+                    }
+                }, (error) => {
+                    console.error("Snapshot error:", error);
+                    hideLoading();
+                });
+            } else {
+                hideLoading(); 
+                document.getElementById('header-coins').innerText = "0";
+            }
+        });
 
         async function handleChapterClick(ch) {
             if (ch.type === 'free') {
                 window.location.href = `reader.html?id=${mId}&ch=${ch.name}`;
                 return;
             }
-
             const user = auth.currentUser;
             if (!user) {
                 document.getElementById('loginModal').style.display = 'flex';
                 return;
             }
-
             const purchaseRef = db.collection("users").doc(user.uid).collection("purchased_chapters").doc(`${mId}_${ch.name}`);
             const purchaseDoc = await purchaseRef.get();
-
             if (purchaseDoc.exists) {
                 window.location.href = `reader.html?id=${mId}&ch=${ch.name}`;
             } else {
@@ -215,33 +240,18 @@
             const user = auth.currentUser;
             const userRef = db.collection("users").doc(user.uid);
             const purchaseRef = userRef.collection("purchased_chapters").doc(`${mId}_${ch.name}`);
-
             try {
                 await db.runTransaction(async (transaction) => {
                     const userDoc = await transaction.get(userRef);
                     const currentCoins = userDoc.data().coins || 0;
                     if (currentCoins < ch.price) throw "ကိုင်း (Coins) မလုံလောက်ပါဘူးဗျာ။";
-
                     transaction.update(userRef, { coins: currentCoins - ch.price });
                     transaction.set(purchaseRef, { purchasedAt: new Date() });
                 });
                 alert("ဝယ်ယူမှု အောင်မြင်ပါသည်။");
                 window.location.href = `reader.html?id=${mId}&ch=${ch.name}`;
-            } catch (err) {
-                alert(err);
-            }
+            } catch (err) { alert(err); }
         }
-
-        // Auth & UI Helpers
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                db.collection("users").doc(user.uid).onSnapshot(doc => {
-                    if (doc.exists) document.getElementById('header-coins').innerText = (doc.data().coins || 0).toLocaleString();
-                });
-            } else {
-                document.getElementById('header-coins').innerText = "0";
-            }
-        });
 
         function handleLogin() {
             const e = document.getElementById('email').value;
