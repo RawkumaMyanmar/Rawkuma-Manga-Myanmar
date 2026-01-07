@@ -71,11 +71,11 @@
         </div>
 
         <div id="user-info" style="display: none;">
-            <div class="menu-item" style="color: var(--accent);"><i class="fas fa-user-circle"></i> <span id="user-email">...</span></div>
+            <div class="menu-item" style="color: var(--accent); font-weight: bold;"><i class="fas fa-user-circle"></i> <span id="user-email">...</span></div>
             <div class="menu-item" onclick="logout()" style="color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</div>
         </div>
 
-        <div class="menu-list">
+        <div class="menu-list" style="margin-top: 10px;">
             <div class="menu-item" onclick="filterManga('all')"><i class="fas fa-home"></i> Home</div>
             <div class="menu-item" onclick="filterManga('jp')"><i class="fas fa-book"></i> Manga</div>
             <div class="menu-item" onclick="filterManga('kr')"><i class="fas fa-scroll"></i> Manhwa</div>
@@ -142,7 +142,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // --- Auth Observer ---
+        // --- Auth Observer (Updated & Optimized) ---
         auth.onAuthStateChanged(user => {
             const infoBox = document.getElementById('user-info');
             const loginBtn = document.getElementById('login-section');
@@ -150,16 +150,23 @@
             const coinDisplay = document.getElementById('user-coins');
             
             if (user) {
+                console.log("Logged in UID:", user.uid);
                 infoBox.style.display = 'block';
                 loginBtn.style.display = 'none';
                 guestMsg.style.display = 'none';
                 document.getElementById('user-email').innerText = user.email.split('@')[0];
                 
+                // Real-time listener for coins
                 db.collection("users").doc(user.uid).onSnapshot(doc => {
                     if (doc.exists) {
                         coinDisplay.innerText = (doc.data().coins || 0).toLocaleString();
+                    } else {
+                        coinDisplay.innerText = "0";
                     }
+                }, error => {
+                    console.error("Firestore Error:", error);
                 });
+
             } else {
                 infoBox.style.display = 'none';
                 loginBtn.style.display = 'block';
@@ -168,21 +175,32 @@
             }
         });
 
-        // --- App Logic ---
+        // --- App UI Logic ---
         function openLoginModal() { document.getElementById('loginModal').style.display = 'block'; }
         function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
+        
         function handleLogin() {
             const e = document.getElementById('email').value;
             const p = document.getElementById('password').value;
-            auth.signInWithEmailAndPassword(e, p).then(() => { closeLoginModal(); toggleMenu(); }).catch(err => alert(err.message));
+            auth.signInWithEmailAndPassword(e, p)
+                .then(() => { 
+                    closeLoginModal(); 
+                    toggleMenu(); 
+                })
+                .catch(err => alert(err.message));
         }
-        function logout() { auth.signOut(); }
+        
+        function logout() { 
+            auth.signOut(); 
+            toggleMenu();
+        }
+
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        // Ads Slider Auto-play Logic
+        // Ads Slider
         let currentSlide = 0;
         setInterval(() => {
             const slides = document.querySelectorAll('.slide');
@@ -192,6 +210,7 @@
             slider.style.transform = `translateX(-${currentSlide * 100}%)`;
         }, 3000);
 
+        // Manga Data & Rendering
         const mangaList = [
             { id: "gomibako", title: "Gomibako Gurashi no Seijo-sama", cover: "https://i.ibb.co/LDFt7Mwv/1.jpg", type: "jp", updatedAt: "2026-01-01 12:00" },
             { id: "bullyme", title: "Please Bully Me, Miss Villainess!", cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp", type: "cn", updatedAt: "2026-01-06 12:00" },
@@ -222,6 +241,7 @@
             toggleMenu();
         }
 
+        // Initial Load
         renderManga([...mangaList].sort((a,b) => new Date(b.updatedAt)-new Date(a.updatedAt)));
     </script>
 </body>
