@@ -12,54 +12,43 @@
         .bg-glow { position: fixed; top: -10%; right: -10%; width: 300px; height: 300px; background: var(--accent); filter: blur(120px); border-radius: 50%; opacity: 0.2; z-index: -1; animation: float 8s infinite alternate; }
         @keyframes float { from { transform: translate(0,0); } to { transform: translate(-30px, 50px); } }
 
-        .header { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(15px); padding: 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass); }
+        .header { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(15px); padding: 15px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass); }
         .header a { color: white; text-decoration: none; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+
+        .coin-display { display: flex; align-items: center; gap: 8px; background: rgba(251, 191, 36, 0.15); padding: 5px 12px; border-radius: 20px; border: 1px solid #fbbf24; color: #fbbf24; font-weight: bold; font-size: 14px; }
 
         .content { padding: 20px; animation: fadeInUp 0.8s ease; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-        .glass-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-
+        .glass-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 20px; }
         .manga-top { display: flex; gap: 20px; align-items: flex-start; }
-        .manga-top img { width: 140px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 2px solid var(--glass); }
+        .manga-top img { width: 120px; border-radius: 15px; border: 2px solid var(--glass); }
         
         .info { flex: 1; }
-        .info h2 { margin: 0 0 10px 0; font-size: 20px; color: #fff; line-height: 1.3; }
-        .meta { font-size: 13px; color: #94a3b8; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
-        .meta i { color: #fbbf24; }
+        .info h2 { margin: 0 0 10px 0; font-size: 18px; color: #fff; line-height: 1.3; }
+        .genre-tag { font-size: 10px; background: rgba(139, 92, 246, 0.2); color: #c4b5fd; padding: 3px 8px; border-radius: 6px; margin-right: 5px; }
 
-        .genre-tag { font-size: 10px; background: rgba(139, 92, 246, 0.2); color: #c4b5fd; padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(139, 92, 246, 0.3); }
-
-        .summary-box { margin-top: 25px; position: relative; }
-        .summary-box h4 { margin: 0 0 10px 0; color: var(--accent); font-size: 13px; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-        
-        .summary-wrapper { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; border-left: 3px solid var(--accent); }
-        .summary-text { font-size: 14px; line-height: 1.7; color: #cbd5e1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; transition: all 0.5s ease; }
+        .summary-wrapper { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; border-left: 3px solid var(--accent); margin-top: 10px; }
+        .summary-text { font-size: 14px; line-height: 1.6; color: #cbd5e1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .summary-text.expanded { -webkit-line-clamp: unset; display: block; }
-        .see-more-btn { background: none; border: none; color: var(--accent); font-weight: bold; font-size: 13px; margin-top: 10px; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 5px; }
 
-        .chapter-section { margin-top: 35px; }
-        .chapter-list { display: grid; gap: 12px; margin-top: 15px; }
+        /* Chapter Item Styling */
         .chapter-item { 
-            background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 15px; 
-            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255, 255, 255, 0.03); padding: 12px 15px; border-radius: 15px; 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
             cursor: pointer; transition: 0.3s ease; border: 1px solid var(--glass);
         }
         .chapter-item:hover { background: rgba(139, 92, 246, 0.1); border-color: var(--accent); }
-        .chapter-item .ch-name { font-weight: 600; font-size: 15px; color: white; }
-        .ch-badge { font-size: 10px; padding: 3px 8px; border-radius: 5px; font-weight: bold; margin-left: 10px; }
+        .ch-name { font-weight: 600; font-size: 15px; color: white; display: flex; align-items: center; gap: 8px; }
+        .ch-badge { font-size: 10px; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
         .badge-paid { background: #fbbf24; color: #000; }
         .badge-free { background: #10b981; color: #fff; }
 
-        /* Notification Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: #1e293b; width: 85%; max-width: 350px; padding: 30px; border-radius: 24px; border: 1px solid var(--accent); text-align: center; animation: pop 0.3s ease; }
-        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-box i { font-size: 50px; color: #fbbf24; margin-bottom: 15px; }
-        .modal-box h3 { margin: 10px 0; color: #fff; }
-        .modal-box p { font-size: 14px; color: #94a3b8; line-height: 1.5; margin-bottom: 20px; }
-        .btn-tg { display: block; background: var(--accent); color: white; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: bold; margin-bottom: 10px; }
-        .btn-close { color: #64748b; font-size: 13px; cursor: pointer; }
+        /* Modals */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: #1e293b; width: 85%; max-width: 320px; padding: 30px; border-radius: 24px; border: 1px solid var(--accent); text-align: center; }
+        .btn-action { display: block; background: var(--accent); color: white; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; border: none; width: 100%; }
+        .modal-box input { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -67,6 +56,9 @@
     
     <div class="header">
         <a href="index.html"><i class="fas fa-arrow-left"></i> <span>Back</span></a>
+        <div class="coin-display">
+            <i class="fas fa-coins"></i> <span id="header-coins">0</span>
+        </div>
     </div>
 
     <div class="content">
@@ -75,160 +67,195 @@
                 <img id="m-cover" src="" alt="Cover">
                 <div class="info">
                     <h2 id="m-title">Loading...</h2>
-                    <div class="meta">
-                        <span><i class="fas fa-star"></i> <span id="m-rating">0.0</span></span>
-                        <span><i class="fas fa-sync"></i> <span id="m-status">Ongoing</span></span>
-                    </div>
-                    <div id="m-genres" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+                    <div id="m-genres" style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px;"></div>
                 </div>
             </div>
 
-            <div class="summary-box">
-                <h4><i class="fas fa-book-open"></i> SUMMARY</h4>
+            <div class="summary-box" style="margin-top:20px;">
                 <div class="summary-wrapper">
                     <div id="m-desc" class="summary-text"></div>
-                    <button id="see-more" class="see-more-btn">
-                        <span>Show More</span> <i class="fas fa-chevron-down"></i>
-                    </button>
+                    <button id="see-more" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-top:10px;">Show More</button>
                 </div>
             </div>
 
-            <div class="chapter-section">
-                <h4><i class="fas fa-layer-group"></i> LATEST RELEASES</h4>
-                <div id="ch-list" class="chapter-list"></div>
+            <div class="chapter-section" style="margin-top:30px;">
+                <h4 style="font-size:13px; color:var(--accent); letter-spacing: 1px;">LATEST RELEASES</h4>
+                <div id="ch-list"></div>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="paidModal">
+    <div class="modal-overlay" id="loginModal">
         <div class="modal-box">
-            <i class="fas fa-crown"></i>
-            <h3>Paid Chapter!</h3>
-            <p>ဤအပိုင်းကို ဖတ်ရှုရန် Paid Member ဖြစ်ဖို့ လိုအပ်ပါသည်။ Admin Telegram သို့ ဆက်သွယ်နိုင်ပါသည်။</p>
-            <a href="https://t.me/ThomasGalivlOfficial" class="btn-tg">Contact Admin (Telegram)</a>
-            <div class="btn-close" onclick="toggleModal(false)">Back to List</div>
+            <i class="fas fa-user-lock" style="font-size: 30px; color: var(--accent);"></i>
+            <h3>Login Required</h3>
+            <p style="font-size: 14px; color: #94a3b8;">ဒီအပိုင်းကို ဖတ်ရှုဖို့ Login အရင်ဝင်ပေးပါဗျ။</p>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn-action" onclick="handleLogin()">Login Now</button>
+            <div style="margin-top:15px; cursor:pointer; color:#64748b;" onclick="closeModal('loginModal')">Cancel</div>
         </div>
     </div>
 
-     <script>
+    <div class="modal-overlay" id="purchaseModal">
+        <div class="modal-box">
+            <i class="fas fa-coins" style="font-size: 30px; color: #fbbf24;"></i>
+            <h3>Unlock Chapter?</h3>
+            <p id="purchase-text" style="font-size: 14px; color: #94a3b8;"></p>
+            <button class="btn-action" id="confirm-purchase-btn">Unlock Now</button>
+            <div style="margin-top:15px; cursor:pointer; color:#64748b;" onclick="closeModal('purchaseModal')">Not Now</div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // --- Firebase Config ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
+            authDomain: "rawkuma-8f1ba.firebaseapp.com",
+            projectId: "rawkuma-8f1ba",
+            storageBucket: "rawkuma-8f1ba.firebasestorage.app",
+            messagingSenderId: "8257070386",
+            appId: "1:8257070386:web:74d861728b8378d86f232b"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // --- Data (Updated with price and date) ---
         const mangaData = {
             "gomibako": {
                 title: "Gomibako Gurashi no Seijo-sama",
                 cover: "https://i.ibb.co/LDFt7Mwv/1.jpg",
-                rating: "7.0",
-                status: "Ongoing",
-                genres: ["Fantasy", "Slice of Life", "Romance", "Manga"],
-                desc: `သာမန်အရပ်သူလေးဖြစ်တဲ့ သူတော်စင်အလုပ်သင် Mio ဟာ မာနကြီးတဲ့ အထက်တန်းလွှာ စီနီယာတွေရဲ့ အနိုင်ကျင့်ခိုင်းစေတာကို ခံရတဲ့အပြင် နောက်ဆုံးမှာ ဘုရားကျောင်းကနေ နှင်ထုတ်ခံရပြီး အမှိုက်ပုံထဲ ပစ်ချခံလိုက်ရပါတယ်။
-
-ပုံမှန်ဆိုရင် ညစ်ပတ်ပြီး နံစော်နေရမယ့် နေရာဖြစ်ပေမဲ့ ပစ္စည်းတွေကို "ပြုပြင်နိုင်စွမ်း" ရှိတဲ့ Mio အတွက်ကတော့ ဒီအမှိုက်ပုံဟာ စိတ်တိုင်းကျ ပြုပြင်ဖန်တီးနိုင်တဲ့ အကောင်းဆုံး နေရာတစ်ခု ဖြစ်နေပါတော့တယ်။
-
-စွန့်ပစ်ပစ္စည်းတွေကို ပြန်လည်ပြုပြင်ရင်း အမှိုက်ပုံထဲ ဇိမ်ကျကျ နေထိုင်နေတဲ့ သူမဟာ မတော်တဆ စွန့်စားသွားလာသူတွေကို ကုသပေးခြင်း၊ ရှေးဟောင်းပစ္စည်းတွေကို ပြင်ဆင်ပေးခြင်းတို့ လုပ်ဆောင်ရင်း သူမရဲ့ ဘဝသစ်မှာ ရည်မှန်းချက် ပန်းတိုင်အသစ်တစ်ခုကို ရှာတွေ့သွားပါတော့တယ်။`,
+                desc: `သူတော်စင်အလုပ်သင် Mio ရဲ့ အမှိုက်ပုံထဲက ဘဝသစ်ဇာတ်လမ်း။`,
+                genres: ["Fantasy", "Romance"],
                 chapters: [
-                    { name: "Chapter 04 (Coming Soon)", date: "Wait", type: "paid" },
-                    { name: "Chapter 03", date: "Jan 5, 2026", type: "free" },
-                    { name: "Chapter 02", date: "Jan 1, 2026", type: "free" },
-                    { name: "Chapter 01", date: "Jan 1, 2026", type: "free" }   
-                ]
+                    { name: "Chapter 03", date: "Jan 7, 2026", type: "paid", price: 50 },
+                    { name: "Chapter 02", date: "Jan 5, 2026", type: "free", price: 0 },
+                    { name: "Chapter 01", date: "Jan 1, 2026", type: "free", price: 0 }
+                    ]
             },
-            "bullyme": {
+                      "bullyme": {
                 title: "Please Bully Me, Miss Villainess!",
                 cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp",
-                rating: "4.7",
-                status: "Ongoing",
-                genres: ["Fantasy", "Historical", "Romance", "Shoujo Ai", "Manhua"],
-                desc: `စာဖတ်သူတိုင်း မုန်းကြတဲ့ Otome ဂိမ်းထဲက ဗီလိန်အမျိုးသမီးအဖြစ် ဝင်ရောက်သွားတဲ့ Yvonne ဟာ ပုံမှန်အတိုင်းဆိုရင် ဇာတ်လိုက်မင်းသမီးလေးကို အနိုင်ကျင့်ပြီး ဇာတ်လမ်းသွားအောင် ကူညီပေးရမှာ ဖြစ်ပါတယ်။
-
-ဒါပေမဲ့ ဇာတ်လိုက်မင်းသမီးလေး Elsa ပုံစံက တစ်မျိုးဖြစ်နေပါတယ်။ ဇာတ်လိုက်မင်းသားတွေနဲ့ ဇာတ်လမ်းမဖြစ်ဘဲ Yvonne နားကိုပဲ တားမရဆီးမရ ကပ်နေတာကြောင့် Yvonne ခမျာ အနားမလာဖို့တောင် ပြန်ပြောနေရပါတယ်။
-
-Elsa ကတော့ "Yvonne ရေ... ဒီနေ့ရော ငါ့ကို ဘယ်လိုအနိုင်ကျင့်ဦးမှာလဲ" ဆိုပြီးတောင် မျှော်လင့်တကြီး မေးနေတာကြောင့် ဗီလိန်မလေးတစ်ယောက် ဘာဆက်လုပ်ရမလဲ အခက်တွေ့နေရပါတော့တယ်။`,
+                desc: `...`,
+                genres: ["Fantasy", "Romance"],
                 chapters: [
-                    { name: "Chapter 04", date: "New", type: "paid" },
-                    { name: "Chapter 03", date: "Jan 6, 2025", type: "free" },
-                    { name: "Chapter 02", date: "Jan 6, 2025", type: "free" },
-                    { name: "Chapter 01", date: "Jan 6, 2025", type: "free" }                    
-                ]
-            },
-            "protagonist-path": {
-                title: "How to Walk the Protagonist’s Path to Glory",
-                cover: "https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg",
-                rating: "8.9",
-                status: "Ongoing",
-                genres: ["Drama", "Fantasy", "Romance", "Manhwa"],
-                desc: `"ဘဝဆိုတာ ကိုယ်စီစဉ်ထားသလို ဘယ်တော့မှ ဖြစ်မလာတတ်ဘူး" ဆိုတဲ့အမှန်တရားကို အဲ့ဒီတုန်းက ကျွန်မ မသိခဲ့ဘူး။
-
-အရင်ဘဝက သူငယ်ချင်းတစ်ယောက်ကြောင့် ယောကျ်ားလေးအကြိုက် ဖန်တီးထားတဲ့ဝတ္ထု (ဟုတ်ပါတယ်.. ဟာရမ်ဝတ္ထုပါပဲ) တစ်ပုဒ်ကို စိတ်မပါတပါ ဖတ်ခဲ့မိရာကနေ... Kang Nahyun အဖြစ်နဲ့ အဲ့ဒီဝတ္ထုထဲကို ရောက်သွားခဲ့တယ်။ တခြားဝတ္ထုကူးပြောင်းသူတွေလိုမျိုး Cheat skill တွေ၊ ရွှေရောင်အခွင့်အရေးတွေ ဘာတစ်ခုမှ မပါလာပါဘူး။ ဇွဲတစ်ခုတည်းနဲ့ပဲ အဆင်မပြေလှတဲ့ဘဝကို ခက်ခက်ခဲခဲ ရုန်းကန်ဖြတ်သန်းခဲ့ရတယ်။
-
-ဒါပေမဲ့ အထက်တန်းကျောင်းတက်ခါနီးမှာပဲ ကျွန်မက 'Sniper' (လက်ဖြောင့်သေနတ်သမား) တစ်ယောက်အနေနဲ့ စွမ်းရည်နိုးထလာပြီး ဂုဏ်သတင်းကြီးတဲ့ "စွမ်းရည်ရှင်များရဲ့ အကယ်ဒမီ" ကို တက်ခွင့်ရခဲ့တယ်! ကျွန်မက ဇာတ်လိုက်မဖြစ်နိုင်ဘူးဆိုရင်တောင် သူ့ရဲ့အောင်မြင်မှုလမ်းကြောင်းပေါ်မှာ ကပ်လိုက်သွားလို့ရတယ်မလား?
-
-ကျွန်မအစီအစဉ်က ရိုးရှင်းပါတယ်။ ဝတ္ထုထဲက ဇာတ်လိုက်မင်းသား 'Na Yuhan' နဲ့ ရင်းရင်းနှီးနှီးနေမယ်၊ သူ စားမကုန်လို့ ကျန်တဲ့ ကံကောင်းမှုလေးတွေ လိုက်ကောက်မယ်၊ ပြီးရင် တိတ်တဆိတ်လေး ထွက်သွားမယ်ပေါ့။
-
-...ဒါပေမဲ့ တစ်ခုခုတော့ လွဲနေပြီ။ နေ့ရက်တွေ ကြာလာတာနဲ့အမျှ မူလအစီအစဉ်နဲ့ တဖြည်းဖြည်း ဝေးကွာလာသလိုပဲ...
-
-'Sunshine Heroine(?)' လို့ ခေါ်ကြတဲ့ Kang Nahyun ရဲ့ မခန့်မှန်းနိုင်စရာ အကယ်ဒမီကျောင်းတော်ကြီးက ဘဝအကြောင်း... "ဇာတ်လိုက်မင်းသားရဲ့ ပန်းခင်းလမ်းကို လိုက်စီးမယ့် နည်းလမ်း" ဆိုတဲ့ ဇာတ်လမ်းလေး အခုပဲ စတင်ပါပြီ!`,
-                chapters: [
-                    { name: "Chapter 01", date: "Jan 6, 2026", type: "free" },
-                    { name: "Chapter 02", date: "Jan 8, 2026", type: "free" }
-                ]
-            },
-            "Team leader, please stand up straight.": {
-            title: "팀장님, 똑바로 서세요/Team leader, please stand straight",
-            cover: "https://i.ibb.co/jPwj6Rcd/images.jpg",
-                rating: "5.1",
-                status: "Ongoing",
-                genres: ["adult", "Adulto", "Drama", "Eechi", "Manhwa", "Mature", "Romance", "Webtoon"],
-                desc: `".......`,
-                chapters: [
-                    { name: "Chapter 01", date: "Jan 6, 2026", type: "free" }
+                    { name: "Chapter 03", date: "Jan 7, 2026", type: "paid", price: 50 },
+                    { name: "Chapter 02", date: "Jan 5, 2026", type: "free", price: 0 },
+                    { name: "Chapter 01", date: "Jan 1, 2026", type: "free", price: 0 }
                 ]
             }
+            // အခြား manga များလည်း အလားတူ ထည့်ပေးပါ
         };
 
         const params = new URLSearchParams(window.location.search);
-        const id = params.get('id');
-        const manga = mangaData[id];
+        const mId = params.get('id');
+        const manga = mangaData[mId];
 
+        // --- Core Functions ---
         if (manga) {
             document.getElementById('m-title').innerText = manga.title;
             document.getElementById('m-cover').src = manga.cover;
-            document.getElementById('m-rating').innerText = manga.rating;
-            document.getElementById('m-status').innerText = manga.status;
             document.getElementById('m-desc').innerText = manga.desc;
-            
-            document.getElementById('m-genres').innerHTML = ""; // အဟောင်းရှင်းမယ်
             manga.genres.forEach(g => {
                 document.getElementById('m-genres').innerHTML += `<span class="genre-tag">${g}</span>`;
             });
 
-            document.getElementById('ch-list').innerHTML = ""; // အဟောင်းရှင်းမယ်
+            const list = document.getElementById('ch-list');
             manga.chapters.forEach(ch => {
                 const item = document.createElement('div');
                 item.className = 'chapter-item';
+                
+                const badge = ch.type === 'paid' ? 
+                    `<span class="ch-badge badge-paid"><i class="fas fa-lock"></i> ${ch.price} Coins</span>` : 
+                    `<span class="ch-badge badge-free">FREE</span>`;
+                
                 item.innerHTML = `
-                    <span class="ch-name">${ch.name} ${ch.type === 'paid' ? '<span class="ch-badge badge-paid"><i class="fas fa-lock"></i> Paid</span>' : ''}</span>
-                    <span class="ch-date">${ch.date} <i class="fas fa-chevron-right" style="margin-left:5px;"></i></span>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span class="ch-name">${ch.name} ${badge}</span>
+                        <span style="font-size: 11px; color: #64748b;">${ch.date || 'New'}</span>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color:#64748b;"></i>
                 `;
                 
-                item.onclick = () => {
-                    if(ch.type === 'paid') {
-                        toggleModal(true);
-                    } else {
-                        window.location.href = `reader.html?id=${id}&ch=${ch.name}`;
-                    }
-                };
-                document.getElementById('ch-list').appendChild(item);
+                item.onclick = () => handleChapterClick(ch);
+                list.appendChild(item);
             });
+        }
 
-            const seeMoreBtn = document.getElementById('see-more');
+        async function handleChapterClick(ch) {
+            if (ch.type === 'free') {
+                window.location.href = `reader.html?id=${mId}&ch=${ch.name}`;
+                return;
+            }
+
+            const user = auth.currentUser;
+            if (!user) {
+                document.getElementById('loginModal').style.display = 'flex';
+                return;
+            }
+
+            const purchaseRef = db.collection("users").doc(user.uid).collection("purchased_chapters").doc(`${mId}_${ch.name}`);
+            const purchaseDoc = await purchaseRef.get();
+
+            if (purchaseDoc.exists) {
+                window.location.href = `reader.html?id=${mId}&ch=${ch.name}`;
+            } else {
+                document.getElementById('purchase-text').innerText = `${ch.name} ကို ${ch.price} Coins ဖြင့် ဝယ်ယူမှာလားဗျာ?`;
+                document.getElementById('purchaseModal').style.display = 'flex';
+                document.getElementById('confirm-purchase-btn').onclick = () => processPurchase(ch);
+            }
+        }
+
+        async function processPurchase(ch) {
+            const user = auth.currentUser;
+            const userRef = db.collection("users").doc(user.uid);
+            const purchaseRef = userRef.collection("purchased_chapters").doc(`${mId}_${ch.name}`);
+
+            try {
+                await db.runTransaction(async (transaction) => {
+                    const userDoc = await transaction.get(userRef);
+                    const currentCoins = userDoc.data().coins || 0;
+                    if (currentCoins < ch.price) throw "ကိုင်း (Coins) မလုံလောက်ပါဘူးဗျာ။";
+
+                    transaction.update(userRef, { coins: currentCoins - ch.price });
+                    transaction.set(purchaseRef, { purchasedAt: new Date() });
+                });
+                alert("ဝယ်ယူမှု အောင်မြင်ပါသည်။");
+                window.location.href = `reader.html?id=${mId}&ch=${ch.name}`;
+            } catch (err) {
+                alert(err);
+            }
+        }
+
+        // Auth & UI Helpers
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection("users").doc(user.uid).onSnapshot(doc => {
+                    if (doc.exists) document.getElementById('header-coins').innerText = (doc.data().coins || 0).toLocaleString();
+                });
+            } else {
+                document.getElementById('header-coins').innerText = "0";
+            }
+        });
+
+        function handleLogin() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            auth.signInWithEmailAndPassword(e, p).then(() => closeModal('loginModal')).catch(err => alert(err.message));
+        }
+
+        function closeModal(mId) { document.getElementById(mId).style.display = 'none'; }
+        
+        document.getElementById('see-more').addEventListener('click', function() {
             const desc = document.getElementById('m-desc');
-            seeMoreBtn.addEventListener('click', () => {
-                desc.classList.toggle('expanded');
-                seeMoreBtn.innerHTML = desc.classList.contains('expanded') ? '<span>Show Less</span> <i class="fas fa-chevron-up"></i>' : '<span>Show More</span> <i class="fas fa-chevron-down"></i>';
-            });
-        }
-
-        function toggleModal(show) {
-            document.getElementById('paidModal').style.display = show ? 'flex' : 'none';
-        }
+            desc.classList.toggle('expanded');
+            this.innerText = desc.classList.contains('expanded') ? 'Show Less' : 'Show More';
+        });
     </script>
 </body>
 </html>
