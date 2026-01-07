@@ -3,120 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manga Details - Rawkuma</title>
+    <title>Manga Details | Rawkuma</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --accent: #8b5cf6; --glass: rgba(255, 255, 255, 0.1); --bg: #0f172a; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--bg); color: #e2e8f0; overflow-x: hidden; }
+        :root { --glass: rgba(255, 255, 255, 0.05); --accent: #8b5cf6; --bg: #0f172a; --card-bg: #1e293b; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: white; }
         
-        .fa-spin { animation: fa-spin 1s infinite linear; }
-        @keyframes fa-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(359deg); } }
+        nav { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(10px); padding: 15px; position: sticky; top: 0; z-index: 1000; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--glass); }
+        .back-btn { font-size: 20px; color: white; text-decoration: none; }
 
-        .bg-glow { position: fixed; top: -10%; right: -10%; width: 300px; height: 300px; background: var(--accent); filter: blur(120px); border-radius: 50%; opacity: 0.2; z-index: -1; animation: float 8s infinite alternate; }
-        @keyframes float { from { transform: translate(0,0); } to { transform: translate(-30px, 50px); } }
+        .manga-header { padding: 20px; display: flex; gap: 20px; background: linear-gradient(to bottom, #1e293b, #0f172a); }
+        .manga-cover { width: 140px; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); border: 2px solid var(--accent); }
+        .manga-info { flex: 1; }
+        .manga-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; color: var(--accent); }
+        .manga-desc { font-size: 14px; color: #94a3b8; line-height: 1.5; height: 100px; overflow-y: auto; }
 
-        .header { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(15px); padding: 15px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass); }
-        .header a { color: white; text-decoration: none; font-size: 18px; display: flex; align-items: center; gap: 10px; }
-
-        .coin-display { display: flex; align-items: center; gap: 8px; background: rgba(251, 191, 36, 0.15); padding: 5px 12px; border-radius: 20px; border: 1px solid #fbbf24; color: #fbbf24; font-weight: bold; font-size: 14px; }
-
-        .content { padding: 20px; animation: fadeInUp 0.8s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-        .glass-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 20px; }
-        .manga-top { display: flex; gap: 20px; align-items: flex-start; }
-        .manga-top img { width: 120px; border-radius: 15px; border: 2px solid var(--glass); }
+        .chapter-section { padding: 20px; }
+        .section-title { font-size: 18px; margin-bottom: 15px; border-left: 4px solid var(--accent); padding-left: 10px; }
         
-        .info { flex: 1; }
-        .info h2 { margin: 0 0 10px 0; font-size: 18px; color: #fff; line-height: 1.3; }
-        .genre-tag { font-size: 10px; background: rgba(139, 92, 246, 0.2); color: #c4b5fd; padding: 3px 8px; border-radius: 6px; margin-right: 5px; }
+        .chapter-list { display: flex; flex-direction: column; gap: 10px; }
+        .chapter-item { background: var(--card-bg); padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: white; border: 1px solid var(--glass); transition: 0.3s; }
+        .chapter-item:hover { border-color: var(--accent); transform: scale(1.02); }
+        .chapter-name { font-weight: 500; }
+        .price-badge { background: rgba(251, 191, 36, 0.1); color: #fbbf24; padding: 4px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; border: 1px solid #fbbf24; }
+        .free-badge { color: #10b981; }
 
-        .summary-wrapper { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; border-left: 3px solid var(--accent); margin-top: 10px; }
-        .summary-text { font-size: 14px; line-height: 1.6; color: #cbd5e1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .summary-text.expanded { -webkit-line-clamp: unset; display: block; }
-
-        .chapter-item { 
-            background: rgba(255, 255, 255, 0.03); padding: 12px 15px; border-radius: 15px; 
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
-            cursor: pointer; transition: 0.3s ease; border: 1px solid var(--glass);
-        }
-        .chapter-item:hover { background: rgba(139, 92, 246, 0.1); border-color: var(--accent); }
-        .ch-name { font-weight: 600; font-size: 15px; color: white; display: flex; align-items: center; gap: 8px; }
-        .ch-badge { font-size: 10px; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
-        .badge-paid { background: #fbbf24; color: #000; }
-        .badge-free { background: #10b981; color: #fff; }
-
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { background: #1e293b; width: 85%; max-width: 320px; padding: 30px; border-radius: 24px; border: 1px solid var(--accent); text-align: center; }
-        .btn-action { display: block; background: var(--accent); color: white; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; border: none; width: 100%; }
-        .modal-box input { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; box-sizing: border-box; }
+        .loading { text-align: center; padding: 50px; color: #64748b; }
     </style>
 </head>
 <body>
-    <div id="app-loading" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0f172a; z-index:9999; display:flex; justify-content:center; align-items:center;">
-        <div style="text-align:center;">
-            <i class="fas fa-circle-notch fa-spin" style="font-size:40px; color:var(--accent);"></i>
-            <p style="margin-top:15px; font-size:14px; color:#94a3b8;">Checking account...</p>
-        </div>
+
+    <nav>
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <div style="font-weight: bold; letter-spacing: 1px;">DETAILS</div>
+    </nav>
+
+    <div id="manga-content">
+        <div class="loading">အချက်အလက်များကို ရယူနေပါသည်...</div>
     </div>
 
-    <div class="bg-glow"></div>
-    
-    <div class="header">
-        <a href="index.html"><i class="fas fa-arrow-left"></i> <span>Back</span></a>
-        <div class="coin-display">
-            <i class="fas fa-coins"></i> <span id="header-coins">0</span>
-        </div>
-    </div>
-
-    <div class="content">
-        <div class="glass-card">
-            <div class="manga-top">
-                <img id="m-cover" src="" alt="Cover">
-                <div class="info">
-                    <h2 id="m-title">Loading...</h2>
-                    <div id="m-genres" style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px;"></div>
-                </div>
+    <div class="chapter-section">
+        <h3 class="section-title">Chapters</h3>
+        <div class="chapter-list" id="chapter-list">
             </div>
-
-            <div class="summary-box" style="margin-top:20px;">
-                <div class="summary-wrapper">
-                    <div id="m-desc" class="summary-text"></div>
-                    <button id="see-more" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-top:10px;">Show More</button>
-                </div>
-            </div>
-
-            <div class="chapter-section" style="margin-top:30px;">
-                <h4 style="font-size:13px; color:var(--accent); letter-spacing: 1px;">LATEST RELEASES</h4>
-                <div id="ch-list"></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="loginModal">
-        <div class="modal-box">
-            <i class="fas fa-user-lock" style="font-size: 30px; color: var(--accent);"></i>
-            <h3>Login Required</h3>
-            <p style="font-size: 14px; color: #94a3b8;">ဒီအပိုင်းကို ဖတ်ရှုဖို့ Login အရင်ဝင်ပေးပါဗျ။</p>
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Password">
-            <button class="btn-action" onclick="handleLogin()">Login Now</button>
-            <div style="margin-top:15px; cursor:pointer; color:#64748b;" onclick="closeModal('loginModal')">Cancel</div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="purchaseModal">
-        <div class="modal-box">
-            <i class="fas fa-coins" style="font-size: 30px; color: #fbbf24;"></i>
-            <h3>Unlock Chapter?</h3>
-            <p id="purchase-text" style="font-size: 14px; color: #94a3b8;"></p>
-            <button class="btn-action" id="confirm-purchase-btn">Unlock Now</button>
-            <div style="margin-top:15px; cursor:pointer; color:#64748b;" onclick="closeModal('purchaseModal')">Not Now</div>
-        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
@@ -129,144 +61,65 @@
             appId: "1:8257070386:web:74d861728b8378d86f232b"
         };
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
 
-        const mangaData = {
-            "gomibako": {
-                title: "Gomibako Gurashi no Seijo-sama",
-                cover: "https://i.ibb.co/LDFt7Mwv/1.jpg",
-                desc: `သူတော်စင်အလုပ်သင် Mio ရဲ့ အမှိုက်ပုံထဲက ဘဝသစ်ဇာတ်လမ်း။`,
-                genres: ["Fantasy", "Romance"],
-                chapters: [
-                    { name: "Chapter 03", date: "Jan 7, 2026", type: "paid", price: 50 },
-                    { name: "Chapter 02", date: "Jan 5, 2026", type: "free", price: 0 },
-                    { name: "Chapter 01", date: "Jan 1, 2026", type: "free", price: 0 }
-                ]
-            },
-            "bullyme": {
-                title: "Please Bully Me, Miss Villainess!",
-                cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp",
-                desc: `ဗီလိန်မလေးရဲ့ အနိုင်ကျင့်ခြင်းကို ခံရမယ့် ဇာတ်လမ်း။`,
-                genres: ["Fantasy", "Romance"],
-                chapters: [
-                    { name: "Chapter 03", date: "Jan 7, 2026", type: "paid", price: 50 },
-                    { name: "Chapter 02", date: "Jan 5, 2026", type: "free", price: 0 },
-                    { name: "Chapter 01", date: "Jan 1, 2026", type: "free", price: 0 }
-                ]
-            }
-        };
+        // ၁။ URL ကနေ Manga ID ကို ယူမယ် (ဥပမာ- details.html?id=gomibako)
+        const urlParams = new URLSearchParams(window.location.search);
+        const mangaId = urlParams.get('id');
 
-        const params = new URLSearchParams(window.location.search);
-        const mId = params.get('id');
-        const manga = mangaData[mId];
+        if (!mangaId) {
+            window.location.href = 'index.html';
+        }
 
-        if (manga) {
-            document.getElementById('m-title').innerText = manga.title;
-            document.getElementById('m-cover').src = manga.cover;
-            document.getElementById('m-desc').innerText = manga.desc;
-            manga.genres.forEach(g => {
-                document.getElementById('m-genres').innerHTML += `<span class="genre-tag">${g}</span>`;
-            });
-
-            const list = document.getElementById('ch-list');
-            manga.chapters.forEach(ch => {
-                const item = document.createElement('div');
-                item.className = 'chapter-item';
-                const badge = ch.type === 'paid' ? 
-                    `<span class="ch-badge badge-paid"><i class="fas fa-lock"></i> ${ch.price} Coins</span>` : 
-                    `<span class="ch-badge badge-free">FREE</span>`;
-                
-                item.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span class="ch-name">${ch.name} ${badge}</span>
-                        <span style="font-size: 11px; color: #64748b;">${ch.date || 'New'}</span>
-                    </div>
-                    <i class="fas fa-chevron-right" style="color:#64748b;"></i>
-                `;
-                item.onclick = () => handleChapterClick(ch);
-                list.appendChild(item);
+        // ၂။ Manga Details ကို ဖတ်မယ်
+        function loadMangaDetails() {
+            db.collection("mangas").doc(mangaId).get().then((doc) => {
+                if (doc.exists) {
+                    const manga = doc.data();
+                    document.getElementById('manga-content').innerHTML = `
+                        <div class="manga-header">
+                            <img src="${manga.cover}" class="manga-cover">
+                            <div class="manga-info">
+                                <div class="manga-title">${manga.title}</div>
+                                <div class="manga-desc">${manga.desc || 'No description available.'}</div>
+                            </div>
+                        </div>
+                    `;
+                    loadChapters(); // Manga ရပြီဆိုရင် Chapter တွေ ဆက်ဖတ်မယ်
+                } else {
+                    document.getElementById('manga-content').innerHTML = "Manga not found.";
+                }
             });
         }
 
-        // --- AUTH & LOADING LOGIC (STABLE) ---
-        auth.onAuthStateChanged(user => {
-            const hideLoading = () => {
-                const loader = document.getElementById('app-loading');
-                if(loader) loader.style.display = 'none';
-            };
-
-            if (user) {
-                // User ရှိရင် loading ကို ချက်ချင်းအရင်ပိတ်မယ် (UI မြန်အောင်)
-                hideLoading(); 
-                
-                // ပြီးမှ coin balance ကို စောင့်ကြည့်မယ်
-                db.collection("users").doc(user.uid).onSnapshot(doc => {
-                    if (doc.exists) {
-                        document.getElementById('header-coins').innerText = (doc.data().coins || 0).toLocaleString();
-                    }
+        // ၃။ Chapters ကို Sub-collection ထဲကနေ ဆွဲထုတ်မယ်
+        function loadChapters() {
+            const list = document.getElementById('chapter-list');
+            db.collection("mangas").doc(mangaId).collection("chapters")
+              .orderBy("order", "asc")
+              .onSnapshot((snapshot) => {
+                list.innerHTML = "";
+                if (snapshot.empty) {
+                    list.innerHTML = "<div style='color:#64748b'>No chapters yet.</div>";
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const ch = doc.data();
+                    const isFree = ch.price === 0;
+                    
+                    list.innerHTML += `
+                        <a href="reader.html?mangaId=${mangaId}&chapterId=${doc.id}" class="chapter-item">
+                            <div class="chapter-name">${ch.name}</div>
+                            <div class="price-badge ${isFree ? 'free-badge' : ''}">
+                                ${isFree ? 'FREE' : ch.price + ' Coins'}
+                            </div>
+                        </a>
+                    `;
                 });
-            } else {
-                hideLoading(); 
-                document.getElementById('header-coins').innerText = "0";
-            }
-        });
-
-        async function handleChapterClick(ch) {
-            if (ch.type === 'free') {
-                window.location.href = `reader.html?id=${mId}&ch=${ch.name}`;
-                return;
-            }
-            const user = auth.currentUser;
-            if (!user) {
-                document.getElementById('loginModal').style.display = 'flex';
-                return;
-            }
-            const purchaseRef = db.collection("users").doc(user.uid).collection("purchased_chapters").doc(`${mId}_${ch.name}`);
-            const purchaseDoc = await purchaseRef.get();
-            if (purchaseDoc.exists) {
-                window.location.href = `reader.html?id=${mId}&ch=${ch.name}`;
-            } else {
-                document.getElementById('purchase-text').innerText = `${ch.name} ကို ${ch.price} Coins ဖြင့် ဝယ်ယူမှာလားဗျာ?`;
-                document.getElementById('purchaseModal').style.display = 'flex';
-                document.getElementById('confirm-purchase-btn').onclick = () => processPurchase(ch);
-            }
+            });
         }
 
-        async function processPurchase(ch) {
-            const user = auth.currentUser;
-            const userRef = db.collection("users").doc(user.uid);
-            const purchaseRef = userRef.collection("purchased_chapters").doc(`${mId}_${ch.name}`);
-            try {
-                await db.runTransaction(async (transaction) => {
-                    const userDoc = await transaction.get(userRef);
-                    const currentCoins = userDoc.data().coins || 0;
-                    if (currentCoins < ch.price) throw "ကိုင်း (Coins) မလုံလောက်ပါဘူးဗျာ။";
-                    transaction.update(userRef, { coins: currentCoins - ch.price });
-                    transaction.set(purchaseRef, { purchasedAt: new Date() });
-                });
-                alert("ဝယ်ယူမှု အောင်မြင်ပါသည်။");
-                window.location.href = `reader.html?id=${mId}&ch=${ch.name}`;
-            } catch (err) { alert(err); }
-        }
-
-        function handleLogin() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            auth.signInWithEmailAndPassword(e, p).then(() => {
-                closeModal('loginModal');
-                // Login ဝင်ပြီးရင် Page ကို Refresh လုပ်ပေးခြင်းဖြင့် data သေချာပေါ်စေသည်
-                location.reload(); 
-            }).catch(err => alert(err.message));
-        }
-
-        function closeModal(mId) { document.getElementById(mId).style.display = 'none'; }
-        
-        document.getElementById('see-more').addEventListener('click', function() {
-            const desc = document.getElementById('m-desc');
-            desc.classList.toggle('expanded');
-            this.innerText = desc.classList.contains('expanded') ? 'Show Less' : 'Show More';
-        });
+        loadMangaDetails();
     </script>
 </body>
 </html>
