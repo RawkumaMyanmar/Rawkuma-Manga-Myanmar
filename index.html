@@ -9,38 +9,40 @@
         :root { --glass: rgba(255, 255, 255, 0.05); --accent: #8b5cf6; --bg: #0f172a; --card-bg: #1e293b; }
         body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: white; overflow-x: hidden; }
         
-        /* Ads Section */
-        .ads-banner { 
-            background: #1e293b; 
-            padding: 15px 10px; 
-            text-align: center; 
-            border-bottom: 2px solid var(--accent); 
+        /* New Ads Slider Section (အစားထိုးလိုက်သော CSS) */
+        .ads-slider-container {
+            width: 100%;
+            background: #1e293b;
+            overflow: hidden; 
+            border-bottom: 2px solid var(--accent);
+            padding: 10px 0;
         }
-        .ads-title { 
-            color: #fbbf24; 
-            font-weight: bold; 
-            font-size: 16px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        .ads-details {
+
+        .ads-slider {
             display: flex;
-            flex-direction: column;
-            gap: 6px;
-            font-size: 13px;
-            color: #e2e8f0;
+            transition: transform 0.5s ease-in-out;
+            width: 100%;
         }
-        .ads-details div {
+
+        .slide {
+            min-width: 100%;
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 8px;
         }
-        .ads-details i { color: #94a3b8; }
-        .ads-details a { color: #38bdf8; text-decoration: none; font-weight: bold; }
+
+        .slide a {
+            width: 95%;
+            max-width: 600px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
 
         /* Navigation & Logo Setup */
         nav { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(10px); padding: 10px 15px; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--glass); }
@@ -93,18 +95,22 @@
     </div>
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-    <div class="ads-banner">
-        <div class="ads-title">
-            <i class="fas fa-bullhorn"></i> Ads ကြော်ငှာထည့်ချင်သူများ ဆက်သွယ်ရန်
-        </div>
-        <div class="ads-details">
-            <div>
-                <i class="fas fa-phone-alt"></i> 
-                <span>+959445539870, +959445763265</span>
+    <div class="ads-slider-container">
+        <div class="ads-slider" id="adsSlider">
+            <div class="slide">
+                <a href="https://t.me/ThomasGalivlOfficial" target="_blank">
+                    <img src="https://i.ibb.co/9L33QyM/Untitled106-20260106225546.png" alt="Ads 1">
+                </a>
             </div>
-            <div>
-                <span>Telegram - </span>
-                <a href="https://t.me/ThomasGalivlOfficial">@ThomasGalivlOfficial</a>
+            <div class="slide">
+                <a href="https://t.me/ThomasGalivlOfficial" target="_blank">
+                    <img src="https://i.ibb.co/F45sCVYY/AIRetouch-20260107-122526348.png" alt="Ads 2">
+                </a>
+            </div>
+            <div class="slide">
+                <a href="https://t.me/Rawkuma_manga" target="_blank">
+                    <img src="https://i.ibb.co/jPvYHcyZ/Untitled110-20260107144035.png" alt="Ads 3">
+                </a>
             </div>
         </div>
     </div>
@@ -131,7 +137,22 @@
     <footer>&copy; 2026 Rawkuma Myanmar. All Rights Reserved.</footer>
 
     <script>
-        // ၁။ Manga List မှာ 'updatedAt' (တင်ခဲ့တဲ့ အချိန်) ကို ထည့်ထားမယ်
+        // --- Ads Slider Logic ---
+        let currentSlide = 0;
+        function autoSlide() {
+            const slides = document.querySelectorAll('.slide');
+            const slider = document.getElementById('adsSlider');
+            if(!slider || slides.length === 0) return;
+
+            currentSlide++;
+            if (currentSlide >= slides.length) {
+                currentSlide = 0;
+            }
+            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+        setInterval(autoSlide, 3000);
+        // -----------------------
+
         const mangaList = [
             { id: "gomibako", title: "Gomibako Gurashi no Seijo-sama", cover: "https://i.ibb.co/LDFt7Mwv/1.jpg", type: "jp", updatedAt: "2026-01-01 12:00" },
             { id: "bullyme", title: "Please Bully Me, Miss Villainess!", cover: "https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp", type: "cn", updatedAt: "2026-01-06 12:00" },
@@ -144,6 +165,7 @@
         const flags = {
             "jp": "https://flagcdn.com/w40/jp.png", "kr": "https://flagcdn.com/w40/kr.png",
             "cn": "https://flagcdn.com/w40/cn.png", "18plus": "https://flagcdn.com/w40/kr.png" 
+
         };
 
         const grid = document.getElementById('main-list');
@@ -153,7 +175,6 @@
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        // ၂။ Latest Updates ဖြစ်အောင် အချိန်အလိုက် Sort လုပ်မယ့် Function
         function getLatestManga(list) {
             return [...list].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
         }
@@ -175,10 +196,7 @@
         function filterManga(category) {
             const titleElement = document.getElementById('page-title');
             let filtered = category === 'all' ? mangaList : mangaList.filter(m => m.type === category);
-            
-            // စီမယ်
             const sortedData = getLatestManga(filtered);
-
             const titles = { all: 'Latest Updates', jp: 'Manga List', kr: 'Manhwa List', cn: 'Manhua List', '18plus': '18+ Adult Books' };
             titleElement.innerText = titles[category];
             renderManga(sortedData);
@@ -186,7 +204,6 @@
             window.scrollTo(0,0);
         }
 
-        // စဖွင့်ဖွင့်ချင်းမှာ Latest Updates အတိုင်း ပြစေမယ်
         renderManga(getLatestManga(mangaList));
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
