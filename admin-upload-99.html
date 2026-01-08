@@ -6,7 +6,7 @@
     <title>Rawkuma Admin | Control Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --accent: #8b5cf6; --bg: #0f172a; --card: #1e293b; --success: #10b981; }
+        :root { --accent: #8b5cf6; --bg: #0f172a; --card: #1e293b; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; }
         .form-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         h2 { color: var(--accent); font-size: 18px; margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
@@ -14,11 +14,17 @@
         input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; outline: none; box-sizing: border-box; transition: 0.3s; }
         input:focus, textarea:focus { border-color: var(--accent); }
         button { width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--accent); color: white; font-weight: bold; cursor: pointer; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        button:active { transform: scale(0.98); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
         .tab-btn { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn button { background: #334155; margin-top: 0; flex: 1; }
         .tab-btn button.active { background: var(--accent); }
-        .status-msg { font-size: 12px; padding: 10px; border-radius: 5px; margin-top: 10px; display: none; }
+        
+        /* Ads Styling */
+        .ad-item { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; display: flex; align-items: center; gap: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 8px; }
+        .ad-item img { width: 100px; height: 56px; object-fit: cover; border-radius: 6px; background: #111; }
+        .ad-info { flex-grow: 1; overflow: hidden; }
+        .ad-info p { margin: 0; font-size: 12px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .del-ad { background: var(--danger); width: 45px; margin-top: 0; padding: 10px; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -27,55 +33,62 @@
         <div class="tab-btn">
             <button id="manga-tab-btn" class="active" onclick="switchTab('manga')"><i class="fas fa-plus-circle"></i> Add Manga</button>
             <button id="chapter-tab-btn" onclick="switchTab('chapter')"><i class="fas fa-file-upload"></i> Add Chapter</button>
+            <button id="ads-tab-btn" onclick="switchTab('ads')"><i class="fas fa-ad"></i> Manage Ads</button>
         </div>
 
         <div id="manga-section" class="form-box">
             <h2><i class="fas fa-book"></i> Create New Manga</h2>
             <label>Manga Title</label>
-            <input type="text" id="m-title" placeholder="eg. Father, I Won't Do Anything">
-            
+            <input type="text" id="m-title" placeholder="eg. Solo Leveling">
             <label>Cover Image URL</label>
-            <input type="text" id="m-cover" placeholder="Link from ImgBB or PostImage">
-            
+            <input type="text" id="m-cover" placeholder="Link from ImgBB">
             <label>Type</label>
             <select id="m-type">
                 <option value="jp">Manga (Japan)</option>
                 <option value="kr">Manhwa (Korea)</option>
                 <option value="cn">Manhua (China)</option>
             </select>
-
-            <label>Genres (Comma separated)</label>
-            <input type="text" id="m-genres" placeholder="Action, Adventure, Fantasy">
-
+            <label>Genres</label>
+            <input type="text" id="m-genres" placeholder="Action, Adventure">
             <label>Description</label>
             <textarea id="m-desc" rows="3"></textarea>
-
             <button onclick="saveManga()" id="m-save-btn"><i class="fas fa-cloud-upload-alt"></i> Upload Story</button>
         </div>
 
         <div id="chapter-section" class="form-box" style="display: none;">
             <h2><i class="fas fa-scroll"></i> Publish Chapter</h2>
             <label>Manga Doc ID</label>
-            <input type="text" id="c-manga-id" placeholder="Paste the Manga ID here">
-            
+            <input type="text" id="c-manga-id">
             <label>Chapter Name</label>
-            <input type="text" id="c-name" placeholder="eg. Chapter 01">
-
+            <input type="text" id="c-name" placeholder="Chapter 01">
             <div style="display: flex; gap: 15px;">
                 <div style="flex: 1;">
                     <label>Price (Coins)</label>
                     <input type="number" id="c-price" value="0">
                 </div>
                 <div style="flex: 1;">
-                    <label>Order (Number)</label>
-                    <input type="number" id="c-order" placeholder="eg. 1">
+                    <label>Order</label>
+                    <input type="number" id="c-order" placeholder="1">
                 </div>
             </div>
-
-            <label>Image Links (One link per line)</label>
-            <textarea id="c-images" rows="10" placeholder="https://i.ibb.co/image1.jpg&#10;https://i.ibb.co/image2.jpg"></textarea>
-
+            <label>Image Links (Line by line)</label>
+            <textarea id="c-images" rows="8"></textarea>
             <button onclick="saveChapter()" id="c-save-btn" style="background: var(--success);"><i class="fas fa-check-double"></i> Publish Chapter</button>
+        </div>
+
+        <div id="ads-section" class="form-box" style="display: none;">
+            <h2><i class="fas fa-ad"></i> Advertisement Control</h2>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <label>Ads Image URL</label>
+                <input type="text" id="ad-image" placeholder="ကြော်ငြာပုံ Link">
+                <label>Target URL</label>
+                <input type="text" id="ad-link" placeholder="Redirect Link">
+                <button onclick="saveAd()" id="ad-save-btn" style="background: var(--warning);"><i class="fas fa-plus"></i> Add New Ad</button>
+            </div>
+
+            <h3>Current Ads List</h3>
+            <div id="current-ads-list">
+                </div>
         </div>
     </div>
 
@@ -85,85 +98,139 @@
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
+            apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44", // သင်၏ API Key
             projectId: "rawkuma-8f1ba",
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // *** အရေးကြီးသည်- သင့် Admin Email ကို ဒီမှာ အစားထိုးပါ ***
         const ADMIN_EMAIL = "kakoyahara@gmail.com"; 
 
         // Auth Logic
         auth.onAuthStateChanged(user => {
             if (user && user.email === ADMIN_EMAIL) {
                 document.getElementById('admin-ui').style.display = 'block';
+                listenToAds(); // Start Real-time listener
             } else {
                 let email = prompt("Admin Email:");
                 let pass = prompt("Password:");
                 if (email && pass) {
                     auth.signInWithEmailAndPassword(email, pass).catch(err => {
-                        alert("Unauthorized: " + err.message);
-                        window.location.href = "index.html";
+                        alert("Error: " + err.message);
+                        window.location.reload();
                     });
-                } else {
-                    window.location.href = "index.html";
                 }
             }
         });
 
+        // Tab Switching
         function switchTab(type) {
-            document.getElementById('manga-section').style.display = type === 'manga' ? 'block' : 'none';
-            document.getElementById('chapter-section').style.display = type === 'chapter' ? 'block' : 'none';
-            document.getElementById('manga-tab-btn').className = type === 'manga' ? 'active' : '';
-            document.getElementById('chapter-tab-btn').className = type === 'chapter' ? 'active' : '';
+            const tabs = ['manga', 'chapter', 'ads'];
+            tabs.forEach(t => {
+                document.getElementById(`${t}-section`).style.display = (t === type) ? 'block' : 'none';
+                document.getElementById(`${t}-tab-btn`).classList.toggle('active', t === type);
+            });
         }
 
+        // --- Ad Functions ---
+
+        async function saveAd() {
+            const img = document.getElementById('ad-image').value.trim();
+            const link = document.getElementById('ad-link').value.trim();
+            const btn = document.getElementById('ad-save-btn');
+
+            if(!img || !link) return alert("Please fill both image and link!");
+
+            btn.disabled = true;
+            btn.innerHTML = "Saving...";
+            
+            try {
+                await db.collection("advertisements").add({
+                    imageUrl: img,
+                    targetUrl: link,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                document.getElementById('ad-image').value = "";
+                document.getElementById('ad-link').value = "";
+                alert("Ads တင်ပြီးပါပြီ။");
+            } catch(e) { 
+                alert("Error: " + e.message); 
+            }
+            btn.disabled = false;
+            btn.innerHTML = "<i class='fas fa-plus'></i> Add New Ad";
+        }
+
+        // Real-time Ads Listener (ပိုမြန်ပြီး Update တန်းဖြစ်စေတယ်)
+        function listenToAds() {
+            const listDiv = document.getElementById('current-ads-list');
+            
+            db.collection("advertisements").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+                listDiv.innerHTML = snapshot.empty ? "<p style='font-size:12px; color:#64748b;'>No ads found.</p>" : "";
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const adHtml = `
+                        <div class="ad-item">
+                            <img src="${data.imageUrl}" onerror="this.src='https://via.placeholder.com/100x56?text=Error'">
+                            <div class="ad-info">
+                                <p style="color:white; font-weight:bold;">Ad ID: ${doc.id}</p>
+                                <p>Link: ${data.targetUrl}</p>
+                            </div>
+                            <button class="del-ad" onclick="deleteAd('${doc.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    listDiv.innerHTML += adHtml;
+                });
+            });
+        }
+
+        async function deleteAd(id) {
+            if(confirm("ဒီ Ad ကို ဖျက်မှာ သေချာပါသလား?")) {
+                try {
+                    await db.collection("advertisements").doc(id).delete();
+                } catch(e) { alert(e.message); }
+            }
+        }
+
+        // --- Manga & Chapter (Existing Logic) ---
         async function saveManga() {
-            const btn = document.getElementById('m-save-btn');
             const title = document.getElementById('m-title').value.trim();
             const cover = document.getElementById('m-cover').value.trim();
-            const type = document.getElementById('m-type').value;
-            const genres = document.getElementById('m-genres').value.split(',').map(g => g.trim()).filter(g => g !== "");
-            const desc = document.getElementById('m-desc').value.trim();
-
-            if(!title || !cover) return alert("Title and Cover are required!");
-
-            btn.disabled = true; btn.innerHTML = "Uploading...";
+            if(!title || !cover) return alert("Title and Cover required!");
+            
             try {
                 const docRef = await db.collection("mangas").add({
-                    title, cover, type, genres, desc,
+                    title, cover,
+                    type: document.getElementById('m-type').value,
+                    genres: document.getElementById('m-genres').value.split(','),
+                    desc: document.getElementById('m-desc').value,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                alert("SUCCESS! Manga ID: " + docRef.id);
-                document.getElementById('c-manga-id').value = docRef.id; // Auto fill ID for chapter
-            } catch(e) { alert("Permission Error: " + e.message); }
-            btn.disabled = false; btn.innerHTML = "<i class='fas fa-cloud-upload-alt'></i> Upload Story";
+                alert("Manga Saved! ID: " + docRef.id);
+                document.getElementById('c-manga-id').value = docRef.id;
+                switchTab('chapter');
+            } catch(e) { alert(e.message); }
         }
 
         async function saveChapter() {
-            const btn = document.getElementById('c-save-btn');
             const mId = document.getElementById('c-manga-id').value.trim();
             const name = document.getElementById('c-name').value.trim();
-            const price = parseInt(document.getElementById('c-price').value) || 0;
-            const order = parseInt(document.getElementById('c-order').value) || 0;
-            const images = document.getElementById('c-images').value.split('\n').map(l => l.trim()).filter(l => l !== "");
+            const images = document.getElementById('c-images').value.split('\n').filter(l => l.trim() !== "");
 
-            if(!mId || !name || images.length === 0) return alert("Fill all fields correctly!");
+            if(!mId || !name || images.length === 0) return alert("Please fill all details!");
 
-            btn.disabled = true; btn.innerHTML = "Publishing...";
             try {
                 await db.collection("mangas").doc(mId).collection("chapters").add({
-                    name, price, order, images,
+                    name, images,
+                    price: parseInt(document.getElementById('c-price').value) || 0,
+                    order: parseInt(document.getElementById('c-order').value) || 0,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                alert("Chapter Published Successfully!");
-                document.getElementById('c-name').value = "";
-                document.getElementById('c-images').value = "";
-                document.getElementById('c-order').value = order + 1; // Auto increment order
-            } catch(e) { alert("Error: " + e.message); }
-            btn.disabled = false; btn.innerHTML = "<i class='fas fa-check-double'></i> Publish Chapter";
+                alert("Chapter Published!");
+            } catch(e) { alert(e.message); }
         }
     </script>
 </body>
