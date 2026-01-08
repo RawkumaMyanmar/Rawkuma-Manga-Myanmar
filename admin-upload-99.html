@@ -48,7 +48,7 @@
                 <option value="kr">Manhwa (Korea)</option>
                 <option value="cn">Manhua (China)</option>
             </select>
-            <label>Genres</label>
+            <label>Genres (Action, Adventure)</label>
             <input type="text" id="m-genres" placeholder="Action, Adventure">
             <label>Description</label>
             <textarea id="m-desc" rows="3"></textarea>
@@ -87,8 +87,7 @@
             </div>
 
             <h3>Current Ads List</h3>
-            <div id="current-ads-list">
-                </div>
+            <div id="current-ads-list"></div>
         </div>
     </div>
 
@@ -98,7 +97,7 @@
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44", // သင်၏ API Key
+            apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
             projectId: "rawkuma-8f1ba",
         };
         firebase.initializeApp(firebaseConfig);
@@ -107,24 +106,24 @@
 
         const ADMIN_EMAIL = "kakoyahara@gmail.com"; 
 
-        // Auth Logic
         auth.onAuthStateChanged(user => {
             if (user && user.email === ADMIN_EMAIL) {
                 document.getElementById('admin-ui').style.display = 'block';
-                listenToAds(); // Start Real-time listener
+                listenToAds();
             } else {
                 let email = prompt("Admin Email:");
                 let pass = prompt("Password:");
                 if (email && pass) {
-                    auth.signInWithEmailAndPassword(email, pass).catch(err => {
+                    auth.signInWithEmailAndPassword(email.trim(), pass).catch(err => {
                         alert("Error: " + err.message);
                         window.location.reload();
                     });
+                } else {
+                    window.location.href = "index.html";
                 }
             }
         });
 
-        // Tab Switching
         function switchTab(type) {
             const tabs = ['manga', 'chapter', 'ads'];
             tabs.forEach(t => {
@@ -133,8 +132,7 @@
             });
         }
 
-        // --- Ad Functions ---
-
+        // --- Ad Functions (Collection Name ပြင်ထားသည်) ---
         async function saveAd() {
             const img = document.getElementById('ad-image').value.trim();
             const link = document.getElementById('ad-link').value.trim();
@@ -142,11 +140,11 @@
 
             if(!img || !link) return alert("Please fill both image and link!");
 
-            btn.disabled = true;
-            btn.innerHTML = "Saving...";
+            btn.disabled = true; btn.innerHTML = "Saving...";
             
             try {
-                await db.collection("advertisements").add({
+                // Rules ထဲကအတိုင်း "ads" ဟု ပြောင်းလိုက်ပါသည်
+                await db.collection("ads").add({
                     imageUrl: img,
                     targetUrl: link,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -154,58 +152,48 @@
                 document.getElementById('ad-image').value = "";
                 document.getElementById('ad-link').value = "";
                 alert("Ads တင်ပြီးပါပြီ။");
-            } catch(e) { 
-                alert("Error: " + e.message); 
-            }
-            btn.disabled = false;
-            btn.innerHTML = "<i class='fas fa-plus'></i> Add New Ad";
+            } catch(e) { alert("Error: " + e.message); }
+            btn.disabled = false; btn.innerHTML = "<i class='fas fa-plus'></i> Add New Ad";
         }
 
-        // Real-time Ads Listener (ပိုမြန်ပြီး Update တန်းဖြစ်စေတယ်)
         function listenToAds() {
             const listDiv = document.getElementById('current-ads-list');
-            
-            db.collection("advertisements").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+            db.collection("ads").orderBy("createdAt", "desc").onSnapshot(snapshot => {
                 listDiv.innerHTML = snapshot.empty ? "<p style='font-size:12px; color:#64748b;'>No ads found.</p>" : "";
-                
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    const adHtml = `
+                    listDiv.innerHTML += `
                         <div class="ad-item">
-                            <img src="${data.imageUrl}" onerror="this.src='https://via.placeholder.com/100x56?text=Error'">
+                            <img src="${data.imageUrl}">
                             <div class="ad-info">
-                                <p style="color:white; font-weight:bold;">Ad ID: ${doc.id}</p>
-                                <p>Link: ${data.targetUrl}</p>
+                                <p style="color:white; font-weight:bold;">ID: ${doc.id}</p>
+                                <p>${data.targetUrl}</p>
                             </div>
-                            <button class="del-ad" onclick="deleteAd('${doc.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    `;
-                    listDiv.innerHTML += adHtml;
+                            <button class="del-ad" onclick="deleteAd('${doc.id}')"><i class="fas fa-trash"></i></button>
+                        </div>`;
                 });
             });
         }
 
         async function deleteAd(id) {
-            if(confirm("ဒီ Ad ကို ဖျက်မှာ သေချာပါသလား?")) {
-                try {
-                    await db.collection("advertisements").doc(id).delete();
-                } catch(e) { alert(e.message); }
+            if(confirm("Delete this ad?")) {
+                try { await db.collection("ads").doc(id).delete(); } catch(e) { alert(e.message); }
             }
         }
 
-        // --- Manga & Chapter (Existing Logic) ---
+        // --- Manga & Chapter (Fixed Logic) ---
         async function saveManga() {
             const title = document.getElementById('m-title').value.trim();
             const cover = document.getElementById('m-cover').value.trim();
+            const btn = document.getElementById('m-save-btn');
             if(!title || !cover) return alert("Title and Cover required!");
             
+            btn.disabled = true;
             try {
                 const docRef = await db.collection("mangas").add({
                     title, cover,
                     type: document.getElementById('m-type').value,
-                    genres: document.getElementById('m-genres').value.split(','),
+                    genres: document.getElementById('m-genres').value.split(',').map(g => g.trim()),
                     desc: document.getElementById('m-desc').value,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -213,15 +201,18 @@
                 document.getElementById('c-manga-id').value = docRef.id;
                 switchTab('chapter');
             } catch(e) { alert(e.message); }
+            btn.disabled = false;
         }
 
         async function saveChapter() {
             const mId = document.getElementById('c-manga-id').value.trim();
             const name = document.getElementById('c-name').value.trim();
-            const images = document.getElementById('c-images').value.split('\n').filter(l => l.trim() !== "");
+            const images = document.getElementById('c-images').value.split('\n').map(l => l.trim()).filter(l => l !== "");
+            const btn = document.getElementById('c-save-btn');
 
             if(!mId || !name || images.length === 0) return alert("Please fill all details!");
 
+            btn.disabled = true;
             try {
                 await db.collection("mangas").doc(mId).collection("chapters").add({
                     name, images,
@@ -230,7 +221,10 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 alert("Chapter Published!");
+                document.getElementById('c-name').value = "";
+                document.getElementById('c-images').value = "";
             } catch(e) { alert(e.message); }
+            btn.disabled = false;
         }
     </script>
 </body>
