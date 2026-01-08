@@ -87,7 +87,14 @@
         .search-container i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--accent); }
 
         .container { padding: 15px; }
-        .section-title { border-left: 4px solid var(--accent); padding-left: 10px; font-size: 16px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .section-title { border-left: 4px solid var(--accent); padding-left: 10px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
+        
+        /* Advanced Filter Button Style */
+        .adv-filter-btn { color: #f8fafc; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.3s; font-weight: 600; }
+        .adv-filter-btn i { color: var(--accent); font-size: 16px; }
+        .adv-filter-btn:active { transform: scale(0.95); opacity: 0.8; }
+
         .manga-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
 
         .card { text-decoration: none; color: inherit; background: var(--card-bg); border-radius: 12px; overflow: hidden; position: relative; transition: var(--transition); border: 1px solid var(--glass); animation: fadeInUp 0.5s ease backwards; }
@@ -173,7 +180,12 @@
     </div>
 
     <div class="container">
-        <h3 class="section-title" id="page-title">Latest Updates</h3>
+        <div class="section-header">
+            <h3 class="section-title" id="page-title">Latest Updates</h3>
+            <a href="AdvancedFilter.html" class="adv-filter-btn">
+                <i class="fas fa-search-plus"></i> Advanced Filter
+            </a>
+        </div>
         <div class="manga-grid" id="main-list">
             <div class="card skeleton" style="height: 280px; border:none;"></div>
             <div class="card skeleton" style="height: 280px; border:none;"></div>
@@ -217,7 +229,7 @@
             });
         }
 
-        // --- Auth Observer (Improved with VIP & UID) ---
+        // --- Auth Observer ---
         auth.onAuthStateChanged(user => {
             const infoBox = document.getElementById('user-info'), loginBtn = document.getElementById('login-section');
             if (user) {
@@ -229,7 +241,6 @@
                         const userData = doc.data();
                         const isVIP = userData.membership === "VIP";
                         
-                        // VIP Badge Logic
                         document.getElementById('user-email').innerHTML = `
                             ${user.email.split('@')[0]} 
                             ${isVIP ? '<span class="vip-badge"><i class="fas fa-crown"></i> VIP</span>' : ''}
@@ -247,7 +258,6 @@
             }
         });
 
-        // --- Manga Data Load ---
         const flags = { "jp": "https://flagcdn.com/w40/jp.png", "kr": "https://flagcdn.com/w40/kr.png", "cn": "https://flagcdn.com/w40/cn.png" };
         
         function loadMangasFromDB(filterType = 'all', searchTerm = '') {
@@ -266,7 +276,7 @@
                     const card = document.createElement('a');
                     card.href = `details.html?id=${doc.id}`;
                     card.className = 'card';
-                    card.style.animationDelay = `${delay}s`; // Staggered entry animation
+                    card.style.animationDelay = `${delay}s`; 
                     card.innerHTML = `
                         <img class="flag-badge" src="${flags[manga.type] || flags['jp']}">
                         <img src="${manga.cover}" loading="lazy" onerror="this.src='https://via.placeholder.com/230x300?text=No+Cover'">
@@ -277,7 +287,6 @@
             });
         }
 
-        // Search & UI Helpers
         document.getElementById('searchInput').addEventListener('input', (e) => loadMangasFromDB('all', e.target.value));
         function filterManga(type) { loadMangasFromDB(type); toggleMenu(); }
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
@@ -290,7 +299,6 @@
         }
         function logout() { auth.signOut(); }
 
-        // Init
         loadMangasFromDB();
         displayAds();
     </script>
