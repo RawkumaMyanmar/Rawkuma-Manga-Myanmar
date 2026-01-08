@@ -66,25 +66,33 @@
         const urlParams = new URLSearchParams(window.location.search);
         const mangaId = urlParams.get('id');
 
-        // ID မပါရင် index ကို ပြန်လွှတ်မယ်
         if (!mangaId) { window.location.href = 'index.html'; }
 
-        // ၁။ Manga Details ဖတ်ခြင်း
+        // ၁။ Manga Details ဖတ်ခြင်း (Genres ပတ်ဖတ်သည့် ကုဒ်အသစ်ဖြင့်)
         function loadMangaDetails() {
             db.collection("mangas").doc(mangaId).get().then((doc) => {
                 if (doc.exists) {
                     const manga = doc.data();
-                    const genreLabel = manga.type === 'jp' ? 'Manga' : (manga.type === 'kr' ? 'Manhwa' : 'Manhua');
                     
+                    // Genres list ကို Badge လေးတွေအဖြစ် ပြောင်းလဲခြင်း
+                    let genreBadges = "";
+                    if (manga.genres && Array.isArray(manga.genres)) {
+                        manga.genres.forEach(g => {
+                            genreBadges += `<span style="background: rgba(139, 92, 246, 0.2); color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-right: 5px; border: 1px solid var(--accent); display: inline-block; margin-bottom: 5px;">${g}</span>`;
+                        });
+                    } else {
+                        // အကယ်၍ genre မရှိရင် manga type ကိုပဲ badge တစ်ခုအနေနဲ့ ပြမယ်
+                        const typeLabel = manga.type === 'jp' ? 'Manga' : (manga.type === 'kr' ? 'Manhwa' : 'Manhua');
+                        genreBadges = `<span style="background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase;">${typeLabel}</span>`;
+                    }
+
                     document.getElementById('manga-content').innerHTML = `
                         <div class="manga-header">
                             <img src="${manga.cover}" class="manga-cover" onerror="this.src='https://via.placeholder.com/140x200?text=No+Cover'">
                             <div class="manga-info">
                                 <div class="manga-title">${manga.title}</div>
                                 <div style="margin-bottom: 10px;">
-                                    <span style="background: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
-                                        <i class="fas fa-tag"></i> ${genreLabel}
-                                    </span>
+                                    ${genreBadges} 
                                 </div>
                                 <div class="manga-desc">${manga.desc || 'No description available.'}</div>
                             </div>
@@ -95,15 +103,13 @@
                 }
             }).catch(err => {
                 console.error(err);
-                document.getElementById('manga-content').innerHTML = "<div class='loading'>အချက်အလက်ဖတ်ရာတွင် အမှားရှိနေပါသည်။</div>";
+                document.getElementById('manga-content').innerHTML = "<div class='loading'>အမှားအယွင်းရှိနေပါသည်။</div>";
             });
         }
 
         // ၂။ Chapters ဖတ်ခြင်း
         function loadChapters() {
             const list = document.getElementById('chapter-list');
-            
-            // Sub-collection 'chapters' ထဲကနေ ဆွဲထုတ်မယ်
             db.collection("mangas").doc(mangaId).collection("chapters")
               .orderBy("order", "asc") 
               .onSnapshot((snapshot) => {
@@ -126,11 +132,9 @@
                 });
             }, (error) => {
                 console.log("Error loading chapters:", error);
-                list.innerHTML = "<div style='color:#ef4444; font-size:12px; padding:20px;'>Chapter များ ဆွဲထုတ်ရာတွင် အမှားရှိနေပါသည်။ Firestore တွင် 'order' field ကို စစ်ဆေးပါ။</div>";
             });
         }
 
-        // စတင်ပွင့်တာနဲ့ function ခေါ်မယ်
         loadMangaDetails();
     </script>
 </body>
