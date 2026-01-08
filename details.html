@@ -11,7 +11,7 @@
             --accent: #8b5cf6; 
             --bg: #0f172a; 
             --card-bg: #1e293b;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* --- Global Protection System --- */
@@ -48,6 +48,13 @@
         }
         .back-btn:hover { background: var(--glass); color: var(--accent); }
 
+        .vip-nav-badge {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #000; font-size: 10px; padding: 4px 10px; border-radius: 20px;
+            font-weight: 900; box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+            display: none; align-items: center; gap: 5px; animation: fadeInUp 0.5s ease;
+        }
+
         .coin-display {
             display: flex; align-items: center; gap: 8px;
             background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3);
@@ -73,50 +80,54 @@
         .manga-cover { 
             width: 130px; height: 190px; object-fit: cover; 
             border-radius: 12px; pointer-events: none;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.6); 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8); 
             border: 2px solid rgba(255,255,255,0.1);
             animation: fadeInUp 0.6s ease;
         }
 
         .manga-info { flex: 1; z-index: 1; animation: fadeInUp 0.8s ease; }
-        .manga-title { font-size: 22px; font-weight: 800; margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .manga-title { font-size: 24px; font-weight: 800; margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); color: #f8fafc; }
 
         .genre-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
         .genre-badge {
-            background: rgba(139, 92, 246, 0.2); color: #c084fc; 
+            background: rgba(139, 92, 246, 0.15); color: #c084fc; 
             padding: 4px 12px; border-radius: 20px; font-size: 11px; 
             font-weight: 600; border: 1px solid rgba(139, 92, 246, 0.3);
         }
 
         /* Description Box */
-        .desc-section { padding: 20px; background: linear-gradient(to bottom, transparent, var(--bg)); }
-        .manga-desc { font-size: 14px; color: #94a3b8; line-height: 1.6; max-height: 150px; overflow-y: auto; }
+        .desc-section { padding: 25px 20px; background: linear-gradient(to bottom, transparent, var(--bg)); }
+        .manga-desc { font-size: 14px; color: #cbd5e1; line-height: 1.7; text-align: justify; }
 
         /* Chapters Section */
         .chapter-section { 
-            padding: 20px; background: var(--bg); border-radius: 30px 30px 0 0;
+            padding: 25px 20px; background: var(--bg); border-radius: 30px 30px 0 0;
             margin-top: -20px; position: relative; z-index: 2;
+            box-shadow: 0 -20px 40px rgba(0,0,0,0.5);
         }
-        .section-title { font-size: 18px; margin-bottom: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-        .section-title::before { content: ''; width: 4px; height: 20px; background: var(--accent); border-radius: 10px; }
+        .section-title { font-size: 19px; margin-bottom: 25px; font-weight: 800; display: flex; align-items: center; gap: 12px; letter-spacing: 0.5px; }
+        .section-title::before { content: ''; width: 4px; height: 22px; background: var(--accent); border-radius: 10px; box-shadow: 0 0 10px var(--accent); }
         
-        .chapter-list { display: flex; flex-direction: column; gap: 12px; padding-bottom: 50px; }
+        .chapter-list { display: flex; flex-direction: column; gap: 14px; padding-bottom: 60px; }
         .chapter-item { 
-            background: var(--card-bg); padding: 16px; border-radius: 15px; 
+            background: var(--card-bg); padding: 18px; border-radius: 18px; 
             display: flex; justify-content: space-between; align-items: center; 
             text-decoration: none; color: white; border: 1px solid var(--glass); 
             transition: var(--transition);
         }
-        .chapter-item:hover { border-color: var(--accent); transform: translateX(5px); }
+        .chapter-item:active { transform: scale(0.96); background: rgba(139, 92, 246, 0.1); border-color: var(--accent); }
 
-        .chapter-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 12px; }
-        .chapter-name i { color: var(--accent); }
+        .chapter-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 12px; color: #f1f5f9; }
+        .chapter-name i { color: var(--accent); font-size: 18px; }
 
         .price-badge { 
-            padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800;
+            padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 800;
             border: 1px solid #fbbf24; color: #fbbf24; background: rgba(251, 191, 36, 0.1);
+            display: flex; align-items: center; gap: 5px;
         }
         .free-badge { color: #10b981; border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .vip-unlocked { color: #fbbf24; border-color: #fbbf24; background: rgba(251, 191, 36, 0.15); border-style: dashed; }
+        
         .loading { text-align: center; padding: 100px 20px; color: #64748b; }
     </style>
 </head>
@@ -124,7 +135,7 @@
 
     <nav>
         <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <div style="font-weight: 800; font-size: 13px; color: var(--accent);">DETAILS</div>
+        <div id="vip-status" class="vip-nav-badge"><i class="fas fa-crown"></i> VIP</div>
         <div class="coin-display" id="coin-box" style="display: none;">
             <i class="fas fa-coins"></i><span id="user-coins">0</span>
         </div>
@@ -163,22 +174,36 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const mangaId = urlParams.get('id');
+        let userVIP = false;
 
         if (!mangaId) window.location.href = 'index.html';
 
-        // Secure Coin Sync
+        // Secure Coin & VIP Sync
         auth.onAuthStateChanged(user => {
             const coinBox = document.getElementById('coin-box');
             const coinDisplay = document.getElementById('user-coins');
+            const vipBadge = document.getElementById('vip-status');
+
             if (user) {
                 coinBox.style.display = 'flex';
                 db.collection("users").doc(user.uid).onSnapshot(doc => {
                     if (doc.exists) {
-                        const actualCoins = doc.data().coins || 0;
+                        const data = doc.data();
+                        const actualCoins = data.coins || 0;
+                        userVIP = data.membership === "VIP";
+                        
                         coinDisplay.innerText = Number(actualCoins).toLocaleString();
+                        vipBadge.style.display = userVIP ? 'flex' : 'none';
+                        
+                        // VIP status ပြောင်းလဲသွားရင် Chapter list ကို refresh လုပ်ပေးမယ်
+                        loadChapters(); 
                     }
                 });
-            } else { coinBox.style.display = 'none'; }
+            } else { 
+                coinBox.style.display = 'none'; 
+                vipBadge.style.display = 'none';
+                loadChapters();
+            }
         });
 
         function loadMangaDetails() {
@@ -200,7 +225,6 @@
                         <div class="desc-section">
                             <div class="manga-desc">${manga.desc || 'No description available.'}</div>
                         </div>`;
-                    loadChapters();
                 }
             });
         }
@@ -212,14 +236,25 @@
                 snap.forEach(doc => {
                     const ch = doc.data();
                     const isFree = !ch.price || ch.price === 0;
+                    
+                    // Logic: VIP ဖြစ်ရင် အကုန် Free၊ မဟုတ်ရင် Price အတိုင်းပြ
+                    let priceLabel = isFree ? 'FREE' : `<i class="fas fa-coins"></i> ${ch.price}`;
+                    let badgeClass = isFree ? 'free-badge' : '';
+                    
+                    if (userVIP && !isFree) {
+                        priceLabel = '<i class="fas fa-crown"></i> UNLOCKED';
+                        badgeClass = 'vip-unlocked';
+                    }
+
                     list.innerHTML += `
                         <a href="reader.html?mangaId=${mangaId}&chapterId=${doc.id}" class="chapter-item">
                             <div class="chapter-name"><i class="fas fa-play-circle"></i> ${ch.name}</div>
-                            <div class="price-badge ${isFree ? 'free-badge' : ''}">${isFree ? 'FREE' : '<i class="fas fa-coins"></i> '+ch.price}</div>
+                            <div class="price-badge ${badgeClass}">${priceLabel}</div>
                         </a>`;
                 });
             });
         }
+
         loadMangaDetails();
     </script>
 </body>
