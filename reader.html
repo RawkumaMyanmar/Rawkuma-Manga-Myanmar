@@ -3,80 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Reader | Rawkuma</title>
+    <title>Secure Reader | Rawkuma</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0f172a; --nav-bg: rgba(15, 23, 42, 0.95); --accent: #8b5cf6; }
-        body { 
-            font-family: sans-serif; margin: 0; background: var(--bg); color: white; 
-            user-select: none; -webkit-user-select: none; 
-            overflow-x: hidden;
-        }
-        nav { 
-            background: var(--nav-bg); padding: 10px 15px; position: fixed; top: 0; width: 100%; 
-            z-index: 1000; display: flex; align-items: center; gap: 10px;
-            backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);
-            box-sizing: border-box;
-        }
-        nav a { color: white; text-decoration: none; font-size: 18px; }
-        .ch-info { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        :root { --bg: #030712; --accent: #8b5cf6; --glass: rgba(255, 255, 255, 0.03); }
         
-        #chapter-select {
-            background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--accent);
-            border-radius: 5px; padding: 2px 8px; font-size: 12px; outline: none; margin-top: 4px;
-        }
-        #chapter-select option { background: var(--bg); color: white; }
-
-        .viewer { margin-top: 60px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; width: 100%; position: relative; }
-        
-        /* Image Security */
-        .viewer img { 
-            width: 100%; max-width: 800px; display: block; height: auto; 
-            pointer-events: none;
-            -webkit-touch-callout: none;
-            border-bottom: 1px solid #1e293b;
+        /* Protection Layers */
+        * { 
+            -webkit-user-select: none; -ms-user-select: none; user-select: none; 
+            -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
         }
         
-        /* Watermark Overlay Styling */
-        #protection-layer { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            z-index: 999; pointer-events: none; overflow: hidden;
-            display: flex; flex-wrap: wrap; justify-content: center; align-content: center;
-            opacity: 0.12; /* Watermark အမှိန်နှုန်း */
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: white; overflow-x: hidden; }
+
+        /* Floating Watermark Style */
+        .watermark {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999; overflow: hidden;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            opacity: 0.15; /* ဝါးဝါးလေးပဲ မြင်ရအောင် */
+            font-size: 14px; font-weight: bold; transform: rotate(-30deg);
         }
-        .wm-text { transform: rotate(-45deg); font-size: 14px; margin: 60px; white-space: nowrap; color: white; font-weight: bold; }
+        .watermark span { padding: 40px; display: block; white-space: nowrap; color: #94a3b8; }
 
-        .status-msg { padding: 80px 20px; text-align: center; }
-        .btn-action { display: inline-block; background: var(--accent); color: white; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-top: 15px; }
+        /* Reader Header */
+        .reader-nav {
+            position: fixed; top: 0; width: 100%; background: rgba(3, 7, 18, 0.95);
+            backdrop-filter: blur(15px); z-index: 1000; padding: 10px 15px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--glass); box-sizing: border-box;
+            transition: 0.3s;
+        }
+        .reader-nav.hide { transform: translateY(-100%); }
 
-        .controls { padding: 30px; display: flex; justify-content: center; gap: 15px; background: var(--bg); margin-bottom: 30px; }
-        .btn-nav { background: var(--accent); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px; }
-        .btn-nav.disabled { background: #334155; pointer-events: none; opacity: 0.5; }
+        .back-btn { color: white; text-decoration: none; font-size: 18px; width: 30px; }
+        
+        .manga-container { display: flex; flex-direction: column; align-items: center; margin-top: 55px; min-height: 100vh; position: relative; }
+        .manga-image { width: 100%; max-width: 800px; display: block; pointer-events: none; user-select: none; }
+
+        /* Navigation Buttons */
+        .bottom-nav {
+            padding: 30px 15px 60px; display: flex; justify-content: space-between;
+            max-width: 800px; margin: 0 auto; gap: 10px; z-index: 1001; position: relative;
+        }
+        .nav-btn {
+            flex: 1; background: var(--glass); border: 1px solid var(--glass);
+            color: white; padding: 12px; border-radius: 12px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-weight: 600; transition: 0.2s; text-decoration: none;
+        }
+        .nav-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(139, 92, 246, 0.1); }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* Lock UI */
+        #lock-screen {
+            position: fixed; inset: 0; background: rgba(3, 7, 18, 0.98); z-index: 2000;
+            display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        }
+        .unlock-card { background: #111827; padding: 30px; border-radius: 20px; border: 1px solid var(--accent); max-width: 300px; }
+        .unlock-btn { background: var(--accent); color: white; border: none; padding: 12px 40px; border-radius: 10px; font-weight: bold; margin-top: 20px; cursor: pointer; width: 100%; }
+
+        .loading-spinner { padding: 100px; text-align: center; color: var(--accent); }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body oncontextmenu="return false;" onkeydown="return disableInspector(event);">
 
-    <div id="protection-layer"></div>
+    <div class="watermark" id="watermark-grid"></div>
 
-    <nav>
-        <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i></a>
-        <div class="ch-info">
-            <div id="manga-title" style="font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">Manga Name</div>
-            <select id="chapter-select"></select>
-        </div>
-        <a href="index.html"><i class="fas fa-home"></i></a>
+    <nav class="reader-nav" id="reader-nav">
+        <a href="#" id="nav-back-link" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <select id="chapter-selector" onchange="changeChapter(this.value)" style="background:#1e293b; color:white; border:1px solid var(--accent); border-radius:5px; padding:3px 8px;"></select>
+        <div style="width: 30px;"></div>
     </nav>
 
-    <div class="viewer" id="image-container">
-        <div id="loader" style="padding:100px; text-align:center;">
-            <i class="fas fa-spinner fa-spin fa-2x"></i>
-            <p style="margin-top:10px; color:#64748b;">Securing Content...</p>
+    <div id="lock-screen">
+        <div class="unlock-card">
+            <i class="fas fa-lock" style="font-size: 40px; color: #fbbf24; margin-bottom: 15px;"></i>
+            <h3 id="lock-title">Paid Chapter</h3>
+            <p id="lock-price" style="font-size: 14px; color: #94a3b8;"></p>
+            <button class="unlock-btn" id="buy-btn">ဝယ်ယူမည်</button>
         </div>
     </div>
 
-    <div class="controls" id="footer-nav" style="display:none;">
-        <a href="#" id="prev-btn" class="btn-nav">PREV</a>
-        <a href="#" id="next-btn" class="btn-nav">NEXT</a>
+    <div class="manga-container" id="image-list">
+        <div class="loading-spinner"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+    </div>
+
+    <div class="bottom-nav">
+        <button id="prev-btn" class="nav-btn" onclick="prevChapter()"><i class="fas fa-chevron-left"></i> Prev</button>
+        <button id="next-btn" class="nav-btn" onclick="nextChapter()">Next <i class="fas fa-chevron-right"></i></button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -84,19 +99,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // --- Security Level 1: Domain Lockdown ပြင်ဆင်ချက် ---
-        const allowedHosts = [
-            "rawkumamyanmar.github.io", // သင်အခုသုံးနေတဲ့ Domain
-            "rawkuma-8f1ba.web.app", 
-            "rawkuma-8f1ba.firebaseapp.com", 
-            "localhost"
-        ];
-
-        if (!allowedHosts.includes(window.location.hostname)) {
-            document.body.innerHTML = "<div style='padding:50px; text-align:center;'><h3>Security Protection</h3><p>Local viewing is not allowed. Please use the official website.</p></div>";
-            throw new Error("Domain not authorized"); // ကျန်တဲ့ code တွေ ဆက်အလုပ်မလုပ်အောင် တားလိုက်တာပါ
-        }
-
         const firebaseConfig = {
             apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
             authDomain: "rawkuma-8f1ba.firebaseapp.com",
@@ -106,124 +108,119 @@
             appId: "1:8257070386:web:74d861728b8378d86f232b"
         };
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
-        const chapterImages = {
-            "gomibako": {
-                "Chapter 01": ["https://i.ibb.co/LDFt7Mwv/1.jpg"],
-                "Chapter 02": ["https://i.ibb.co/cSyPR5KF/IMG-20260106-000718-017.jpg"],
-                "Chapter 03": ["https://i.ibb.co/pBXnbVJP/Please-Bully-Me-Cover.webp"]
-            }
-        };
+        const urlParams = new URLSearchParams(window.location.search);
+        const mangaId = urlParams.get('mangaId');
+        let chapterId = urlParams.get('chapterId');
+        let allChapters = [];
 
-        const chapterMeta = {
-            "gomibako": { "Chapter 04": { type: "paid" } }
-        };
+        document.getElementById('nav-back-link').href = `details.html?id=${mangaId}`;
 
-        const params = new URLSearchParams(window.location.search);
-        const mangaId = params.get('id');
-        let currentCh = params.get('ch');
-
-        // Dynamic Watermark: User Email ကို ပုံအပေါ်မှာ ဖြန့်ခင်းခြင်း
-        function applyWatermark(email) {
-            const layer = document.getElementById('protection-layer');
-            layer.innerHTML = "";
-            for (let i = 0; i < 50; i++) {
-                const el = document.createElement('div');
-                el.className = 'wm-text';
-                el.innerText = email;
-                layer.appendChild(el);
+        // ၁။ Watermark System
+        function createWatermark(email) {
+            const grid = document.getElementById('watermark-grid');
+            grid.innerHTML = "";
+            const masked = email ? email : "Unauthorized View";
+            for (let i = 0; i < 20; i++) { // Screen တစ်ခုလုံး ပြည့်အောင် ၂၀ ခု ပြမယ်
+                const span = document.createElement('span');
+                span.innerText = masked;
+                grid.appendChild(span);
             }
         }
 
-        function setupDropdown() {
-            const select = document.getElementById('chapter-select');
-            const chapters = Object.keys(chapterImages[mangaId] || {}).sort();
-            
-            chapters.forEach(ch => {
-                const opt = document.createElement('option');
-                opt.value = ch;
-                opt.innerText = ch;
-                if(ch === currentCh) opt.selected = true;
-                select.appendChild(opt);
-            });
-
-            select.onchange = (e) => {
-                window.location.href = `reader.html?id=${mangaId}&ch=${e.target.value}`;
-            };
-
-            const currentIndex = chapters.indexOf(currentCh);
-            const prevBtn = document.getElementById('prev-btn');
-            const nextBtn = document.getElementById('next-btn');
-
-            if (currentIndex > 0) {
-                prevBtn.onclick = () => window.location.href = `reader.html?id=${mangaId}&ch=${chapters[currentIndex-1]}`;
-            } else {
-                prevBtn.classList.add('disabled');
-            }
-
-            if (currentIndex < chapters.length - 1) {
-                nextBtn.onclick = () => window.location.href = `reader.html?id=${mangaId}&ch=${chapters[currentIndex+1]}`;
-            } else {
-                nextBtn.innerText = "END";
-                nextBtn.classList.add('disabled');
-            }
-        }
-
-        auth.onAuthStateChanged(async (user) => {
-            if (!mangaId || !currentCh) {
-                showError("Error", "Missing Data", "index.html", "Go Home");
-                return;
-            }
-
-            document.getElementById('manga-title').innerText = mangaId.toUpperCase();
-            setupDropdown();
-
-            // Watermark ကို Login ဝင်ထားတဲ့ Email နဲ့ပြမယ် (Login မဝင်ရင် Guest လို့ပြမယ်)
-            applyWatermark(user ? user.email : "GUEST-USER");
-
-            const isPaid = chapterMeta[mangaId] && chapterMeta[mangaId][currentCh] && chapterMeta[mangaId][currentCh].type === "paid";
-            
-            if (!isPaid) {
-                renderImages();
-            } else {
-                if (!user) {
-                    showError("Login Required", "ဤအပိုင်းကိုဖတ်ရန် Login ဝင်ပေးပါ။", "details.html?id="+mangaId, "Back");
-                } else {
-                    const purchaseDoc = await db.collection("users").doc(user.uid).collection("purchased_chapters").doc(`${mangaId}_${currentCh}`).get();
-                    if (purchaseDoc.exists) renderImages();
-                    else showError("Access Denied", "ဤအပိုင်းကို မဝယ်ယူရသေးပါ။", "details.html?id="+mangaId, "Buy Now");
-                }
-            }
-        });
-
-        function renderImages() {
-            const container = document.getElementById('image-container');
-            container.innerHTML = ""; 
-            if (chapterImages[mangaId] && chapterImages[mangaId][currentCh]) {
-                chapterImages[mangaId][currentCh].forEach(url => {
-                    const img = document.createElement('img');
-                    img.src = url;
-                    img.ondragstart = () => false; // Drag ဆွဲတာ တားမြစ်ခြင်း
-                    container.appendChild(img);
-                });
-                document.getElementById('footer-nav').style.display = 'flex';
-            } else {
-                showError("Coming Soon", "ပုံများ မတင်ရသေးပါဗျာ။", "details.html?id="+mangaId, "Go Back");
-            }
-        }
-
-        function showError(t, m, l, b) {
-            document.getElementById('image-container').innerHTML = `<div class="status-msg"><h3>${t}</h3><p style='color:#94a3b8'>${m}</p><a href="${l}" class="btn-action">${b}</a></div>`;
-        }
-
-        // --- Security Level 3: Keyboard Shortcuts Protection ---
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
+        // ၂။ Security: Disable DevTools Shortcuts
+        function disableInspector(e) {
+            if (e.ctrlKey && (e.shiftKey && e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 85) || e.keyCode === 123) {
                 return false;
             }
-        };
+        }
+
+        // ၃။ Data Loading
+        async function setupChapters() {
+            const snap = await db.collection("mangas").doc(mangaId).collection("chapters").orderBy("order", "asc").get();
+            allChapters = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            const select = document.getElementById('chapter-selector');
+            select.innerHTML = allChapters.map(ch => 
+                `<option value="${ch.id}" ${ch.id === chapterId ? 'selected' : ''}>${ch.name}</option>`
+            ).join('');
+            updateNavButtons();
+        }
+
+        function updateNavButtons() {
+            const idx = allChapters.findIndex(ch => ch.id === chapterId);
+            document.getElementById('prev-btn').disabled = (idx <= 0);
+            document.getElementById('next-btn').disabled = (idx >= allChapters.length - 1 || idx === -1);
+        }
+
+        async function loadImages() {
+            const container = document.getElementById('image-list');
+            const lockScreen = document.getElementById('lock-screen');
+            container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+            lockScreen.style.display = 'none';
+
+            try {
+                const chDoc = await db.collection("mangas").doc(mangaId).collection("chapters").doc(chapterId).get();
+                const chapter = chDoc.data();
+                const price = chapter.price || 0;
+                const user = auth.currentUser;
+
+                if (price > 0) {
+                    if (!user) return showLock("Access Denied", "Please login to view paid content.", false);
+                    const userDoc = await db.collection("users").doc(user.uid).get();
+                    if (!(userDoc.data()?.purchasedChapters || []).includes(chapterId)) {
+                        return showLock(`Paid Chapter`, `Price: ${price} Coins`, true, price, userDoc.data()?.coins || 0);
+                    }
+                }
+
+                container.innerHTML = "";
+                (chapter.images || []).forEach(url => {
+                    const img = new Image();
+                    img.src = url;
+                    img.className = 'manga-image';
+                    container.appendChild(img);
+                });
+                window.scrollTo(0,0);
+            } catch (err) { container.innerHTML = "Error loading content."; }
+        }
+
+        function showLock(title, desc, showBtn, price, balance) {
+            document.getElementById('lock-screen').style.display = 'flex';
+            document.getElementById('lock-title').innerText = title;
+            document.getElementById('lock-price').innerText = desc;
+            const btn = document.getElementById('buy-btn');
+            btn.style.display = showBtn ? 'block' : 'none';
+            btn.onclick = () => handlePurchase(price, balance);
+        }
+
+        async function handlePurchase(price, balance) {
+            if (balance < price) return alert("Not enough coins!");
+            const user = auth.currentUser;
+            await db.collection("users").doc(user.uid).update({
+                coins: firebase.firestore.FieldValue.increment(-price),
+                purchasedChapters: firebase.firestore.FieldValue.arrayUnion(chapterId)
+            });
+            loadImages();
+        }
+
+        function prevChapter() { const idx = allChapters.findIndex(ch => ch.id === chapterId); if (idx > 0) changeChapter(allChapters[idx - 1].id); }
+        function nextChapter() { const idx = allChapters.findIndex(ch => ch.id === chapterId); if (idx < allChapters.length - 1) changeChapter(allChapters[idx + 1].id); }
+
+        function changeChapter(id) {
+            chapterId = id;
+            window.history.pushState({}, '', `?mangaId=${mangaId}&chapterId=${id}`);
+            document.getElementById('chapter-selector').value = id;
+            loadImages();
+            updateNavButtons();
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) createWatermark(user.email);
+            setupChapters();
+            loadImages();
+        });
     </script>
 </body>
 </html>
