@@ -24,9 +24,9 @@
         .chapter-list { display: flex; flex-direction: column; gap: 10px; }
         .chapter-item { background: var(--card-bg); padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: white; border: 1px solid var(--glass); transition: 0.3s; }
         .chapter-item:hover { border-color: var(--accent); transform: scale(1.02); }
-        .chapter-name { font-weight: 500; }
+        .chapter-name { font-weight: 500; display: flex; align-items: center; gap: 10px; }
         .price-badge { background: rgba(251, 191, 36, 0.1); color: #fbbf24; padding: 4px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; border: 1px solid #fbbf24; }
-        .free-badge { color: #10b981; }
+        .free-badge { color: #10b981; border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
 
         .loading { text-align: center; padding: 50px; color: #64748b; }
     </style>
@@ -39,7 +39,7 @@
     </nav>
 
     <div id="manga-content">
-        <div class="loading">အချက်အလက်များကို ရယူနေပါသည်...</div>
+        <div class="loading"><i class="fas fa-circle-notch fa-spin"></i> အချက်အလက်များကို ရယူနေပါသည်...</div>
     </div>
 
     <div class="chapter-section">
@@ -63,62 +63,74 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // ၁။ URL ကနေ Manga ID ကို ယူမယ် (ဥပမာ- details.html?id=gomibako)
         const urlParams = new URLSearchParams(window.location.search);
         const mangaId = urlParams.get('id');
 
-        if (!mangaId) {
-            window.location.href = 'index.html';
-        }
+        // ID မပါရင် index ကို ပြန်လွှတ်မယ်
+        if (!mangaId) { window.location.href = 'index.html'; }
 
-        // ၂။ Manga Details ကို ဖတ်မယ်
+        // ၁။ Manga Details ဖတ်ခြင်း
         function loadMangaDetails() {
             db.collection("mangas").doc(mangaId).get().then((doc) => {
                 if (doc.exists) {
                     const manga = doc.data();
+                    const genreLabel = manga.type === 'jp' ? 'Manga' : (manga.type === 'kr' ? 'Manhwa' : 'Manhua');
+                    
                     document.getElementById('manga-content').innerHTML = `
                         <div class="manga-header">
-                            <img src="${manga.cover}" class="manga-cover">
+                            <img src="${manga.cover}" class="manga-cover" onerror="this.src='https://via.placeholder.com/140x200?text=No+Cover'">
                             <div class="manga-info">
                                 <div class="manga-title">${manga.title}</div>
+                                <div style="margin-bottom: 10px;">
+                                    <span style="background: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
+                                        <i class="fas fa-tag"></i> ${genreLabel}
+                                    </span>
+                                </div>
                                 <div class="manga-desc">${manga.desc || 'No description available.'}</div>
                             </div>
-                        </div>
-                    `;
-                    loadChapters(); // Manga ရပြီဆိုရင် Chapter တွေ ဆက်ဖတ်မယ်
+                        </div>`;
+                    loadChapters();
                 } else {
-                    document.getElementById('manga-content').innerHTML = "Manga not found.";
+                    document.getElementById('manga-content').innerHTML = "<div class='loading'>Manga not found.</div>";
                 }
+            }).catch(err => {
+                console.error(err);
+                document.getElementById('manga-content').innerHTML = "<div class='loading'>အချက်အလက်ဖတ်ရာတွင် အမှားရှိနေပါသည်။</div>";
             });
         }
 
-        // ၃။ Chapters ကို Sub-collection ထဲကနေ ဆွဲထုတ်မယ်
+        // ၂။ Chapters ဖတ်ခြင်း
         function loadChapters() {
             const list = document.getElementById('chapter-list');
+            
+            // Sub-collection 'chapters' ထဲကနေ ဆွဲထုတ်မယ်
             db.collection("mangas").doc(mangaId).collection("chapters")
-              .orderBy("order", "asc")
+              .orderBy("order", "asc") 
               .onSnapshot((snapshot) => {
                 list.innerHTML = "";
                 if (snapshot.empty) {
-                    list.innerHTML = "<div style='color:#64748b'>No chapters yet.</div>";
+                    list.innerHTML = "<div style='color:#64748b; padding:20px;'>တင်ထားသော Chapter မရှိသေးပါ။</div>";
                     return;
                 }
                 snapshot.forEach((doc) => {
                     const ch = doc.data();
-                    const isFree = ch.price === 0;
+                    const isFree = (ch.price === 0 || !ch.price);
                     
                     list.innerHTML += `
                         <a href="reader.html?mangaId=${mangaId}&chapterId=${doc.id}" class="chapter-item">
-                            <div class="chapter-name">${ch.name}</div>
+                            <div class="chapter-name"><i class="far fa-file-alt"></i> ${ch.name}</div>
                             <div class="price-badge ${isFree ? 'free-badge' : ''}">
-                                ${isFree ? 'FREE' : ch.price + ' Coins'}
+                                ${isFree ? 'FREE' : '<i class="fas fa-coins"></i> ' + ch.price}
                             </div>
-                        </a>
-                    `;
+                        </a>`;
                 });
+            }, (error) => {
+                console.log("Error loading chapters:", error);
+                list.innerHTML = "<div style='color:#ef4444; font-size:12px; padding:20px;'>Chapter များ ဆွဲထုတ်ရာတွင် အမှားရှိနေပါသည်။ Firestore တွင် 'order' field ကို စစ်ဆေးပါ။</div>";
             });
         }
 
+        // စတင်ပွင့်တာနဲ့ function ခေါ်မယ်
         loadMangaDetails();
     </script>
 </body>
