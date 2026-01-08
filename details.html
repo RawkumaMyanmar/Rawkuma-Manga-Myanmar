@@ -2,7 +2,7 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Manga Details | Rawkuma</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -14,10 +14,16 @@
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* --- Global Protection System --- */
+        * { 
+            -webkit-user-select: none; -ms-user-select: none; user-select: none; 
+            -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+        }
+
         body { 
             font-family: 'Segoe UI', Roboto, sans-serif; 
             margin: 0; background: var(--bg); color: white; 
-            min-height: 100vh;
+            min-height: 100vh; overflow-x: hidden;
         }
 
         @keyframes fadeInUp {
@@ -42,23 +48,15 @@
         }
         .back-btn:hover { background: var(--glass); color: var(--accent); }
 
-        /* Coin Display Style */
         .coin-display {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(251, 191, 36, 0.1);
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            padding: 5px 12px;
-            border-radius: 20px;
-            color: #fbbf24;
-            font-weight: 800;
-            font-size: 14px;
-            margin-left: auto; /* Push to right */
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3);
+            padding: 5px 12px; border-radius: 20px; color: #fbbf24;
+            font-weight: 800; font-size: 14px; margin-left: auto;
             animation: fadeInUp 0.5s ease;
         }
 
-        /* Manga Header with Blurred Background */
+        /* Manga Header */
         .manga-header { 
             padding: 40px 20px; display: flex; gap: 20px; 
             position: relative; overflow: hidden; 
@@ -74,98 +72,66 @@
 
         .manga-cover { 
             width: 130px; height: 190px; object-fit: cover; 
-            border-radius: 12px; 
+            border-radius: 12px; pointer-events: none;
             box-shadow: 0 15px 30px rgba(0,0,0,0.6); 
             border: 2px solid rgba(255,255,255,0.1);
             animation: fadeInUp 0.6s ease;
         }
 
-        .manga-info { 
-            flex: 1; z-index: 1; animation: fadeInUp 0.8s ease;
-        }
-
-        .manga-title { 
-            font-size: 22px; font-weight: 800; margin-bottom: 12px; 
-            color: white; line-height: 1.2;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
+        .manga-info { flex: 1; z-index: 1; animation: fadeInUp 0.8s ease; }
+        .manga-title { font-size: 22px; font-weight: 800; margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
 
         .genre-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
         .genre-badge {
             background: rgba(139, 92, 246, 0.2); color: #c084fc; 
             padding: 4px 12px; border-radius: 20px; font-size: 11px; 
             font-weight: 600; border: 1px solid rgba(139, 92, 246, 0.3);
-            backdrop-filter: blur(5px);
         }
 
         /* Description Box */
-        .desc-section { 
-            padding: 20px; background: linear-gradient(to bottom, transparent, var(--bg));
-        }
-        .manga-desc { 
-            font-size: 14px; color: #94a3b8; line-height: 1.6; 
-            max-height: 150px; overflow-y: auto; padding-right: 10px;
-        }
-        .manga-desc::-webkit-scrollbar { width: 4px; }
-        .manga-desc::-webkit-scrollbar-thumb { background: var(--glass); border-radius: 10px; }
+        .desc-section { padding: 20px; background: linear-gradient(to bottom, transparent, var(--bg)); }
+        .manga-desc { font-size: 14px; color: #94a3b8; line-height: 1.6; max-height: 150px; overflow-y: auto; }
 
         /* Chapters Section */
         .chapter-section { 
             padding: 20px; background: var(--bg); border-radius: 30px 30px 0 0;
             margin-top: -20px; position: relative; z-index: 2;
         }
-        .section-title { 
-            font-size: 18px; margin-bottom: 20px; font-weight: 700;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .section-title::before {
-            content: ''; width: 4px; height: 20px; background: var(--accent); border-radius: 10px;
-        }
+        .section-title { font-size: 18px; margin-bottom: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .section-title::before { content: ''; width: 4px; height: 20px; background: var(--accent); border-radius: 10px; }
         
-        .chapter-list { display: flex; flex-direction: column; gap: 12px; }
+        .chapter-list { display: flex; flex-direction: column; gap: 12px; padding-bottom: 50px; }
         .chapter-item { 
             background: var(--card-bg); padding: 16px; border-radius: 15px; 
             display: flex; justify-content: space-between; align-items: center; 
             text-decoration: none; color: white; border: 1px solid var(--glass); 
             transition: var(--transition);
         }
-        .chapter-item:hover { 
-            border-color: var(--accent); background: rgba(139, 92, 246, 0.05);
-            transform: translateX(5px);
-        }
+        .chapter-item:hover { border-color: var(--accent); transform: translateX(5px); }
 
         .chapter-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 12px; }
-        .chapter-name i { color: var(--accent); font-size: 18px; }
+        .chapter-name i { color: var(--accent); }
 
         .price-badge { 
-            padding: 5px 12px; border-radius: 8px; font-size: 12px; 
-            font-weight: 800; border: 1px solid #fbbf24; color: #fbbf24;
-            background: rgba(251, 191, 36, 0.1);
+            padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800;
+            border: 1px solid #fbbf24; color: #fbbf24; background: rgba(251, 191, 36, 0.1);
         }
-        .free-badge { 
-            color: #10b981; border-color: #10b981; background: rgba(16, 185, 129, 0.1); 
-        }
-
-        .loading { text-align: center; padding: 100px 20px; color: #64748b; font-size: 14px; }
+        .free-badge { color: #10b981; border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .loading { text-align: center; padding: 100px 20px; color: #64748b; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <nav>
         <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <div style="font-weight: 800; font-size: 13px; letter-spacing: 1px; color: var(--accent); text-transform: uppercase;">Details</div>
-        
+        <div style="font-weight: 800; font-size: 13px; color: var(--accent);">DETAILS</div>
         <div class="coin-display" id="coin-box" style="display: none;">
-            <i class="fas fa-coins"></i>
-            <span id="user-coins">0</span>
+            <i class="fas fa-coins"></i><span id="user-coins">0</span>
         </div>
     </nav>
 
     <div id="manga-content">
-        <div class="loading">
-            <i class="fas fa-spinner fa-spin" style="font-size: 30px; margin-bottom: 15px;"></i><br>
-            Loading...
-        </div>
+        <div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
     </div>
 
     <div class="chapter-section">
@@ -178,6 +144,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
+        // --- Security Layer ---
+        document.onkeydown = (e) => {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
+        };
+
         const firebaseConfig = {
             apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
             authDomain: "rawkuma-8f1ba.firebaseapp.com",
@@ -193,9 +164,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const mangaId = urlParams.get('id');
 
-        if (!mangaId) { window.location.href = 'index.html'; }
+        if (!mangaId) window.location.href = 'index.html';
 
-        // Coin System Logic
+        // Secure Coin Sync
         auth.onAuthStateChanged(user => {
             const coinBox = document.getElementById('coin-box');
             const coinDisplay = document.getElementById('user-coins');
@@ -203,32 +174,24 @@
                 coinBox.style.display = 'flex';
                 db.collection("users").doc(user.uid).onSnapshot(doc => {
                     if (doc.exists) {
-                        coinDisplay.innerText = (doc.data().coins || 0).toLocaleString();
+                        const actualCoins = doc.data().coins || 0;
+                        coinDisplay.innerText = Number(actualCoins).toLocaleString();
                     }
                 });
-            } else {
-                coinBox.style.display = 'none';
-            }
+            } else { coinBox.style.display = 'none'; }
         });
 
         function loadMangaDetails() {
             db.collection("mangas").doc(mangaId).get().then((doc) => {
                 if (doc.exists) {
                     const manga = doc.data();
-                    let genreHtml = "";
-                    if (manga.genres && Array.isArray(manga.genres)) {
-                        manga.genres.forEach(g => {
-                            genreHtml += `<span class="genre-badge">${g}</span>`;
-                        });
-                    } else {
-                        const typeLabel = manga.type === 'jp' ? 'Manga' : (manga.type === 'kr' ? 'Manhwa' : 'Manhua');
-                        genreHtml = `<span class="genre-badge" style="background:var(--accent); color:white;">${typeLabel}</span>`;
-                    }
+                    let genreHtml = (manga.genres || []).map(g => `<span class="genre-badge">${g}</span>`).join('');
+                    if (!genreHtml) genreHtml = `<span class="genre-badge">Manga</span>`;
 
                     document.getElementById('manga-content').innerHTML = `
                         <div class="manga-header">
                             <div class="header-bg" style="background-image: url('${manga.cover}')"></div>
-                            <img src="${manga.cover}" class="manga-cover" onerror="this.src='https://via.placeholder.com/140x200?text=No+Cover'">
+                            <img src="${manga.cover}" class="manga-cover">
                             <div class="manga-info">
                                 <div class="manga-title">${manga.title}</div>
                                 <div class="genre-container">${genreHtml}</div>
@@ -238,41 +201,25 @@
                             <div class="manga-desc">${manga.desc || 'No description available.'}</div>
                         </div>`;
                     loadChapters();
-                } else {
-                    document.getElementById('manga-content').innerHTML = "<div class='loading'>Manga not found.</div>";
                 }
-            }).catch(err => {
-                document.getElementById('manga-content').innerHTML = "<div class='loading'>Error loading data.</div>";
             });
         }
 
         function loadChapters() {
             const list = document.getElementById('chapter-list');
-            db.collection("mangas").doc(mangaId).collection("chapters")
-              .orderBy("order", "asc") 
-              .onSnapshot((snapshot) => {
-                list.innerHTML = "";
-                if (snapshot.empty) {
-                    list.innerHTML = "<div style='color:#64748b; padding:20px; text-align:center;'>No chapters available.</div>";
-                    return;
-                }
-                snapshot.forEach((doc) => {
+            db.collection("mangas").doc(mangaId).collection("chapters").orderBy("order", "asc").onSnapshot(snap => {
+                list.innerHTML = snap.empty ? "<div class='loading'>No Chapters.</div>" : "";
+                snap.forEach(doc => {
                     const ch = doc.data();
-                    const isFree = (ch.price === 0 || !ch.price);
+                    const isFree = !ch.price || ch.price === 0;
                     list.innerHTML += `
                         <a href="reader.html?mangaId=${mangaId}&chapterId=${doc.id}" class="chapter-item">
-                            <div class="chapter-name">
-                                <i class="fas fa-play-circle"></i>
-                                ${ch.name}
-                            </div>
-                            <div class="price-badge ${isFree ? 'free-badge' : ''}">
-                                ${isFree ? 'FREE' : '<i class="fas fa-coins"></i> ' + ch.price}
-                            </div>
+                            <div class="chapter-name"><i class="fas fa-play-circle"></i> ${ch.name}</div>
+                            <div class="price-badge ${isFree ? 'free-badge' : ''}">${isFree ? 'FREE' : '<i class="fas fa-coins"></i> '+ch.price}</div>
                         </a>`;
                 });
             });
         }
-
         loadMangaDetails();
     </script>
 </body>
