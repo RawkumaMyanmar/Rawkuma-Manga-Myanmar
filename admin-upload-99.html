@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rawkuma Admin | Upload</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --accent: #8b5cf6; --bg: #0f172a; --card: #1e293b; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; }
+        .form-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        h2 { color: var(--accent); font-size: 18px; margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        label { display: block; font-size: 12px; margin: 10px 0 5px; color: #94a3b8; }
+        input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; outline: none; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--accent); color: white; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .tab-btn { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn button { background: #334155; margin-top: 0; }
+        .tab-btn button.active { background: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <div class="tab-btn">
+        <button id="manga-tab-btn" class="active" onclick="switchTab('manga')">Add Manga</button>
+        <button id="chapter-tab-btn" onclick="switchTab('chapter')">Add Chapter</button>
+    </div>
+
+    <div id="manga-section" class="form-box">
+        <h2><i class="fas fa-book"></i> Create New Manga Story</h2>
+        <label>Manga Title</label>
+        <input type="text" id="m-title" placeholder="eg. Solo Leveling">
+        
+        <label>Cover Image URL</label>
+        <input type="text" id="m-cover" placeholder="Link from ImgBB or PostImage">
+        
+        <label>Type</label>
+        <select id="m-type">
+            <option value="jp">Manga (Japan)</option>
+            <option value="kr">Manhwa (Korea)</option>
+            <option value="cn">Manhua (China)</option>
+        </select>
+
+        <label>Genres (ကော်မာ ခြားပေးပါ)</label>
+        <input type="text" id="m-genres" placeholder="Action, Adventure, Fantasy">
+
+        <label>Description</label>
+        <textarea id="m-desc" rows="3"></textarea>
+
+        <button onclick="saveManga()"><i class="fas fa-cloud-upload-alt"></i> Upload Manga</button>
+    </div>
+
+    <div id="chapter-section" class="form-box" style="display: none;">
+        <h2><i class="fas fa-file-upload"></i> Upload Chapter</h2>
+        <label>Manga ID (Document ID ကိုထည့်ပါ)</label>
+        <input type="text" id="c-manga-id" placeholder="Paste Manga Doc ID here">
+        
+        <label>Chapter Name</label>
+        <input type="text" id="c-name" placeholder="eg. Chapter 01">
+
+        <label>Price (Coins)</label>
+        <input type="number" id="c-price" value="0">
+
+        <label>Order (Number only)</label>
+        <input type="number" id="c-order" placeholder="eg. 1">
+
+        <label>Image Links (တစ်ကြောင်းလျှင် တစ်လင့်ခ်နှုန်းဖြင့် ထည့်ပါ)</label>
+        <textarea id="c-images" rows="10" placeholder="https://link1.jpg&#10;https://link2.jpg"></textarea>
+
+        <button onclick="saveChapter()" style="background: #10b981;"><i class="fas fa-check-circle"></i> Publish Chapter</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
+            projectId: "rawkuma-8f1ba",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function switchTab(type) {
+            document.getElementById('manga-section').style.display = type === 'manga' ? 'block' : 'none';
+            document.getElementById('chapter-section').style.display = type === 'chapter' ? 'block' : 'none';
+            document.getElementById('manga-tab-btn').classList.toggle('active', type === 'manga');
+            document.getElementById('chapter-tab-btn').classList.toggle('active', type === 'chapter');
+        }
+
+        async function saveManga() {
+            const title = document.getElementById('m-title').value;
+            const cover = document.getElementById('m-cover').value;
+            const type = document.getElementById('m-type').value;
+            const genres = document.getElementById('m-genres').value.split(',').map(g => g.trim());
+            const desc = document.getElementById('m-desc').value;
+
+            if(!title || !cover) return alert("ကျေးဇူးပြု၍ Title နဲ့ Cover ထည့်ပေးပါ။");
+
+            try {
+                const docRef = await db.collection("mangas").add({
+                    title, cover, type, genres, desc,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("အောင်မြင်သည်။ Manga ID: " + docRef.id);
+            } catch(e) { alert("Error: " + e.message); }
+        }
+
+        async function saveChapter() {
+            const mId = document.getElementById('c-manga-id').value;
+            const name = document.getElementById('c-name').value;
+            const price = parseInt(document.getElementById('c-price').value);
+            const order = parseInt(document.getElementById('c-order').value);
+            const images = document.getElementById('c-images').value.split('\n').filter(link => link.trim() !== "");
+
+            if(!mId || !name || images.length === 0) return alert("အချက်အလက် ပြည့်စုံအောင် ဖြည့်ပေးပါ။");
+
+            try {
+                await db.collection("mangas").doc(mId).collection("chapters").add({
+                    name, price, order, images,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Chapter တင်ခြင်း အောင်မြင်သည်။");
+            } catch(e) { alert("Error: " + e.message); }
+        }
+    </script>
+</body>
+</html>
