@@ -117,8 +117,10 @@
         }
         .chapter-item:active { transform: scale(0.96); background: rgba(139, 92, 246, 0.1); border-color: var(--accent); }
 
+        .chapter-info-box { display: flex; flex-direction: column; gap: 4px; }
         .chapter-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 12px; color: #f1f5f9; }
         .chapter-name i { color: var(--accent); font-size: 18px; }
+        .chapter-date { font-size: 11px; color: #64748b; margin-left: 30px; font-weight: 500; }
 
         .price-badge { 
             padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 800;
@@ -195,7 +197,6 @@
                         coinDisplay.innerText = Number(actualCoins).toLocaleString();
                         vipBadge.style.display = userVIP ? 'flex' : 'none';
                         
-                        // VIP status ပြောင်းလဲသွားရင် Chapter list ကို refresh လုပ်ပေးမယ်
                         loadChapters(); 
                     }
                 });
@@ -229,6 +230,13 @@
             });
         }
 
+        // Date Formatting Helper
+        function formatDate(timestamp) {
+            if (!timestamp) return "";
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
         function loadChapters() {
             const list = document.getElementById('chapter-list');
             db.collection("mangas").doc(mangaId).collection("chapters").orderBy("order", "asc").onSnapshot(snap => {
@@ -236,8 +244,8 @@
                 snap.forEach(doc => {
                     const ch = doc.data();
                     const isFree = !ch.price || ch.price === 0;
+                    const dateStr = formatDate(ch.updatedAt || ch.createdAt);
                     
-                    // Logic: VIP ဖြစ်ရင် အကုန် Free၊ မဟုတ်ရင် Price အတိုင်းပြ
                     let priceLabel = isFree ? 'FREE' : `<i class="fas fa-coins"></i> ${ch.price}`;
                     let badgeClass = isFree ? 'free-badge' : '';
                     
@@ -248,7 +256,10 @@
 
                     list.innerHTML += `
                         <a href="reader.html?mangaId=${mangaId}&chapterId=${doc.id}" class="chapter-item">
-                            <div class="chapter-name"><i class="fas fa-play-circle"></i> ${ch.name}</div>
+                            <div class="chapter-info-box">
+                                <div class="chapter-name"><i class="fas fa-play-circle"></i> ${ch.name}</div>
+                                <div class="chapter-date">${dateStr}</div>
+                            </div>
                             <div class="price-badge ${badgeClass}">${priceLabel}</div>
                         </a>`;
                 });
