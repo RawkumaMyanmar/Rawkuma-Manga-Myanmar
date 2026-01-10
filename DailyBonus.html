@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rawkuma | Premium Gacha & Missions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --gold: #f59e0b;
+            --neon-blue: #22d3ee;
+            --bg-dark: #070b14;
+            --card-bg: #111827;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at top right, rgba(139, 92, 246, 0.15), transparent);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+        }
+
+        .container { padding: 20px; max-width: 500px; margin: auto; }
+
+        /* Gacha Section */
+        .gacha-wrapper {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 30px 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gacha-wrapper::before {
+            content: ''; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: conic-gradient(transparent, var(--primary), transparent 30%);
+            animation: rotate 4s linear infinite;
+            z-index: 0; opacity: 0.3;
+        }
+
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .gacha-inner { position: relative; z-index: 1; background: var(--card-bg); border-radius: 20px; padding: 20px; }
+
+        .ticket-display {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--gold);
+            padding: 5px 15px;
+            border-radius: 50px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 14px;
+            border: 1px solid var(--gold);
+            margin-bottom: 20px;
+        }
+
+        .display-box {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 20px 0;
+        }
+
+        .prize-icon {
+            animation: float 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px var(--primary));
+        }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        .spin-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(45deg, var(--primary), #d946ef);
+            color: white;
+            font-weight: 800;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            transition: 0.3s;
+        }
+        .spin-btn:disabled { opacity: 0.5; filter: grayscale(1); }
+
+        /* Mission Section */
+        .section-title { font-size: 20px; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; margin-top: 20px; }
+
+        .mission-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 18px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .mission-card.special {
+            border: 1px solid var(--neon-blue);
+            background: linear-gradient(90deg, rgba(34, 211, 238, 0.05), transparent);
+        }
+
+        .mission-info h4 { margin: 0; font-size: 15px; color: #f8fafc; }
+        .reward-badge { color: var(--gold); font-weight: bold; font-size: 12px; margin-top: 4px; }
+
+        .claim-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 8px 16px; border-radius: 10px; font-weight: 600; cursor: pointer;
+        }
+
+        /* Result Modal */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 1000; backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; width: 80%;
+        }
+
+        .won-item { font-size: 32px; font-weight: 800; color: var(--gold); margin: 20px 0; text-shadow: 0 0 20px var(--gold); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="gacha-wrapper">
+        <div class="gacha-inner">
+            <div class="ticket-display">
+                <i class="fas fa-ticket-alt"></i> <span id="ticket-count">0</span> Tickets
+            </div>
+            
+            <div class="display-box" id="display-box">
+                <i class="fas fa-box-open prize-icon" style="color: var(--primary)"></i>
+            </div>
+
+            <button class="spin-btn" id="spin-btn" onclick="startSpin()">SPIN NOW</button>
+        </div>
+    </div>
+
+    <div class="section-title" id="special-title" style="display:none;">
+        <i class="fas fa-star" style="color: var(--neon-blue);"></i> Special Events
+    </div>
+    <div id="special-missions"></div>
+
+    <div class="section-title">
+        <i class="fas fa-calendar-day" style="color: var(--primary);"></i> Daily Missions
+    </div>
+    <div id="daily-missions">
+        <div class="mission-card">
+            <div class="mission-info">
+                <h4>မကြာမီလာမည်</h4>
+                <div class="reward-badge">Coming Soon</div>
+            </div>
+            <button class="claim-btn" style="background:#334155">Go</button>
+        </div>
+    </div>
+</div>
+
+<div id="resultModal" class="modal">
+    <div class="modal-content">
+        <p style="letter-spacing: 2px; color: #94a3b8;">CONGRATULATIONS!</p>
+        <p style="font-size: 14px; margin-bottom: 5px;">YOU WON</p>
+        <div class="won-item" id="prize-text">...</div>
+        <button class="spin-btn" style="width: 180px; margin-top: 20px;" onclick="closeModal()">AWESOME!</button>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
+        authDomain: "rawkuma-8f1ba.firebaseapp.com",
+        projectId: "rawkuma-8f1ba",
+        storageBucket: "rawkuma-8f1ba.firebasestorage.app",
+        messagingSenderId: "8257070386",
+        appId: "1:8257070386:web:74d861728b8378d86f232b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let userTickets = 0;
+    let currentUserData = null;
+
+    const prizes = [
+        { name: "VIP 1 YEAR", icon: "fa-crown", color: "#f59e0b", chance: 0.1 },
+        { name: "VIP 3 MONTHS", icon: "fa-gem", color: "#22d3ee", chance: 1 },
+        { name: "VIP 1 MONTH", icon: "fa-star", color: "#8b5cf6", chance: 5 },
+        { name: "1,000 COINS", icon: "fa-coins", color: "#fbbf24", chance: 10 },
+        { name: "100 COINS", icon: "fa-coins", color: "#eab308", chance: 25 },
+        { name: "THANK YOU", icon: "fa-heart", color: "#94a3b8", chance: 58.9 }
+    ];
+
+    // --- Auth Listener ---
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            db.collection("users").doc(user.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                    currentUserData = doc.data();
+                    userTickets = currentUserData.tickets || 0;
+                    document.getElementById('ticket-count').innerText = userTickets;
+                }
+            });
+            loadMissions();
+        } else {
+            alert("Please login to access Gacha & Missions!");
+        }
+    });
+
+    // --- Load Special Missions ---
+    function loadMissions() {
+        const specialArea = document.getElementById('special-missions');
+        db.collection("special_missions").where("active", "==", true).onSnapshot(snap => {
+            if (!snap.empty) {
+                document.getElementById('special-title').style.display = 'flex';
+                specialArea.innerHTML = "";
+                snap.forEach(doc => {
+                    const mission = doc.data();
+                    specialArea.innerHTML += `
+                        <div class="mission-card special">
+                            <div class="mission-info">
+                                <h4>${mission.title}</h4>
+                                <div class="reward-badge">+${mission.reward} Ticket</div>
+                            </div>
+                            <button class="claim-btn" onclick="window.open('${mission.link}', '_blank')">Join</button>
+                        </div>`;
+                });
+            }
+        });
+    }
+
+    // --- Gacha Spin Logic ---
+    async function startSpin() {
+        if (!auth.currentUser) return alert("Please login first!");
+        if (userTickets < 1) return alert("Ticket မလုံလောက်ပါ!");
+
+        const btn = document.getElementById('spin-btn');
+        btn.disabled = true;
+
+        try {
+            // Firebase Ticket နှုတ်ခြင်း
+            await db.collection("users").doc(auth.currentUser.uid).update({
+                tickets: firebase.firestore.FieldValue.increment(-1)
+            });
+
+            // Spin Animation
+            let counter = 0;
+            const spinEffect = setInterval(() => {
+                const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
+                document.getElementById('display-box').innerHTML = `<i class="fas ${randomPrize.icon} prize-icon" style="color: ${randomPrize.color}"></i>`;
+                counter++;
+                if (counter > 20) {
+                    clearInterval(spinEffect);
+                    determineWinner();
+                }
+            }, 100);
+
+        } catch (error) {
+            console.error(error);
+            btn.disabled = false;
+        }
+    }
+
+    // --- Winner Determination ---
+    async function determineWinner() {
+        const rand = Math.random() * 100;
+        let cumulative = 0;
+        let winner = prizes[prizes.length - 1];
+
+        for (let prize of prizes) {
+            cumulative += prize.chance;
+            if (rand <= cumulative) {
+                winner = prize;
+                break;
+            }
+        }
+
+        const userRef = db.collection("users").doc(auth.currentUser.uid);
+
+        // Prize Updates
+        if (winner.name.includes("COINS")) {
+            const amount = parseInt(winner.name.replace(/,/g, ''));
+            await userRef.update({ coins: firebase.firestore.FieldValue.increment(amount) });
+        } 
+        else if (winner.name.includes("VIP")) {
+            let days = winner.name.includes("YEAR") ? 365 : (winner.name.includes("3 MONTHS") ? 90 : 30);
+            
+            // Expiry Date တွက်ချက်ခြင်း
+            let currentExpiry = currentUserData.membershipExpiry ? currentUserData.membershipExpiry.toDate() : new Date();
+            if (currentExpiry < new Date()) currentExpiry = new Date();
+            
+            currentExpiry.setDate(currentExpiry.getDate() + days);
+            
+            await userRef.update({
+                membership: "VIP",
+                membershipExpiry: firebase.firestore.Timestamp.fromDate(currentExpiry)
+            });
+        }
+
+        // Show Results
+        document.getElementById('prize-text').innerText = winner.name;
+        document.getElementById('prize-text').style.color = winner.color;
+        document.getElementById('resultModal').style.display = 'block';
+        document.getElementById('spin-btn').disabled = false;
+    }
+
+    function closeModal() {
+        document.getElementById('resultModal').style.display = 'none';
+        document.getElementById('display-box').innerHTML = `<i class="fas fa-box-open prize-icon" style="color: var(--primary)"></i>`;
+    }
+</script>
+
+</body>
+</html>
