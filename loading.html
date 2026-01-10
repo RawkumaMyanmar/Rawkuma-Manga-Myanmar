@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Rawkuma | Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --glass: rgba(255, 255, 255, 0.05); 
+            --accent: #8b5cf6; 
+            --bg: #0f172a; 
+            --card-bg: #1e293b;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* --- New Splash Screen Styles --- */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+
+        .splash-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            padding: 5px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .splash-text {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+
+        .loading-bar-container {
+            width: 150px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .loading-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            transition: width 0.4s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+            70% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 20px rgba(139, 92, 246, 0); }
+            100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+        }
+
+        /* --- Existing Styles --- */
+        .top-scroller-container {
+            padding: 15px 0 25px 0;
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.5), transparent);
+            overflow: hidden;
+        }
+        .top-scroll-wrapper {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 0 15px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .top-scroll-wrapper::-webkit-scrollbar { display: none; }
+        
+        .top-item {
+            flex: 0 0 140px;
+            text-decoration: none;
+            color: white;
+            position: relative;
+            animation: fadeInUp 0.6s ease backwards;
+        }
+        .top-item img {
+            width: 140px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid var(--glass);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .top-rating-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+        .top-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        * { 
+            -webkit-user-select: none; -ms-user-select: none; user-select: none; 
+            -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+        }
+        input { -webkit-user-select: text; user-select: text; }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: white; 
+            overflow-x: hidden; 
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .vip-badge {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #000;
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            vertical-align: middle;
+        }
+
+        .ads-container-wrapper { 
+            width: 100%; 
+            background: #1e293b; 
+            padding: 10px 0; 
+            border-bottom: 2px solid var(--accent);
+        }
+        #ads-display-area {
+            width: 95%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        nav { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(15px); padding: 10px 15px; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--glass); }
+        .nav-top { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 50px; }
+        .menu-btn { font-size: 22px; cursor: pointer; transition: 0.3s; }
+        .logo-text { font-size: 24px; font-weight: 800; color: var(--accent); letter-spacing: 2px; text-align: center; flex-grow: 1; text-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
+        .site-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
+
+        .sidebar { position: fixed; top: 0; left: -280px; width: 270px; height: 100%; background: #0f172a; z-index: 2000; transition: var(--transition); box-shadow: 10px 0 40px rgba(0,0,0,0.6); padding: 25px; box-sizing: border-box; border-right: 1px solid var(--glass); overflow-y: auto;}
+        .sidebar.active { left: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1500; display: none; backdrop-filter: blur(6px); transition: 0.4s; }
+        .overlay.active { display: block; }
+
+        .search-container { width: 90%; max-width: 450px; position: relative; margin: 10px auto; }
+        .search-container input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid var(--glass); border-radius: 25px; padding: 12px 15px 12px 45px; color: white; outline: none; transition: 0.3s; box-sizing: border-box;}
+        .search-container input:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
+        .search-container i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--accent); }
+
+        .container { padding: 15px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .section-title { border-left: 4px solid var(--accent); padding-left: 10px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
+        
+        .adv-filter-btn { color: #f8fafc; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.3s; font-weight: 600; }
+        .adv-filter-btn i { color: var(--accent); font-size: 16px; }
+        .adv-filter-btn:active { transform: scale(0.95); opacity: 0.8; }
+
+        .manga-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+
+        .card { text-decoration: none; color: inherit; background: var(--card-bg); border-radius: 12px; overflow: hidden; position: relative; transition: var(--transition); border: 1px solid var(--glass); animation: fadeInUp 0.5s ease backwards; }
+        .card:active { transform: scale(0.95); }
+        .card img:not(.flag-badge) { width: 100%; height: 230px; object-fit: cover; display: block; }
+        .flag-badge { position: absolute; top: 8px; left: 8px; width: 28px; border-radius: 3px; z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .card-info { padding: 12px; }
+        .title { font-size: 13px; font-weight: 600; line-height: 1.4; height: 38px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .home-star-box { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 14px; color: #64748b; }
+        .home-star-box i { cursor: pointer; transition: 0.2s; }
+        .home-star-box i.fas { color: #fbbf24; }
+        .home-star-box i:active { transform: scale(1.3); }
+
+        .menu-item { padding: 14px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #cbd5e1; transition: 0.3s; }
+        .menu-item:active { background: rgba(139, 92, 246, 0.2); transform: scale(0.95); }
+
+        footer { text-align: center; padding: 40px; font-size: 12px; color: #64748b; border-top: 1px solid var(--glass); margin-top: 20px; }
+
+        .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear; }
+        
+        .hot-badge {
+            background: #ef4444; color: white; font-size: 9px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: bold;
+        }
+
+        #inventoryModal { display:none; position:fixed; z-index:4000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.9); backdrop-filter:blur(10px); overflow-y:auto; padding:20px 10px; box-sizing: border-box; }
+        .item-card { background: var(--card-bg); padding:15px; border-radius:12px; border:1px solid var(--glass); text-align:center; cursor:pointer; transition: 0.3s; }
+        .item-card:active { transform: scale(0.95); }
+
+        #profileModal { display:none; position:fixed; z-index:4500; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.95); backdrop-filter:blur(15px); }
+        .exp-bar-container { width:100%; height:8px; background:rgba(255,255,255,0.1); border-radius:10px; margin:15px 0; overflow:hidden; }
+        .exp-bar-fill { height:100%; background: var(--accent); width:0%; transition: 1s ease-in-out; }
+        .user-badge-label { font-size:10px; padding:3px 8px; border-radius:20px; background:var(--accent); color:white; font-weight:bold; text-transform:uppercase;}
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="splash-screen">
+        <img src="https://i.ibb.co/XfR4R4Jx/IMG-20260107-143629-039.jpg" alt="Logo" class="splash-logo">
+        <div class="splash-text">RAWKUMA</div>
+        <div class="loading-bar-container">
+            <div id="loading-bar" class="loading-bar-fill"></div>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h2 style="font-size: 20px; color: var(--accent); margin:0; font-weight: 800;">RAWKUMA</h2>
+            <i class="fas fa-times" style="cursor:pointer;" onclick="toggleMenu()"></i>
+        </div>
+
+        <div style="position: relative; margin-bottom: 15px;">
+            <div class="profile-preview-card" onclick="openProfile()" style="padding:15px; background:var(--card-bg); border-radius:15px; border:1px solid var(--glass); cursor:pointer; display:flex; align-items:center; gap:12px;">
+                <img id="sidebar-pfp" src="https://i.ibb.co/XfR4R4Jx/IMG-20260107-143629-039.jpg" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);">
+                <div style="flex: 1;">
+                    <div id="sidebar-name" style="font-weight:bold; font-size:14px;">Guest User</div>
+                    <div id="sidebar-level" style="font-size:11px; color:var(--accent); font-weight:bold;">Level 1 Rookie</div>
+                </div>
+            </div>
+            <a href="bookmarks.html" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #cbd5e1; font-size: 18px; text-decoration: none;">
+                <i class="fas fa-bookmark"></i>
+            </a>
+        </div>
+
+        <div class="coin-status-card" style="padding: 18px; background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.05)); border-radius: 15px; margin-bottom: 25px; border: 1px solid rgba(251, 191, 36, 0.3);">
+            <div style="font-size: 11px; color: #fbbf24; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">My Balance</div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 22px; color: #fbbf24; font-weight: 800; margin-top: 8px;">
+                <i class="fas fa-coins"></i><span id="user-coins">0</span>
+            </div>
+            <div style="font-size: 9px; color: #64748b; margin-top: 8px; word-break: break-all;">ID: <span id="display-uid">Guest</span></div>
+        </div>
+
+        <div id="login-section">
+            <div class="menu-item" onclick="openLoginModal()"><i class="fas fa-user-lock"></i> Login / Register</div>
+        </div>
+
+        <div id="user-info" style="display: none;">
+            <div class="menu-item" onclick="openProfile()"><i class="fas fa-id-card"></i> View Profile</div>
+            <a href="bookmarks.html" class="menu-item" style="text-decoration: none;">
+                <i class="fas fa-bookmark" style="color: #60a5fa;"></i>
+                <span>My Bookmarks</span>
+            </a>
+            <div class="menu-item" onclick="logout()" style="color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</div>
+        </div>
+
+        <div class="menu-list" style="margin-top: 15px; border-top: 1px solid var(--glass); padding-top: 15px;">
+            <div class="menu-item" onclick="filterManga('all')"><i class="fas fa-home"></i> Home</div>
+            
+            <div class="menu-item" onclick="openInventory()" style="background: rgba(139, 92, 246, 0.1); border: 1px solid var(--glass);">
+                <i class="fas fa-box-open" style="color: var(--accent);"></i>
+                <span>My Inventory</span>
+            </div>
+
+            <div class="menu-item" onclick="filterManga('jp')"><i class="fas fa-book"></i> Manga</div>
+            <div class="menu-item" onclick="filterManga('kr')"><i class="fas fa-scroll"></i> Manhwa</div>
+            <div class="menu-item" onclick="filterManga('cn')"><i class="fas fa-pen-nib"></i> Manhua</div>
+            <div class="menu-item" onclick="filterManga('18plus')"><i class="fas fa-heart"></i> 18+</div>
+            <a href="DailyBonus.html" class="menu-item" style="text-decoration:none;">
+                <i class="fas fa-gift" style="color: #fbbf24;"></i>
+                <span>Daily Missions</span>
+                <small class="hot-badge">NEW</small>
+            </a>
+        </div>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <div id="profileModal">
+        <div style="padding:25px; position:relative;">
+            <i class="fas fa-arrow-left" onclick="closeProfile()" style="font-size:20px; cursor:pointer; margin-bottom:20px;"></i>
+            <div style="text-align:center; margin-top:20px;">
+                <div style="position:relative; display:inline-block;">
+                    <img id="profile-pfp" src="https://i.ibb.co/XfR4R4Jx/IMG-20260107-143629-039.jpg" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:4px solid var(--accent); box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);">
+                    <div onclick="changePFP()" style="position:absolute; bottom:5px; right:5px; background:var(--accent); width:35px; height:35px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:3px solid #0f172a;">
+                        <i class="fas fa-camera" style="font-size:14px;"></i>
+                    </div>
+                </div>
+                <h2 id="profile-name" style="margin:15px 0 5px 0; font-size:22px;">Guest</h2>
+                <span id="profile-badge-label" class="user-badge-label">Rookie</span>
+                <div style="background:var(--card-bg); padding:20px; border-radius:20px; margin-top:30px; border:1px solid var(--glass);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:14px; font-weight:bold;">LEVEL <span id="profile-level">1</span></span>
+                        <span id="profile-exp-text" style="font-size:12px; color:#94a3b8;">0/100 EXP</span>
+                    </div>
+                    <div class="exp-bar-container">
+                        <div id="profile-exp-fill" class="exp-bar-fill"></div>
+                    </div>
+                    <p style="font-size:11px; color:#64748b; margin:0;">Level up to earn exclusive badges & gacha tickets!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="inventoryModal">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="color:var(--accent); margin:0; font-size: 20px;"><i class="fas fa-briefcase"></i> My Items</h2>
+            <i class="fas fa-times" onclick="closeInventory()" style="font-size:24px; cursor:pointer;"></i>
+        </div>
+        <div id="weekly-pass-card" style="display:none; background: linear-gradient(135deg, #10b981, #064e3b); padding:20px; border-radius:15px; margin-bottom:20px;">
+            <h3 style="margin:0; font-size:16px;">Weekly Pass Rewards</h3>
+            <p id="claim-status" style="font-size:12px; opacity:0.8;">Daily claim is available!</p>
+            <button id="claim-btn" onclick="claimWeeklyReward()" style="width:100%; background:white; color:#064e3b; border:none; padding:12px; border-radius:8px; font-weight:bold; margin-top:10px; cursor:pointer;">CLAIM COINS</button>
+        </div>
+        <div id="items-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"></div>
+    </div>
+
+    <div id="itemDetailModal" style="display:none; position:fixed; z-index:5000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.8); align-items:center; justify-content:center;">
+        <div id="detail-content" style="background:#1e293b; width:85%; max-width: 320px; padding:25px; border-radius:20px; border:1px solid var(--accent); text-align:center;"></div>
+    </div>
+
+    <div id="loginModal" style="display:none; position:fixed; z-index:3000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px);">
+        <div style="background: #1e293b; width: 85%; max-width: 320px; margin: 80px auto; padding: 25px; border-radius: 20px; border: 1px solid var(--accent); text-align: center;">
+            <div id="login-form">
+                <h3 style="color:var(--accent); margin-top:0;">Member Login</h3>
+                <input type="email" id="email" placeholder="Email" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
+                <input type="password" id="password" placeholder="Password" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
+                <button onclick="handleLogin()" style="width:100%; background:var(--accent); color:white; border:none; padding:14px; border-radius:12px; margin-top:10px; font-weight:bold; cursor: pointer;">Login</button>
+                <p style="font-size:12px; color:#64748b; margin-top:15px;">New user? <span onclick="toggleAuthMode()" style="color:var(--accent); cursor:pointer; font-weight:bold;">Register Here</span></p>
+            </div>
+            <div id="register-form" style="display:none;">
+                <h3 style="color:var(--accent); margin-top:0;">Create Account</h3>
+                <p style="font-size:11px; color:#fbbf24;">Register now & get 1 Free Gacha Ticket!</p>
+                <input type="text" id="reg-name" placeholder="Full Name" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
+                <input type="email" id="reg-email" placeholder="Email Address" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
+                <input type="password" id="reg-pass" placeholder="Password (Min 6)" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
+                <button onclick="handleRegister()" style="width:100%; background:var(--accent); color:white; border:none; padding:14px; border-radius:12px; margin-top:10px; font-weight:bold; cursor: pointer;">Sign Up</button>
+                <p style="font-size:12px; color:#64748b; margin-top:15px;">Have account? <span onclick="toggleAuthMode()" style="color:var(--accent); cursor:pointer; font-weight:bold;">Back to Login</span></p>
+            </div>
+            <button onclick="closeLoginModal()" style="background:none; border:none; color:#64748b; margin-top:10px; cursor: pointer;">Close</button>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-top">
+            <i class="fas fa-bars menu-btn" onclick="toggleMenu()"></i>
+            <div class="logo-text">RAWKUMA</div>
+            <img src="https://i.ibb.co/XfR4R4Jx/IMG-20260107-143629-039.jpg" id="nav-logo" class="site-logo" alt="Logo">
+        </div>
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search stories...">
+        </div>
+    </nav>
+
+    <div class="ads-container-wrapper">
+        <div id="ads-display-area">
+            <div style="height: 100px; border-radius: 12px;" class="skeleton"></div>
+        </div>
+    </div>
+
+    <div class="top-scroller-container" id="top-rated-section" style="display: none;">
+        <div class="container" style="padding-bottom: 10px;">
+            <div class="section-header" style="margin-bottom: 15px;">
+                <h3 class="section-title"><i class="fas fa-crown" style="color: #fbbf24;"></i> Top Rated</h3>
+            </div>
+        </div>
+        <div class="top-scroll-wrapper" id="top-rated-list"></div>
+    </div>
+
+    <div class="container">
+        <div class="section-header">
+            <h3 class="section-title" id="page-title">Latest Updates</h3>
+            <a href="AdvancedFilter.html" class="adv-filter-btn">
+                <i class="fas fa-search-plus"></i> Advanced Filter
+            </a>
+        </div>
+        <div class="manga-grid" id="main-list">
+            <div class="card skeleton" style="height: 280px; border:none;"></div>
+            <div class="card skeleton" style="height: 280px; border:none;"></div>
+        </div>
+    </div>
+
+    <footer>&copy; 2026 Rawkuma Myanmar.</footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
+            authDomain: "rawkuma-8f1ba.firebaseapp.com",
+            projectId: "rawkuma-8f1ba",
+            storageBucket: "rawkuma-8f1ba.firebasestorage.app",
+            messagingSenderId: "8257070386",
+            appId: "1:8257070386:web:74d861728b8378d86f232b"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // --- SPLASH SCREEN CONTROL ---
+        let loadProgress = 0;
+        const loadBar = document.getElementById('loading-bar');
+        
+        function updateProgress(amount) {
+            loadProgress += amount;
+            if(loadProgress > 100) loadProgress = 100;
+            loadBar.style.width = loadProgress + '%';
+            
+            if(loadProgress >= 100) {
+                setTimeout(() => {
+                    const splash = document.getElementById('splash-screen');
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.style.visibility = 'hidden';
+                    }, 800);
+                }, 500);
+            }
+        }
+
+        // --- Firebase Loaders with Progress ---
+        function loadTopRated() {
+            const container = document.getElementById('top-rated-section');
+            const list = document.getElementById('top-rated-list');
+            
+            db.collection("mangas").orderBy("rating", "desc").limit(8).onSnapshot(snap => {
+                updateProgress(30); // 30% progress for top rated
+                if (snap.empty) return container.style.display = 'none';
+                container.style.display = 'block';
+                list.innerHTML = "";
+                snap.forEach(doc => {
+                    const m = doc.data();
+                    list.innerHTML += `
+                        <a href="details.html?id=${doc.id}" class="top-item">
+                            <div class="top-rating-badge"><i class="fas fa-star"></i> ${m.rating ? m.rating.toFixed(1) : "0.0"}</div>
+                            <img src="${m.cover}" onerror="this.src='https://via.placeholder.com/140x200'">
+                            <div class="top-title">${m.title}</div>
+                        </a>`;
+                });
+            });
+        }
+
+        function displayAds() {
+            const adContainer = document.getElementById('ads-display-area'); 
+            db.collection("ads").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+                updateProgress(20); // 20% progress for ads
+                adContainer.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const ad = doc.data();
+                    adContainer.innerHTML += `<div class="ad-item"><a href="${ad.targetUrl}" target="_blank"><img src="${ad.imageUrl}" style="width:100%; border-radius:10px;"></a></div>`;
+                });
+            });
+        }
+
+        async function toggleHomeStar(event, mangaId) {
+            event.preventDefault(); event.stopPropagation();
+            if (!auth.currentUser) return openLoginModal();
+            const mangaRef = db.collection("mangas").doc(mangaId);
+            const userRatingRef = mangaRef.collection("ratings").doc(auth.currentUser.uid);
+            try {
+                const ratingDoc = await userRatingRef.get();
+                await db.runTransaction(async (transaction) => {
+                    const mDoc = await transaction.get(mangaRef);
+                    let currentCount = mDoc.data().ratingCount || 0;
+                    let currentAvg = mDoc.data().rating || 0;
+                    if (ratingDoc.exists) {
+                        let newCount = currentCount - 1;
+                        let newAvg = newCount > 0 ? (currentAvg * currentCount - 5) / newCount : 0;
+                        transaction.update(mangaRef, { rating: newAvg, ratingCount: newCount });
+                        transaction.delete(userRatingRef);
+                    } else {
+                        let newCount = currentCount + 1;
+                        let newAvg = (currentAvg * currentCount + 5) / newCount;
+                        transaction.update(mangaRef, { rating: newAvg, ratingCount: newCount });
+                        transaction.set(userRatingRef, { rating: 5, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    }
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function loadMangasFromDB(filterType = 'all', searchTerm = '') {
+            const grid = document.getElementById('main-list');
+            let query = db.collection("mangas").orderBy("updatedAt", "desc");
+            if (filterType !== 'all') query = db.collection("mangas").where("type", "==", filterType).orderBy("updatedAt", "desc");
+
+            query.onSnapshot(async (querySnapshot) => {
+                updateProgress(50); // Final 50% for main list
+                grid.innerHTML = "";
+                const flags = { "jp": "https://flagcdn.com/w40/jp.png", "kr": "https://flagcdn.com/w40/kr.png", "cn": "https://flagcdn.com/w40/cn.png" };
+                
+                querySnapshot.forEach(async (doc) => {
+                    const manga = doc.data();
+                    if (searchTerm && !manga.title.toLowerCase().includes(searchTerm.toLowerCase())) return;
+                    
+                    const mangaId = doc.id;
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    let starClass = 'far';
+                    if (auth.currentUser) {
+                        const checkRating = await db.collection("mangas").doc(mangaId).collection("ratings").doc(auth.currentUser.uid).get();
+                        if (checkRating.exists) starClass = 'fas';
+                    }
+
+                    card.innerHTML = `
+                        <a href="details.html?id=${mangaId}">
+                            <img class="flag-badge" src="${flags[manga.type] || flags['jp']}">
+                            <img src="${manga.cover}" loading="lazy" onerror="this.src='https://via.placeholder.com/230x300'">
+                        </a>
+                        <div class="card-info">
+                            <a href="details.html?id=${mangaId}" style="text-decoration:none; color:inherit;"><div class="title">${manga.title}</div></a>
+                            <div class="home-star-box">
+                                <i class="${starClass} fa-star" onclick="toggleHomeStar(event, '${mangaId}')"></i>
+                                <span>${manga.rating ? manga.rating.toFixed(1) : "0.0"}</span>
+                            </div>
+                        </div>`;
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        // --- Rest of Auth and Inventory Functions ---
+        auth.onAuthStateChanged(user => {
+            const infoBox = document.getElementById('user-info'), loginBtn = document.getElementById('login-section');
+            if (user) {
+                infoBox.style.display = 'block'; loginBtn.style.display = 'none';
+                db.collection("users").doc(user.uid).onSnapshot(doc => { if (doc.exists) updateUIElements(user, doc.data()); });
+            } else {
+                infoBox.style.display = 'none'; loginBtn.style.display = 'block';
+                document.getElementById('user-coins').innerText = "0";
+            }
+        });
+
+        function updateUIElements(user, userData) {
+            const level = userData.level || 1;
+            const pfp = userData.pfp || "https://i.ibb.co/XfR4R4Jx/IMG-20260107-143629-039.jpg";
+            document.getElementById('sidebar-name').innerText = userData.name || "User";
+            document.getElementById('sidebar-pfp').src = pfp;
+            document.getElementById('nav-logo').src = pfp;
+            document.getElementById('user-coins').innerText = (userData.coins || 0).toLocaleString();
+            document.getElementById('display-uid').innerText = user.uid;
+        }
+
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+        function openLoginModal() { document.getElementById('loginModal').style.display = 'block'; }
+        function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
+        function logout() { auth.signOut(); }
+
+        // Start Loading
+        loadTopRated();
+        displayAds();
+        loadMangasFromDB();
+
+        // Safety timeout (If Firebase is slow, splash will close anyway after 5s)
+        setTimeout(() => { if(loadProgress < 100) updateProgress(100); }, 5000);
+
+    </script>
+</body>
+</html>
