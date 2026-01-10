@@ -111,6 +111,11 @@
 
         /* Shimmer Loading */
         .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear; }
+        
+        /* New Styles for Register Badge */
+        .hot-badge {
+            background: #ef4444; color: white; font-size: 9px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: bold;
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -130,7 +135,7 @@
         </div>
 
         <div id="login-section">
-            <div class="menu-item" onclick="openLoginModal()"><i class="fas fa-user-lock"></i> Login</div>
+            <div class="menu-item" onclick="openLoginModal()"><i class="fas fa-user-lock"></i> Login / Register</div>
         </div>
 
         <div id="user-info" style="display: none;">
@@ -147,26 +152,36 @@
             <div class="menu-item" onclick="filterManga('kr')"><i class="fas fa-scroll"></i> Manhwa</div>
             <div class="menu-item" onclick="filterManga('cn')"><i class="fas fa-pen-nib"></i> Manhua</div>
             <div class="menu-item" onclick="filterManga('18plus')"><i class="fas fa-heart"></i> 18+</div>
-            <a href="DailyBonus.html" class="menu-item pulse-effect">
-    <div class="menu-icon">
-        <i class="fas fa-gift" style="color: #fbbf24;"></i>
-    </div>
-    <div class="menu-text">
-        <span>Daily Missions</span>
-        <small class="hot-badge">NEW</small>
-    </div>
-</a>
+            <a href="DailyBonus.html" class="menu-item" style="text-decoration:none;">
+                <i class="fas fa-gift" style="color: #fbbf24;"></i>
+                <span>Daily Missions</span>
+                <small class="hot-badge">NEW</small>
+            </a>
         </div>
     </div>
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
     <div id="loginModal" style="display:none; position:fixed; z-index:3000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px);">
-        <div style="background: #1e293b; width: 85%; max-width: 320px; margin: 120px auto; padding: 25px; border-radius: 20px; border: 1px solid var(--accent); text-align: center;">
-            <h3 style="color:var(--accent); margin-top:0;">Member Login</h3>
-            <input type="email" id="email" placeholder="Email" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
-            <input type="password" id="password" placeholder="Password" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
-            <button onclick="handleLogin()" style="width:100%; background:var(--accent); color:white; border:none; padding:14px; border-radius:12px; margin-top:10px; font-weight:bold; cursor: pointer;">Login</button>
-            <button onclick="closeLoginModal()" style="background:none; border:none; color:#64748b; margin-top:15px; cursor: pointer;">Close</button>
+        <div style="background: #1e293b; width: 85%; max-width: 320px; margin: 80px auto; padding: 25px; border-radius: 20px; border: 1px solid var(--accent); text-align: center;">
+            <div id="login-form">
+                <h3 style="color:var(--accent); margin-top:0;">Member Login</h3>
+                <input type="email" id="email" placeholder="Email" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
+                <input type="password" id="password" placeholder="Password" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
+                <button onclick="handleLogin()" style="width:100%; background:var(--accent); color:white; border:none; padding:14px; border-radius:12px; margin-top:10px; font-weight:bold; cursor: pointer;">Login</button>
+                <p style="font-size:12px; color:#64748b; margin-top:15px;">New user? <span onclick="toggleAuthMode()" style="color:var(--accent); cursor:pointer; font-weight:bold;">Register Here</span></p>
+            </div>
+
+            <div id="register-form" style="display:none;">
+                <h3 style="color:var(--accent); margin-top:0;">Create Account</h3>
+                <p style="font-size:11px; color:#fbbf24;">Register now & get 1 Free Gacha Ticket!</p>
+                <input type="text" id="reg-name" placeholder="Full Name" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
+                <input type="email" id="reg-email" placeholder="Email Address" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
+                <input type="password" id="reg-pass" placeholder="Password (Min 6)" style="width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid var(--glass); background:#0f172a; color:white; box-sizing: border-box; outline: none;">
+                <button onclick="handleRegister()" style="width:100%; background:var(--accent); color:white; border:none; padding:14px; border-radius:12px; margin-top:10px; font-weight:bold; cursor: pointer;">Sign Up</button>
+                <p style="font-size:12px; color:#64748b; margin-top:15px;">Have account? <span onclick="toggleAuthMode()" style="color:var(--accent); cursor:pointer; font-weight:bold;">Back to Login</span></p>
+            </div>
+            
+            <button onclick="closeLoginModal()" style="background:none; border:none; color:#64748b; margin-top:10px; cursor: pointer;">Close</button>
         </div>
     </div>
 
@@ -251,7 +266,7 @@
                         const isVIP = userData.membership === "VIP";
                         
                         document.getElementById('user-email').innerHTML = `
-                            ${user.email.split('@')[0]} 
+                            ${(userData.name || user.email.split('@')[0])} 
                             ${isVIP ? '<span class="vip-badge"><i class="fas fa-crown"></i> VIP</span>' : ''}
                         `;
                         
@@ -266,6 +281,45 @@
                 document.getElementById('display-uid').innerText = "Guest";
             }
         });
+
+        // --- Auth Functions ---
+        function toggleAuthMode() {
+            const lForm = document.getElementById('login-form');
+            const rForm = document.getElementById('register-form');
+            if (lForm.style.display === 'none') {
+                lForm.style.display = 'block'; rForm.style.display = 'none';
+            } else {
+                lForm.style.display = 'none'; rForm.style.display = 'block';
+            }
+        }
+
+        async function handleRegister() {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-pass').value;
+
+            if(!name || !email || pass.length < 6) return alert("Please fill all fields correctly!");
+
+            try {
+                const res = await auth.createUserWithEmailAndPassword(email, pass);
+                await db.collection("users").doc(res.user.uid).set({
+                    name: name,
+                    email: email,
+                    role: "user",
+                    coins: 0,
+                    tickets: 1, // Welcome Ticket
+                    membership: "Free",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Account created successfully! Enjoy your free ticket.");
+                closeLoginModal();
+            } catch (err) { alert(err.message); }
+        }
+
+        function handleLogin() {
+            const e = document.getElementById('email').value, p = document.getElementById('password').value;
+            auth.signInWithEmailAndPassword(e, p).then(() => { closeLoginModal(); }).catch(err => alert(err.message));
+        }
 
         const flags = { "jp": "https://flagcdn.com/w40/jp.png", "kr": "https://flagcdn.com/w40/kr.png", "cn": "https://flagcdn.com/w40/cn.png" };
         
@@ -299,13 +353,12 @@
         document.getElementById('searchInput').addEventListener('input', (e) => loadMangasFromDB('all', e.target.value));
         function filterManga(type) { loadMangasFromDB(type); toggleMenu(); }
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
-        function openLoginModal() { document.getElementById('loginModal').style.display = 'block'; }
-        function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
-        
-        function handleLogin() {
-            const e = document.getElementById('email').value, p = document.getElementById('password').value;
-            auth.signInWithEmailAndPassword(e, p).then(() => { closeLoginModal(); }).catch(err => alert(err.message));
+        function openLoginModal() { 
+            document.getElementById('loginModal').style.display = 'block'; 
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('register-form').style.display = 'none';
         }
+        function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
         function logout() { auth.signOut(); }
 
         loadMangasFromDB();
