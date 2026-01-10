@@ -14,9 +14,9 @@
             --warning: #f59e0b; 
             --danger: #ef4444; 
             --glass: rgba(255, 255, 255, 0.05);
+            --weekly: #34d399;
         }
 
-        /* Premium Smooth Animation */
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -24,97 +24,68 @@
 
         body { 
             font-family: 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg); 
-            color: #f8fafc; 
-            margin: 0; 
-            padding: 20px;
+            background: var(--bg); color: #f8fafc; margin: 0; padding: 20px;
             background-image: radial-gradient(circle at top right, rgba(139, 92, 246, 0.05), transparent);
         }
 
-        /* Modern Container Style */
         .form-box { 
-            background: var(--card); 
-            padding: 25px; 
-            border-radius: 20px; 
-            border: 1px solid var(--glass); 
-            margin-bottom: 25px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--glass); 
+            margin-bottom: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); animation: slideUp 0.5s ease;
         }
 
-        h2 { 
-            color: white; 
-            font-size: 20px; 
-            margin-top: 0; 
-            padding-bottom: 15px; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px;
-            letter-spacing: 0.5px;
-        }
+        /* Money Manager Styles */
+        .money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .money-card { background: var(--glass); padding: 15px; border-radius: 15px; border-left: 4px solid var(--accent); }
+        .money-card span { font-size: 10px; color: #94a3b8; text-transform: uppercase; }
+        .money-card h3 { margin: 5px 0 0; font-size: 18px; color: white; }
+        .calendar-input { background: var(--bg); border: 1px solid var(--glass); color: white; padding: 8px; border-radius: 8px; width: 100%; margin-bottom: 10px; }
 
+        h2 { color: white; font-size: 20px; margin-top: 0; padding-bottom: 15px; display: flex; align-items: center; gap: 12px; }
         h2 i { color: var(--accent); }
-
-        label { display: block; font-size: 11px; margin: 15px 0 6px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        
+        label { display: block; font-size: 11px; margin: 15px 0 6px; color: #94a3b8; font-weight: 700; text-transform: uppercase; }
         input, select, textarea { 
-            width: 100%; padding: 14px; border-radius: 12px; 
-            border: 1px solid #334155; background: rgba(15, 23, 42, 0.6); 
-            color: white; outline: none; box-sizing: border-box; 
-            transition: all 0.3s ease;
+            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #334155; 
+            background: rgba(15, 23, 42, 0.6); color: white; outline: none; box-sizing: border-box; 
         }
-
-        input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
-
-        /* Premium Buttons */
         button { 
-            width: 100%; padding: 15px; border-radius: 12px; border: none; 
-            background: linear-gradient(135deg, var(--accent), #7c3aed); 
-            color: white; font-weight: 700; cursor: pointer; 
-            margin-top: 20px; display: flex; align-items: center; 
-            justify-content: center; gap: 10px; transition: 0.4s;
-            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2);
+            width: 100%; padding: 15px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--accent), #7c3aed); 
+            color: white; font-weight: 700; cursor: pointer; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; 
         }
-
-        button:active { transform: scale(0.97); opacity: 0.9; }
-        button:disabled { opacity: 0.3; filter: grayscale(1); }
-
-        /* Navigation Tabs */
-        .tab-btn { 
-            display: flex; gap: 10px; margin-bottom: 25px; 
-            overflow-x: auto; padding-bottom: 5px;
-        }
-        .tab-btn button { 
-            background: #1e293b; margin-top: 0; flex: 1; min-width: 120px;
-            border: 1px solid var(--glass); font-size: 13px; box-shadow: none;
-        }
-        .tab-btn button.active { 
-            background: var(--accent); border-color: transparent; 
-            box-shadow: 0 10px 15px rgba(139, 92, 246, 0.2);
-        }
-        
-        /* Membership Section Style */
-        .membership-badge {
-            background: linear-gradient(90deg, #fbbf24, #f59e0b);
-            color: #000; font-size: 10px; padding: 3px 8px; 
-            border-radius: 6px; font-weight: 800; margin-left: auto;
-        }
-
-        /* Ad List Styling */
+        .tab-btn { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; }
+        .tab-btn button { background: #1e293b; margin-top: 0; flex: 1; min-width: 120px; font-size: 13px; }
+        .tab-btn button.active { background: var(--accent); }
         .ad-item { background: #0f172a; padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--glass); margin-bottom: 12px; }
-        .ad-item img { width: 80px; height: 45px; object-fit: cover; border-radius: 8px; border: 1px solid var(--glass); }
-        .del-ad { background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 45px; margin-top: 0; box-shadow: none; }
-        .del-ad:hover { background: var(--danger); color: white; }
+        .ad-item img { width: 80px; height: 45px; border-radius: 8px; }
+        .del-ad { background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 45px; margin-top: 0; }
     </style>
 </head>
 <body>
 
     <div id="admin-ui" style="display: none;">
+        
+        <div class="form-box" style="border-top: 4px solid var(--success);">
+            <h2><i class="fas fa-wallet"></i> Money Manager</h2>
+            <input type="date" id="stats-date" class="calendar-input" onchange="fetchStats()">
+            <div class="money-grid">
+                <div class="money-card">
+                    <span>Daily Revenue</span>
+                    <h3 id="stat-revenue">0 Ks</h3>
+                </div>
+                <div class="money-card" style="border-left-color: var(--warning);">
+                    <span>Items Sold</span>
+                    <h3 id="stat-items">0</h3>
+                </div>
+            </div>
+            <div id="item-details" style="font-size: 12px; color: #94a3b8; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px;">
+                Select date to view items...
+            </div>
+        </div>
+
         <div class="tab-btn">
             <button id="manga-tab-btn" class="active" onclick="switchTab('manga')"><i class="fas fa-plus"></i> Manga</button>
             <button id="chapter-tab-btn" onclick="switchTab('chapter')"><i class="fas fa-file-upload"></i> Chapter</button>
             <button id="ads-tab-btn" onclick="switchTab('ads')"><i class="fas fa-ad"></i> Ads</button>
-            <button id="member-tab-btn" onclick="switchTab('member')"><i class="fas fa-crown"></i> VIP</button>
+            <button id="member-tab-btn" onclick="switchTab('member')"><i class="fas fa-user-cog"></i> Users Info</button>
         </div>
 
         <div id="manga-section" class="form-box">
@@ -128,6 +99,7 @@
                 <option value="jp">Manga (Japan)</option>
                 <option value="kr">Manhwa (Korea)</option>
                 <option value="cn">Manhua (China)</option>
+                <option value="18plus">Adult (18+)</option>
             </select>
             <label>Genres</label>
             <input type="text" id="m-genres" placeholder="Action, Adventure">
@@ -143,44 +115,48 @@
             <label>Chapter Name</label>
             <input type="text" id="c-name" placeholder="Chapter 01">
             <div style="display: flex; gap: 15px;">
-                <div style="flex: 1;">
-                    <label>Price (Coins)</label>
-                    <input type="number" id="c-price" value="0">
-                </div>
-                <div style="flex: 1;">
-                    <label>Order</label>
-                    <input type="number" id="c-order" placeholder="1">
-                </div>
+                <div style="flex: 1;"><label>Price (Coins)</label><input type="number" id="c-price" value="0"></div>
+                <div style="flex: 1;"><label>Order</label><input type="number" id="c-order" placeholder="1"></div>
             </div>
             <label>Image Links (One per line)</label>
-            <textarea id="c-images" rows="8" placeholder="https://link1.jpg&#10;https://link2.jpg"></textarea>
-            <button onclick="saveChapter()" id="c-save-btn" style="background: linear-gradient(135deg, var(--success), #059669);"><i class="fas fa-check"></i> Release Now</button>
+            <textarea id="c-images" rows="8"></textarea>
+            <button onclick="saveChapter()" id="c-save-btn" style="background: var(--success);"><i class="fas fa-check"></i> Release Now</button>
         </div>
 
         <div id="member-section" class="form-box" style="display: none;">
-            <h2><i class="fas fa-crown"></i> VIP Membership Upgrade</h2>
-            <div style="background: rgba(139, 92, 246, 0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.2);">
-                <label>User UID</label>
-                <input type="text" id="v-uid" placeholder="Paste user UID here">
+            <h2><i class="fas fa-user-shield"></i> User Management</h2>
+            <label>Target User UID</label>
+            <input type="text" id="v-uid" placeholder="Paste User UID here">
+
+            <div style="margin-top: 25px; padding: 15px; background: rgba(251, 191, 36, 0.05); border-radius: 12px; border: 1px solid rgba(251, 191, 36, 0.2);">
+                <h3 style="font-size: 14px; color: var(--warning); margin-top: 0;"><i class="fas fa-coins"></i> Add Coins</h3>
+                <label>Amount to Add</label>
+                <input type="number" id="v-coins-amount" placeholder="eg. 1000">
+                <button onclick="addCoinsToUser()" id="v-coin-btn" style="background: var(--warning); margin-top: 10px;">Add Coins Now</button>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: rgba(139, 92, 246, 0.05); border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.2);">
+                <h3 style="font-size: 14px; color: var(--accent); margin-top: 0;"><i class="fas fa-crown"></i> VIP Membership</h3>
                 <label>Membership Duration</label>
                 <select id="v-days">
-                    <option value="30">1 Month (30 Days)</option>
-                    <option value="90">3 Months (90 Days)</option>
-                    <option value="365">1 Year (365 Days)</option>
+                    <option value="30">1 Month (13,500ks)</option>
+                    <option value="90">3 Months (32,400ks)</option>
+                    <option value="365">1 Year (113,400ks)</option>
                 </select>
-                <button onclick="upgradeToVIP()" id="v-save-btn">Upgrade to VIP Status</button>
+                <button onclick="upgradeToVIP()" id="v-save-btn" style="margin-top: 10px;">Upgrade to VIP Status</button>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: rgba(52, 211, 153, 0.05); border-radius: 12px; border: 1px solid rgba(52, 211, 153, 0.2);">
+                <h3 style="font-size: 14px; color: var(--weekly); margin-top: 0;"><i class="fas fa-calendar-check"></i> Weekly Pass (3,500ks)</h3>
+                <button onclick="addWeeklyPass()" id="v-weekly-btn" style="background: var(--success); margin-top: 10px;">Activate Weekly Pass</button>
             </div>
         </div>
 
         <div id="ads-section" class="form-box" style="display: none;">
             <h2><i class="fas fa-ad"></i> Ad Manager</h2>
-            <label>Image URL</label>
-            <input type="text" id="ad-image">
-            <label>Target URL</label>
-            <input type="text" id="ad-link">
-            <button onclick="saveAd()" id="ad-save-btn" style="background: linear-gradient(135deg, var(--warning), #d97706);"><i class="fas fa-plus"></i> Add Ad</button>
-            
-            <h3 style="font-size: 14px; margin-top: 30px; color: #94a3b8;">Active Ads</h3>
+            <label>Image URL</label><input type="text" id="ad-image">
+            <label>Target URL</label><input type="text" id="ad-link">
+            <button onclick="saveAd()" id="ad-save-btn" style="background: var(--warning);"><i class="fas fa-plus"></i> Add Ad</button>
             <div id="current-ads-list"></div>
         </div>
     </div>
@@ -190,7 +166,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // ... (Original Firebase Config) ...
         const firebaseConfig = {
             apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
             projectId: "rawkuma-8f1ba",
@@ -204,83 +179,101 @@
         auth.onAuthStateChanged(user => {
             if (user && user.email === ADMIN_EMAIL) {
                 document.getElementById('admin-ui').style.display = 'block';
+                document.getElementById('stats-date').valueAsDate = new Date();
+                fetchStats();
                 listenToAds();
             } else {
                 let email = prompt("Admin Email:");
                 let pass = prompt("Password:");
                 if (email && pass) {
-                    auth.signInWithEmailAndPassword(email.trim(), pass).catch(err => {
-                        alert("Error: " + err.message);
-                        window.location.reload();
-                    });
-                } else {
-                    window.location.href = "index.html";
-                }
+                    auth.signInWithEmailAndPassword(email.trim(), pass).catch(err => { alert(err.message); window.location.reload(); });
+                } else { window.location.href = "index.html"; }
             }
         });
 
+        // --- Money Manager Logic ---
+        async function logSale(itemName, amount) {
+            const today = new Date().toISOString().split('T')[0];
+            await db.collection("sales").add({
+                item: itemName,
+                price: amount,
+                date: today,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            fetchStats();
+        }
+
+        async function fetchStats() {
+            const date = document.getElementById('stats-date').value;
+            const snapshot = await db.collection("sales").where("date", "==", date).get();
+            let total = 0;
+            let items = [];
+            snapshot.forEach(doc => {
+                total += doc.data().price;
+                items.push(doc.data().item);
+            });
+            document.getElementById('stat-revenue').innerText = total.toLocaleString() + " Ks";
+            document.getElementById('stat-items').innerText = snapshot.size;
+            document.getElementById('item-details').innerHTML = items.length > 0 ? items.join(", ") : "No sales this day.";
+        }
+
         function switchTab(type) {
-            const tabs = ['manga', 'chapter', 'ads', 'member'];
-            tabs.forEach(t => {
+            ['manga', 'chapter', 'ads', 'member'].forEach(t => {
                 document.getElementById(`${t}-section`).style.display = (t === type) ? 'block' : 'none';
                 document.getElementById(`${t}-tab-btn`).classList.toggle('active', t === type);
             });
         }
 
-        // --- Membership Upgrade Logic (New) ---
-        async function upgradeToVIP() {
+        // --- Modified Actions with Pricing ---
+        async function addCoinsToUser() {
             const uid = document.getElementById('v-uid').value.trim();
-            const days = parseInt(document.getElementById('v-days').value);
-            const btn = document.getElementById('v-save-btn');
-            
-            if(!uid) return alert("User UID လိုအပ်သည်");
-
-            btn.disabled = true;
-            const expiryDate = new Date();
-            expiryDate.setDate(expiryDate.getDate() + days);
-
+            const amount = parseInt(document.getElementById('v-coins-amount').value);
+            if(!uid || isNaN(amount)) return alert("Fill data!");
             try {
-                await db.collection("users").doc(uid).set({
-                    membership: "VIP",
-                    vipExpiry: expiryDate,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                alert("Upgrade Successful! VIP Valid Until: " + expiryDate.toDateString());
+                await db.collection("users").doc(uid).update({ coins: firebase.firestore.FieldValue.increment(amount) });
+                await logSale(`Coins (${amount})`, amount); // 1 coin = 1ks
+                alert("Coins Added!");
             } catch(e) { alert(e.message); }
-            btn.disabled = false;
         }
 
-        // --- Rest of original functions (Ads, Manga, Chapter) ---
-        // (ဒီအပိုင်းတွေကို နဂိုအတိုင်းထားပေးထားပါတယ် brother)
-        
-        async function saveAd() {
-            const img = document.getElementById('ad-image').value.trim();
-            const link = document.getElementById('ad-link').value.trim();
-            const btn = document.getElementById('ad-save-btn');
-            if(!img || !link) return alert("Fill all fields!");
-            btn.disabled = true;
+        async function upgradeToVIP() {
+            const uid = document.getElementById('v-uid').value.trim();
+            const days = document.getElementById('v-days').value;
+            let price = days == "30" ? 13500 : days == "90" ? 32400 : 113400;
+            if(!uid) return alert("UID Required!");
+            const expiry = new Date(); expiry.setDate(expiry.getDate() + parseInt(days));
             try {
-                await db.collection("ads").add({
-                    imageUrl: img, targetUrl: link,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                alert("Ads Saved!");
+                await db.collection("users").doc(uid).set({ membership: "VIP", vipExpiry: expiry }, { merge: true });
+                await logSale(`VIP ${days}Days`, price);
+                alert("VIP Upgraded!");
             } catch(e) { alert(e.message); }
-            btn.disabled = false;
+        }
+
+        async function addWeeklyPass() {
+            const uid = document.getElementById('v-uid').value.trim();
+            if(!uid) return alert("UID Required!");
+            const expiry = new Date(); expiry.setDate(expiry.getDate() + 7);
+            try {
+                await db.collection("users").doc(uid).update({ weeklyPassExpiry: expiry, hasWeeklyPass: true });
+                await logSale("Weekly Pass", 3500);
+                alert("Weekly Pass Activated!");
+            } catch(e) { alert(e.message); }
+        }
+
+        // --- Original Functions (Ads, Manga, Chapter) ---
+        async function saveAd() {
+            const img = document.getElementById('ad-image').value;
+            const link = document.getElementById('ad-link').value;
+            await db.collection("ads").add({ imageUrl: img, targetUrl: link, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            alert("Ads Saved!");
         }
 
         function listenToAds() {
-            const listDiv = document.getElementById('current-ads-list');
-            db.collection("ads").orderBy("createdAt", "desc").onSnapshot(snapshot => {
-                listDiv.innerHTML = "";
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    listDiv.innerHTML += `
-                        <div class="ad-item">
-                            <img src="${data.imageUrl}">
-                            <div style="flex-grow:1; font-size:11px; overflow:hidden;">${data.targetUrl}</div>
-                            <button class="del-ad" onclick="deleteAd('${doc.id}')"><i class="fas fa-trash"></i></button>
-                        </div>`;
+            db.collection("ads").orderBy("createdAt", "desc").onSnapshot(snap => {
+                const list = document.getElementById('current-ads-list');
+                list.innerHTML = "";
+                snap.forEach(doc => {
+                    list.innerHTML += `<div class="ad-item"><img src="${doc.data().imageUrl}"><div style="flex:1;">${doc.data().targetUrl}</div><button class="del-ad" onclick="deleteAd('${doc.id}')">Del</button></div>`;
                 });
             });
         }
@@ -288,41 +281,26 @@
         async function deleteAd(id) { if(confirm("Delete?")) await db.collection("ads").doc(id).delete(); }
 
         async function saveManga() {
-            const title = document.getElementById('m-title').value.trim();
-            const cover = document.getElementById('m-cover').value.trim();
-            const btn = document.getElementById('m-save-btn');
-            if(!title || !cover) return alert("Required!");
-            btn.disabled = true;
-            try {
-                const docRef = await db.collection("mangas").add({
-                    title, cover, type: document.getElementById('m-type').value,
-                    genres: document.getElementById('m-genres').value.split(','),
-                    desc: document.getElementById('m-desc').value,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                alert("Manga Created!");
-                document.getElementById('c-manga-id').value = docRef.id;
-                switchTab('chapter');
-            } catch(e) { alert(e.message); }
-            btn.disabled = false;
+            const title = document.getElementById('m-title').value;
+            const docRef = await db.collection("mangas").add({
+                title, cover: document.getElementById('m-cover').value,
+                type: document.getElementById('m-type').value,
+                genres: document.getElementById('m-genres').value.split(','),
+                desc: document.getElementById('m-desc').value,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert("Created!"); document.getElementById('c-manga-id').value = docRef.id; switchTab('chapter');
         }
 
         async function saveChapter() {
-            const mId = document.getElementById('c-manga-id').value.trim();
-            const name = document.getElementById('c-name').value.trim();
-            const images = document.getElementById('c-images').value.split('\n').filter(l => l.trim() !== "");
-            const btn = document.getElementById('c-save-btn');
-            if(!mId || !name || images.length === 0) return alert("Required!");
-            btn.disabled = true;
-            try {
-                await db.collection("mangas").doc(mId).collection("chapters").add({
-                    name, images, price: parseInt(document.getElementById('c-price').value) || 0,
-                    order: parseInt(document.getElementById('c-order').value) || 0,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                alert("Chapter Released!");
-            } catch(e) { alert(e.message); }
-            btn.disabled = false;
+            await db.collection("mangas").doc(document.getElementById('c-manga-id').value).collection("chapters").add({
+                name: document.getElementById('c-name').value,
+                images: document.getElementById('c-images').value.split('\n').filter(l => l.trim()),
+                price: parseInt(document.getElementById('c-price').value) || 0,
+                order: parseInt(document.getElementById('c-order').value) || 0,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert("Chapter Released!");
         }
     </script>
 </body>
