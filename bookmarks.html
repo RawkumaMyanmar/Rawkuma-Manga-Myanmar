@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Rawkuma | My Bookmarks</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --glass: rgba(255, 255, 255, 0.05); 
+            --accent: #8b5cf6; 
+            --bg: #0f172a; 
+            --card-bg: #1e293b;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { 
+            -webkit-user-select: none; user-select: none; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: white; 
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        nav { 
+            background: rgba(15, 23, 42, 0.85); 
+            backdrop-filter: blur(15px); 
+            padding: 15px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            border-bottom: 1px solid var(--glass);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .back-btn { font-size: 20px; cursor: pointer; color: white; text-decoration: none; }
+        .page-title { font-size: 18px; font-weight: 700; flex-grow: 1; }
+
+        .container { padding: 15px; }
+
+        /* --- Bookmark Grid --- */
+        .manga-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 15px; 
+        }
+
+        .card { 
+            text-decoration: none; 
+            color: inherit; 
+            background: var(--card-bg); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            position: relative; 
+            transition: var(--transition); 
+            border: 1px solid var(--glass);
+            animation: fadeInUp 0.5s ease backwards;
+        }
+        .card:active { transform: scale(0.95); }
+        .card img { width: 100%; height: 230px; object-fit: cover; display: block; }
+        
+        .card-info { padding: 10px; }
+        .title { 
+            font-size: 13px; 
+            font-weight: 600; 
+            line-height: 1.4; 
+            height: 38px; 
+            display: -webkit-box; 
+            -webkit-line-clamp: 2; 
+            -webkit-box-orient: vertical; 
+            overflow: hidden; 
+        }
+
+        /* --- Remove Button --- */
+        .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* --- States --- */
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+            color: #64748b;
+        }
+        .empty-state i { font-size: 50px; margin-bottom: 15px; color: var(--glass); }
+
+        .skeleton { 
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); 
+            background-size: 200% 100%; 
+            animation: shimmer 1.5s infinite linear; 
+            border-radius: 12px;
+            height: 280px;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <div class="page-title">My Bookmarks</div>
+        <i class="fas fa-bookmark" style="color: var(--accent);"></i>
+    </nav>
+
+    <div class="container">
+        <div id="bookmark-list" class="manga-grid">
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
+            authDomain: "rawkuma-8f1ba.firebaseapp.com",
+            projectId: "rawkuma-8f1ba",
+            storageBucket: "rawkuma-8f1ba.firebasestorage.app",
+            messagingSenderId: "8257070386",
+            appId: "1:8257070386:web:74d861728b8378d86f232b"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                loadBookmarks(user.uid);
+            } else {
+                window.location.href = "index.html"; // Login မဝင်ထားရင် Home ပြန်ပို့
+            }
+        });
+
+        function loadBookmarks(uid) {
+            const listDiv = document.getElementById('bookmark-list');
+            
+            // Real-time Listen
+            db.collection("users").doc(uid).collection("bookmarks")
+              .orderBy("addedAt", "desc")
+              .onSnapshot(snapshot => {
+                if (snapshot.empty) {
+                    listDiv.innerHTML = `
+                        <div class="empty-state" style="grid-column: span 2;">
+                            <i class="fas fa-folder-open"></i>
+                            <p>No bookmarks yet.</p>
+                        </div>`;
+                    return;
+                }
+
+                listDiv.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const mangaId = doc.id;
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <button class="remove-btn" onclick="removeBookmark(event, '${mangaId}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <a href="details.html?id=${mangaId}" style="text-decoration:none; color:inherit;">
+                            <img src="${data.cover}" onerror="this.src='https://via.placeholder.com/230x300?text=No+Cover'">
+                            <div class="card-info">
+                                <div class="title">${data.title}</div>
+                            </div>
+                        </a>
+                    `;
+                    listDiv.appendChild(card);
+                });
+            });
+        }
+
+        async function removeBookmark(event, mangaId) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            if(!confirm("Remove from bookmarks?")) return;
+
+            const user = auth.currentUser;
+            try {
+                await db.collection("users").doc(user.uid).collection("bookmarks").doc(mangaId).delete();
+            } catch (err) {
+                alert("Error removing bookmark: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
