@@ -109,8 +109,15 @@
         /* --- Rating System --- */
         .rating-box { padding: 0 20px; margin-top: 10px; display: flex; align-items: center; gap: 10px; }
         .stars { color: #fbbf24; font-size: 18px; display: flex; gap: 4px; }
-        .stars i { cursor: pointer; }
+        .stars i { cursor: default; } /* Changed to default as it's now display only */
         .rating-count { font-size: 12px; color: #64748b; font-weight: bold; }
+
+        /* Review Badge for comments */
+        .review-badge {
+            background: var(--accent); color: white; font-size: 9px; 
+            padding: 2px 8px; border-radius: 4px; font-weight: bold; 
+            margin-bottom: 5px; display: inline-block; text-transform: uppercase;
+        }
 
         /* Description Box */
         .desc-section { padding: 25px 20px; background: linear-gradient(to bottom, transparent, var(--bg)); }
@@ -346,32 +353,14 @@
             }
         }
 
-        // --- Star Rating Logic ---
+        // --- Star Rating System (Display Only) ---
         function renderStars(rating) {
             let html = '';
             for (let i = 1; i <= 5; i++) {
-                html += `<i class="${i <= Math.round(rating) ? 'fas' : 'far'} fa-star" onclick="giveRating(${i})"></i>`;
+                // Removed onclick as per your request - now only displays stars
+                html += `<i class="${i <= Math.round(rating) ? 'fas' : 'far'} fa-star"></i>`;
             }
             return html;
-        }
-
-        async function giveRating(val) {
-            if (!auth.currentUser) return alert("Login to rate!");
-            const userRef = db.collection("mangas").doc(mangaId).collection("ratings").doc(auth.currentUser.uid);
-            const ratingDoc = await userRef.get();
-
-            if (ratingDoc.exists) return alert("You already rated this story!");
-
-            await userRef.set({ rating: val });
-            const mangaRef = db.collection("mangas").doc(mangaId);
-            
-            db.runTransaction(async (transaction) => {
-                const mDoc = await transaction.get(mangaRef);
-                const newCount = (mDoc.data().ratingCount || 0) + 1;
-                const newRating = ((mDoc.data().rating || 0) * (newCount - 1) + val) / newCount;
-                transaction.update(mangaRef, { rating: newRating, ratingCount: newCount });
-            });
-            alert("Thanks for rating!");
         }
 
         // --- Share API ---
@@ -439,10 +428,14 @@
                 list.innerHTML = snap.empty ? "<p style='color:#64748b; font-size:12px; text-align:center;'>No comments yet. Be the first!</p>" : "";
                 snap.forEach(doc => {
                     const c = doc.data();
+                    let reviewHeader = c.isReview ? `<span class="review-badge">REVIEW • ${c.starValue} Stars</span>` : '';
+                    let itemStyle = c.isReview ? 'border: 1px solid rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.05);' : '';
+
                     list.innerHTML += `
-                        <div class="comment-item">
+                        <div class="comment-item" style="${itemStyle}">
                             <img src="${c.userPfp}" class="comment-pfp">
                             <div class="comment-content">
+                                ${reviewHeader}
                                 <span class="comment-user">${c.userName}</span>
                                 <div class="comment-text">${c.text}</div>
                                 <span class="comment-time">${c.createdAt ? formatDate(c.createdAt) : 'Just now'}</span>
