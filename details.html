@@ -95,6 +95,23 @@
             font-weight: 600; border: 1px solid rgba(139, 92, 246, 0.3);
         }
 
+        /* --- New Actions Bar --- */
+        .action-bar { display: flex; gap: 10px; margin-top: 15px; }
+        .action-btn { 
+            flex: 1; background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 10px; border-radius: 12px; font-size: 13px;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            transition: 0.3s; cursor: pointer;
+        }
+        .action-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(139, 92, 246, 0.1); }
+        .action-btn i { font-size: 16px; }
+
+        /* --- Rating System --- */
+        .rating-box { padding: 0 20px; margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+        .stars { color: #fbbf24; font-size: 18px; display: flex; gap: 4px; }
+        .stars i { cursor: pointer; }
+        .rating-count { font-size: 12px; color: #64748b; font-weight: bold; }
+
         /* Description Box */
         .desc-section { padding: 25px 20px; background: linear-gradient(to bottom, transparent, var(--bg)); }
         .manga-desc { font-size: 14px; color: #cbd5e1; line-height: 1.7; text-align: justify; }
@@ -105,10 +122,13 @@
             margin-top: -20px; position: relative; z-index: 2;
             box-shadow: 0 -20px 40px rgba(0,0,0,0.5);
         }
-        .section-title { font-size: 19px; margin-bottom: 25px; font-weight: 800; display: flex; align-items: center; gap: 12px; letter-spacing: 0.5px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .section-title { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 12px; letter-spacing: 0.5px; margin: 0; }
         .section-title::before { content: ''; width: 4px; height: 22px; background: var(--accent); border-radius: 10px; box-shadow: 0 0 10px var(--accent); }
         
-        .chapter-list { display: flex; flex-direction: column; gap: 14px; padding-bottom: 60px; }
+        .sort-btn { background: var(--glass); border: none; color: white; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+
+        .chapter-list { display: flex; flex-direction: column; gap: 14px; padding-bottom: 30px; }
         .chapter-item { 
             background: var(--card-bg); padding: 18px; border-radius: 18px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -130,6 +150,35 @@
         .free-badge { color: #10b981; border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
         .vip-unlocked { color: #fbbf24; border-color: #fbbf24; background: rgba(251, 191, 36, 0.15); border-style: dashed; }
         
+        /* --- Comments Section Optimized --- */
+        .comments-section { padding: 20px; border-top: 1px solid var(--glass); margin-bottom: 50px; }
+        .comment-input-box { margin-bottom: 30px; overflow: hidden; }
+        .comment-input-box textarea { 
+            width: 100%; background: var(--card-bg); border: 1px solid var(--glass); 
+            border-radius: 12px; padding: 15px; color: white; outline: none; resize: none;
+            -webkit-user-select: text; user-select: text; box-sizing: border-box;
+            transition: 0.3s;
+        }
+        .comment-input-box textarea:focus { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+        .comment-btn { 
+            background: var(--accent); border: none; color: white; padding: 10px 24px; 
+            border-radius: 10px; font-weight: bold; margin-top: 12px; float: right;
+            cursor: pointer; transition: 0.3s;
+        }
+        .comment-btn:active { transform: scale(0.95); opacity: 0.8; }
+        
+        .comment-item { 
+            background: rgba(255,255,255,0.03); padding: 16px; border-radius: 16px; 
+            margin-bottom: 20px; display: flex; gap: 14px;
+            border: 1px solid rgba(255,255,255,0.02);
+            animation: fadeInUp 0.4s ease backwards;
+        }
+        .comment-pfp { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--glass); }
+        .comment-content { flex: 1; }
+        .comment-user { font-size: 14px; font-weight: bold; color: var(--accent); margin-bottom: 6px; display: block; }
+        .comment-text { font-size: 14px; color: #e2e8f0; line-height: 1.6; -webkit-user-select: text; user-select: text; word-break: break-word; }
+        .comment-time { font-size: 11px; color: #64748b; margin-top: 10px; display: block; font-style: italic; }
+
         .loading { text-align: center; padding: 100px 20px; color: #64748b; }
     </style>
 </head>
@@ -148,8 +197,20 @@
     </div>
 
     <div class="chapter-section">
-        <h3 class="section-title">Chapters List</h3>
+        <div class="section-header">
+            <h3 class="section-title">Chapters</h3>
+            <button class="sort-btn" id="sort-btn" onclick="toggleSort()"><i class="fas fa-sort-amount-down"></i> Newest</button>
+        </div>
         <div class="chapter-list" id="chapter-list"></div>
+
+        <div class="comments-section">
+            <h3 class="section-title" style="margin-bottom: 20px;">Comments</h3>
+            <div class="comment-input-box" id="comment-auth-gate">
+                <textarea id="comment-text" rows="3" placeholder="Login to join the conversation..."></textarea>
+                <button class="comment-btn" id="post-comment-btn" disabled>Post Comment</button>
+            </div>
+            <div id="comments-list"></div>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -177,42 +238,53 @@
         const urlParams = new URLSearchParams(window.location.search);
         const mangaId = urlParams.get('id');
         let userVIP = false;
+        let currentUserData = null;
+        let sortOrder = 'desc';
 
         if (!mangaId) window.location.href = 'index.html';
 
-        // Secure Coin & VIP Sync
+        // --- Auth & Data Sync ---
         auth.onAuthStateChanged(user => {
             const coinBox = document.getElementById('coin-box');
-            const coinDisplay = document.getElementById('user-coins');
             const vipBadge = document.getElementById('vip-status');
+            const commentInput = document.getElementById('comment-text');
+            const postBtn = document.getElementById('post-comment-btn');
 
             if (user) {
                 coinBox.style.display = 'flex';
                 db.collection("users").doc(user.uid).onSnapshot(doc => {
                     if (doc.exists) {
-                        const data = doc.data();
-                        const actualCoins = data.coins || 0;
-                        userVIP = data.membership === "VIP";
-                        
-                        coinDisplay.innerText = Number(actualCoins).toLocaleString();
+                        currentUserData = doc.data();
+                        userVIP = currentUserData.membership === "VIP";
+                        document.getElementById('user-coins').innerText = Number(currentUserData.coins || 0).toLocaleString();
                         vipBadge.style.display = userVIP ? 'flex' : 'none';
                         
-                        loadChapters(); 
+                        // Enable Comments
+                        commentInput.placeholder = "Write a comment...";
+                        postBtn.disabled = false;
+                        postBtn.onclick = postComment;
+
+                        loadMangaDetails();
+                        loadChapters();
+                        checkBookmark();
                     }
                 });
-            } else { 
-                coinBox.style.display = 'none'; 
-                vipBadge.style.display = 'none';
+            } else {
+                loadMangaDetails();
                 loadChapters();
             }
+            loadComments();
         });
 
+        // --- Load Manga Details ---
         function loadMangaDetails() {
-            db.collection("mangas").doc(mangaId).get().then((doc) => {
+            db.collection("mangas").doc(mangaId).onSnapshot((doc) => {
                 if (doc.exists) {
                     const manga = doc.data();
+                    const avgRating = manga.rating || 0;
+                    const ratingCount = manga.ratingCount || 0;
+                    
                     let genreHtml = (manga.genres || []).map(g => `<span class="genre-badge">${g}</span>`).join('');
-                    if (!genreHtml) genreHtml = `<span class="genre-badge">Manga</span>`;
 
                     document.getElementById('manga-content').innerHTML = `
                         <div class="manga-header">
@@ -221,7 +293,19 @@
                             <div class="manga-info">
                                 <div class="manga-title">${manga.title}</div>
                                 <div class="genre-container">${genreHtml}</div>
+                                <div class="action-bar">
+                                    <div class="action-btn" id="bookmark-btn" onclick="toggleBookmark()">
+                                        <i class="far fa-bookmark"></i><span>Bookmark</span>
+                                    </div>
+                                    <div class="action-btn" onclick="shareManga('${manga.title}')">
+                                        <i class="fas fa-share-alt"></i><span>Share</span>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                        <div class="rating-box">
+                            <div class="stars" id="star-rating">${renderStars(avgRating)}</div>
+                            <div class="rating-count">(${avgRating.toFixed(1)}) • ${ratingCount} reviews</div>
                         </div>
                         <div class="desc-section">
                             <div class="manga-desc">${manga.desc || 'No description available.'}</div>
@@ -230,40 +314,148 @@
             });
         }
 
-        // Date Formatting Helper
-        function formatDate(timestamp) {
-            if (!timestamp) return "";
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        // --- Bookmark Logic ---
+        async function toggleBookmark() {
+            if (!auth.currentUser) return alert("Please login to bookmark!");
+            const btn = document.getElementById('bookmark-btn');
+            const ref = db.collection("users").doc(auth.currentUser.uid).collection("bookmarks").doc(mangaId);
+            const doc = await ref.get();
+
+            if (doc.exists) {
+                await ref.delete();
+                btn.classList.remove('active');
+                btn.querySelector('i').className = 'far fa-bookmark';
+            } else {
+                await ref.set({ 
+                    bookmarkedAt: new Date(),
+                    title: document.querySelector('.manga-title').innerText,
+                    cover: document.querySelector('.manga-cover').src
+                });
+                btn.classList.add('active');
+                btn.querySelector('i').className = 'fas fa-bookmark';
+            }
+        }
+
+        async function checkBookmark() {
+            if (!auth.currentUser) return;
+            const doc = await db.collection("users").doc(auth.currentUser.uid).collection("bookmarks").doc(mangaId).get();
+            if (doc.exists) {
+                const btn = document.getElementById('bookmark-btn');
+                btn.classList.add('active');
+                btn.querySelector('i').className = 'fas fa-bookmark';
+            }
+        }
+
+        // --- Star Rating Logic ---
+        function renderStars(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                html += `<i class="${i <= Math.round(rating) ? 'fas' : 'far'} fa-star" onclick="giveRating(${i})"></i>`;
+            }
+            return html;
+        }
+
+        async function giveRating(val) {
+            if (!auth.currentUser) return alert("Login to rate!");
+            const userRef = db.collection("mangas").doc(mangaId).collection("ratings").doc(auth.currentUser.uid);
+            const ratingDoc = await userRef.get();
+
+            if (ratingDoc.exists) return alert("You already rated this story!");
+
+            await userRef.set({ rating: val });
+            const mangaRef = db.collection("mangas").doc(mangaId);
+            
+            db.runTransaction(async (transaction) => {
+                const mDoc = await transaction.get(mangaRef);
+                const newCount = (mDoc.data().ratingCount || 0) + 1;
+                const newRating = ((mDoc.data().rating || 0) * (newCount - 1) + val) / newCount;
+                transaction.update(mangaRef, { rating: newRating, ratingCount: newCount });
+            });
+            alert("Thanks for rating!");
+        }
+
+        // --- Share API ---
+        function shareManga(title) {
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: `Check out ${title} on Rawkuma!`,
+                    url: window.location.href
+                });
+            } else {
+                alert("Link copied to clipboard!");
+                navigator.clipboard.writeText(window.location.href);
+            }
+        }
+
+        // --- Chapters Sorting ---
+        function toggleSort() {
+            sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            document.getElementById('sort-btn').innerHTML = `<i class="fas fa-sort-amount-${sortOrder === 'asc' ? 'up' : 'down'}"></i> ${sortOrder === 'asc' ? 'Oldest' : 'Newest'}`;
+            loadChapters();
         }
 
         function loadChapters() {
             const list = document.getElementById('chapter-list');
-            db.collection("mangas").doc(mangaId).collection("chapters").orderBy("order", "asc").onSnapshot(snap => {
+            db.collection("mangas").doc(mangaId).collection("chapters").orderBy("order", sortOrder).onSnapshot(snap => {
                 list.innerHTML = snap.empty ? "<div class='loading'>No Chapters.</div>" : "";
                 snap.forEach(doc => {
                     const ch = doc.data();
                     const isFree = !ch.price || ch.price === 0;
-                    const dateStr = formatDate(ch.updatedAt || ch.createdAt);
-                    
                     let priceLabel = isFree ? 'FREE' : `<i class="fas fa-coins"></i> ${ch.price}`;
                     let badgeClass = isFree ? 'free-badge' : '';
-                    
-                    if (userVIP && !isFree) {
-                        priceLabel = '<i class="fas fa-crown"></i> UNLOCKED';
-                        badgeClass = 'vip-unlocked';
-                    }
+                    if (userVIP && !isFree) { priceLabel = '<i class="fas fa-crown"></i> UNLOCKED'; badgeClass = 'vip-unlocked'; }
 
                     list.innerHTML += `
                         <a href="reader.html?mangaId=${mangaId}&chapterId=${doc.id}" class="chapter-item">
                             <div class="chapter-info-box">
                                 <div class="chapter-name"><i class="fas fa-play-circle"></i> ${ch.name}</div>
-                                <div class="chapter-date">${dateStr}</div>
+                                <div class="chapter-date">${formatDate(ch.updatedAt || ch.createdAt)}</div>
                             </div>
                             <div class="price-badge ${badgeClass}">${priceLabel}</div>
                         </a>`;
                 });
             });
+        }
+
+        // --- Comments Logic ---
+        async function postComment() {
+            const text = document.getElementById('comment-text').value.trim();
+            if (!text) return;
+            
+            await db.collection("mangas").doc(mangaId).collection("comments").add({
+                userId: auth.currentUser.uid,
+                userName: currentUserData.name,
+                userPfp: currentUserData.pfp || "https://i.ibb.co/XfR4R4Jx/IMG-20260107-143629-039.jpg",
+                text: text,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            document.getElementById('comment-text').value = "";
+        }
+
+        function loadComments() {
+            db.collection("mangas").doc(mangaId).collection("comments").orderBy("createdAt", "desc").onSnapshot(snap => {
+                const list = document.getElementById('comments-list');
+                list.innerHTML = snap.empty ? "<p style='color:#64748b; font-size:12px; text-align:center;'>No comments yet. Be the first!</p>" : "";
+                snap.forEach(doc => {
+                    const c = doc.data();
+                    list.innerHTML += `
+                        <div class="comment-item">
+                            <img src="${c.userPfp}" class="comment-pfp">
+                            <div class="comment-content">
+                                <span class="comment-user">${c.userName}</span>
+                                <div class="comment-text">${c.text}</div>
+                                <span class="comment-time">${c.createdAt ? formatDate(c.createdAt) : 'Just now'}</span>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        function formatDate(ts) {
+            if (!ts) return "";
+            const d = ts.toDate ? ts.toDate() : new Date(ts);
+            return d.toLocaleDateString();
         }
 
         loadMangaDetails();
