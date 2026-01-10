@@ -162,6 +162,12 @@
         .card-info { padding: 12px; }
         .title { font-size: 13px; font-weight: 600; line-height: 1.4; height: 38px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
+        /* --- Home Star Rating Style --- */
+        .home-star-box { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 14px; color: #64748b; }
+        .home-star-box i { cursor: pointer; transition: 0.2s; }
+        .home-star-box i.fas { color: #fbbf24; }
+        .home-star-box i:active { transform: scale(1.3); }
+
         .menu-item { padding: 14px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #cbd5e1; transition: 0.3s; }
         .menu-item:active { background: rgba(139, 92, 246, 0.2); transform: scale(0.95); }
 
@@ -690,6 +696,44 @@
 
         const flags = { "jp": "https://flagcdn.com/w40/jp.png", "kr": "https://flagcdn.com/w40/kr.png", "cn": "https://flagcdn.com/w40/cn.png" };
         
+        // --- Added Star System Implementation ---
+        async function toggleHomeStar(event, mangaId) {
+            event.preventDefault(); // Link မပွင့်သွားအောင်တားတာ
+            event.stopPropagation(); // Card Click event မဖြစ်အောင်တားတာ
+
+            if (!auth.currentUser) return openLoginModal();
+
+            const mangaRef = db.collection("mangas").doc(mangaId);
+            const userRef = db.collection("users").doc(auth.currentUser.uid);
+            const userRatingRef = mangaRef.collection("ratings").doc(auth.currentUser.uid);
+
+            try {
+                const ratingDoc = await userRatingRef.get();
+                
+                await db.runTransaction(async (transaction) => {
+                    const mDoc = await transaction.get(mangaRef);
+                    let currentCount = mDoc.data().ratingCount || 0;
+                    let currentAvg = mDoc.data().rating || 0;
+                    
+                    if (ratingDoc.exists) {
+                        // Rating ဖြုတ်မယ် (Decrease)
+                        let newCount = currentCount - 1;
+                        let newAvg = newCount > 0 ? (currentAvg * currentCount - 5) / newCount : 0;
+                        transaction.update(mangaRef, { rating: newAvg, ratingCount: newCount });
+                        transaction.delete(userRatingRef);
+                    } else {
+                        // Rating အသစ်ပေးမယ် (Increase)
+                        let newCount = currentCount + 1;
+                        let newAvg = (currentAvg * currentCount + 5) / newCount;
+                        transaction.update(mangaRef, { rating: newAvg, ratingCount: newCount });
+                        transaction.set(userRatingRef, { rating: 5, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    }
+                });
+            } catch (e) {
+                console.error("Star Error:", e);
+            }
+        }
+
         function loadMangasFromDB(filterType = 'all', searchTerm = '') {
             const grid = document.getElementById('main-list');
             let query = db.collection("mangas").orderBy("updatedAt", "desc");
@@ -698,17 +742,36 @@
             query.onSnapshot((querySnapshot) => {
                 grid.innerHTML = "";
                 let delay = 0;
-                querySnapshot.forEach((doc) => {
+                querySnapshot.forEach(async (doc) => {
                     const manga = doc.data();
                     if (searchTerm && !manga.title.toLowerCase().includes(searchTerm.toLowerCase())) return;
-                    const card = document.createElement('a');
-                    card.href = `details.html?id=${doc.id}`;
+                    
+                    const mangaId = doc.id;
+                    const card = document.createElement('div'); // <a> ကို <div> ပြောင်းလိုက်တယ် Star နှိပ်ရလွယ်အောင်
                     card.className = 'card';
                     card.style.animationDelay = `${delay}s`; 
+                    
+                    // User ပေးထားပြီးသားလား check တာ
+                    let starClass = 'far'; // default empty star
+                    if (auth.currentUser) {
+                        const checkRating = await db.collection("mangas").doc(mangaId).collection("ratings").doc(auth.currentUser.uid).get();
+                        if (checkRating.exists) starClass = 'fas'; // filled star
+                    }
+
                     card.innerHTML = `
-                        <img class="flag-badge" src="${flags[manga.type] || flags['jp']}">
-                        <img src="${manga.cover}" loading="lazy" onerror="this.src='https://via.placeholder.com/230x300?text=No+Cover'">
-                        <div class="card-info"><div class="title">${manga.title}</div></div>`;
+                        <a href="details.html?id=${mangaId}" style="text-decoration:none; color:inherit;">
+                            <img class="flag-badge" src="${flags[manga.type] || flags['jp']}">
+                            <img src="${manga.cover}" loading="lazy" onerror="this.src='https://via.placeholder.com/230x300?text=No+Cover'">
+                        </a>
+                        <div class="card-info">
+                            <a href="details.html?id=${mangaId}" style="text-decoration:none; color:inherit;">
+                                <div class="title">${manga.title}</div>
+                            </a>
+                            <div class="home-star-box">
+                                <i class="${starClass} fa-star" onclick="toggleHomeStar(event, '${mangaId}')"></i>
+                                <span>${manga.rating ? manga.rating.toFixed(1) : "0.0"}</span>
+                            </div>
+                        </div>`;
                     grid.appendChild(card);
                     delay += 0.05;
                 });
