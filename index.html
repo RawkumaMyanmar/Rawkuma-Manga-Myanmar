@@ -14,6 +14,53 @@
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* --- Added Splash Screen CSS --- */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            transition: opacity 0.6s ease, visibility 0.6s;
+        }
+        .splash-content { text-align: center; }
+        .splash-logo {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            animation: splashPulse 2s infinite;
+            object-fit: cover;
+        }
+        .splash-loader {
+            width: 35px;
+            height: 35px;
+            border: 3px solid rgba(139, 92, 246, 0.1);
+            border-left-color: var(--accent);
+            border-radius: 50%;
+            margin: 20px auto;
+            animation: splashSpin 1s linear infinite;
+        }
+        .splash-text {
+            color: var(--accent);
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            margin-top: 10px;
+            text-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+        @keyframes splashSpin { to { transform: rotate(360deg); } }
+        @keyframes splashPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(139, 92, 246, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+        }
+
         /* --- Updated Top Scroller CSS --- */
         .top-scroller-container {
             padding: 15px 0 25px 0;
@@ -198,6 +245,14 @@
     </style>
 </head>
 <body oncontextmenu="return false;">
+
+    <div id="splash-screen">
+        <div class="splash-content">
+            <img src="https://i.ibb.co/XfR4R4Jx/IMG-20260107-143629-039.jpg" alt="Logo" class="splash-logo">
+            <div class="splash-loader"></div>
+            <h2 class="splash-text">RAWKUMA</h2>
+        </div>
+    </div>
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header" style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
@@ -394,12 +449,13 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // --- New Top Rated Function ---
+        // --- Modified Top Rated Function (Sort by highest rating) ---
         function loadTopRated() {
             const container = document.getElementById('top-rated-section');
             const list = document.getElementById('top-rated-list');
             
-            db.collection("mangas").orderBy("rating", "desc").limit(8).onSnapshot(snap => {
+            // Rating အများဆုံးဖြစ်သော ဇာတ်လမ်းများကို ထိပ်ဆုံးမှ ပြသရန် ပြောင်းလဲထားသည်
+            db.collection("mangas").orderBy("rating", "desc").limit(10).onSnapshot(snap => {
                 if (snap.empty) return container.style.display = 'none';
                 container.style.display = 'block';
                 list.innerHTML = "";
@@ -701,15 +757,14 @@
 
         const flags = { "jp": "https://flagcdn.com/w40/jp.png", "kr": "https://flagcdn.com/w40/kr.png", "cn": "https://flagcdn.com/w40/cn.png" };
         
-        // --- Added Star System Implementation ---
+        // --- Star System ---
         async function toggleHomeStar(event, mangaId) {
-            event.preventDefault(); // Link မပွင့်သွားအောင်တားတာ
-            event.stopPropagation(); // Card Click event မဖြစ်အောင်တားတာ
+            event.preventDefault();
+            event.stopPropagation();
 
             if (!auth.currentUser) return openLoginModal();
 
             const mangaRef = db.collection("mangas").doc(mangaId);
-            const userRef = db.collection("users").doc(auth.currentUser.uid);
             const userRatingRef = mangaRef.collection("ratings").doc(auth.currentUser.uid);
 
             try {
@@ -721,13 +776,11 @@
                     let currentAvg = mDoc.data().rating || 0;
                     
                     if (ratingDoc.exists) {
-                        // Rating ဖြုတ်မယ် (Decrease)
                         let newCount = currentCount - 1;
                         let newAvg = newCount > 0 ? (currentAvg * currentCount - 5) / newCount : 0;
                         transaction.update(mangaRef, { rating: newAvg, ratingCount: newCount });
                         transaction.delete(userRatingRef);
                     } else {
-                        // Rating အသစ်ပေးမယ် (Increase)
                         let newCount = currentCount + 1;
                         let newAvg = (currentAvg * currentCount + 5) / newCount;
                         transaction.update(mangaRef, { rating: newAvg, ratingCount: newCount });
@@ -739,10 +792,16 @@
             }
         }
 
+        // --- Modified Manga Loading Function (Sorting by updatedAt for Latest) ---
         function loadMangasFromDB(filterType = 'all', searchTerm = '') {
             const grid = document.getElementById('main-list');
+            
+            // Latest Updates အတွက် အခုမှတင်ထားသော Chapter အသစ်များကို ထိပ်ဆုံးမှ ပြသရန် updatedAt (desc) ဖြင့် စီထားသည်
             let query = db.collection("mangas").orderBy("updatedAt", "desc");
-            if (filterType !== 'all') query = db.collection("mangas").where("type", "==", filterType).orderBy("updatedAt", "desc");
+            
+            if (filterType !== 'all') {
+                query = db.collection("mangas").where("type", "==", filterType).orderBy("updatedAt", "desc");
+            }
 
             query.onSnapshot((querySnapshot) => {
                 grid.innerHTML = "";
@@ -752,15 +811,14 @@
                     if (searchTerm && !manga.title.toLowerCase().includes(searchTerm.toLowerCase())) return;
                     
                     const mangaId = doc.id;
-                    const card = document.createElement('div'); // <a> ကို <div> ပြောင်းလိုက်တယ် Star နှိပ်ရလွယ်အောင်
+                    const card = document.createElement('div');
                     card.className = 'card';
                     card.style.animationDelay = `${delay}s`; 
                     
-                    // User ပေးထားပြီးသားလား check တာ
-                    let starClass = 'far'; // default empty star
+                    let starClass = 'far';
                     if (auth.currentUser) {
                         const checkRating = await db.collection("mangas").doc(mangaId).collection("ratings").doc(auth.currentUser.uid).get();
-                        if (checkRating.exists) starClass = 'fas'; // filled star
+                        if (checkRating.exists) starClass = 'fas';
                     }
 
                     card.innerHTML = `
@@ -794,10 +852,18 @@
         function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
         function logout() { auth.signOut(); }
 
+        // --- Splash Screen Auto Hide ---
+        window.addEventListener('load', function() {
+            const splash = document.getElementById('splash-screen');
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                splash.style.visibility = 'hidden';
+            }, 2500);
+        });
+
         loadMangasFromDB();
         displayAds();
         loadTopRated();
     </script>
 </body>
 </html>
-
