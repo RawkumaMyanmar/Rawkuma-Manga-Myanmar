@@ -8,13 +8,12 @@
     <style>
         :root { 
             --glass: rgba(255, 255, 255, 0.05); 
-            --accent: #8b5cf6; /* ပြောင်းလဲထားသော ခရမ်းရောင် */
+            --accent: #8b5cf6; 
             --bg: #0a0a0a; 
             --card-bg: #151515;
             --transition: all 0.3s ease;
         }
 
-        /* --- Global Protection --- */
         * { 
             -webkit-user-select: none; -ms-user-select: none; user-select: none; 
             -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
@@ -27,7 +26,6 @@
             min-height: 100vh; overflow-x: hidden;
         }
 
-        /* Nav Bar */
         nav { 
             background: rgba(10, 10, 10, 0.8); 
             backdrop-filter: blur(15px); 
@@ -42,7 +40,6 @@
             font-weight: 800; font-size: 14px; margin-left: auto;
         }
 
-        /* Manga Header */
         .manga-header { 
             position: relative; width: 100%; height: 450px;
             display: flex; flex-direction: column; justify-content: flex-end;
@@ -75,11 +72,9 @@
             text-decoration: none; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
         }
 
-        /* Synopsis & Content */
         .details-container { padding: 0 20px; }
         .section-label { font-size: 18px; font-weight: bold; margin: 25px 0 10px; color: white; }
         
-        /* See More Functionality */
         .manga-desc { font-size: 14px; color: #bbb; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; transition: all 0.5s ease; }
         .manga-desc.expanded { -webkit-line-clamp: unset; display: block; }
         .see-more { color: var(--accent); font-weight: bold; cursor: pointer; display: block; margin-top: 5px; font-size: 13px; }
@@ -90,7 +85,6 @@
             font-size: 12px; border: 1px solid #333;
         }
 
-        /* Stats & Rating */
         .stats-row { display: flex; align-items: center; gap: 20px; margin: 20px 0; }
         .total-ch-box { border-right: 1px solid #333; padding-right: 20px; }
         .stat-val { font-size: 18px; font-weight: 800; color: white; display: block; }
@@ -105,7 +99,6 @@
             margin-left: auto; cursor: pointer;
         }
 
-        /* Info Grid */
         .info-grid {
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
             background: transparent; padding: 10px 0; margin: 20px 0;
@@ -114,7 +107,6 @@
         .info-item span { font-size: 11px; font-weight: bold; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
         .status-badge { background: rgba(74, 222, 128, 0.1); color: #4ade80 !important; padding: 2px 6px; border-radius: 4px; font-size: 10px !important; }
 
-        /* Chapter Tabs */
         .tab-nav { display: flex; gap: 20px; border-bottom: 1px solid #222; }
         .tab-btn { 
             padding: 12px 0; background: none; border: none; color: #555; 
@@ -127,7 +119,6 @@
             height: 2px; background: var(--accent);
         }
 
-        /* Filter Box */
         .filter-section {
             display: flex; gap: 10px; margin: 20px 0; align-items: center;
         }
@@ -142,7 +133,6 @@
         }
         .sort-btn.active { color: var(--accent); border-color: var(--accent); }
 
-        /* Chapter Card */
         .chapter-list { margin-top: 10px; padding-bottom: 30px; }
         .chapter-card {
             display: flex; align-items: center; gap: 15px; background: var(--card-bg);
@@ -161,10 +151,7 @@
             border-radius: 10px; padding: 15px; color: white; margin-top: 15px; outline: none;
         }
         .comment-btn { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 8px; margin-top: 10px; float: right; font-weight: bold; }
-
-        /* Comment Delete Style */
         .del-comment { color: #ef4444; font-size: 12px; cursor: pointer; margin-top: 5px; display: inline-block; }
-
         .loading { text-align: center; padding: 100px 0; color: #444; }
     </style>
 </head>
@@ -189,7 +176,7 @@
 
         <div id="tab-chapters">
             <div class="filter-section">
-                <input type="text" class="search-ch" id="ch-search" placeholder="Filter by chapter name, title..." oninput="filterChapters()">
+                <input type="text" class="search-ch" id="ch-search" placeholder="Filter by chapter name..." oninput="filterChapters()">
                 <div class="sort-btn" id="sort-up" onclick="sortChapters('asc')"><i class="fas fa-arrow-up"></i></div>
                 <div class="sort-btn active" id="sort-down" onclick="sortChapters('desc')"><i class="fas fa-arrow-down"></i></div>
             </div>
@@ -197,9 +184,9 @@
         </div>
 
         <div id="tab-comments" class="hidden">
-            <div class="comment-input-box" id="comment-auth-gate">
+            <div class="comment-input-box">
                 <textarea id="comment-text" rows="3" placeholder="Join the conversation..."></textarea>
-                <button class="comment-btn" id="post-comment-btn" disabled>Post Comment</button>
+                <button class="comment-btn" id="post-comment-btn" disabled onclick="postComment()">Post Comment</button>
             </div>
             <div id="comments-list" style="margin-top: 70px;"></div>
         </div>
@@ -210,7 +197,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // --- Firebase Config (Do Not Edit) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
             authDomain: "rawkuma-8f1ba.firebaseapp.com",
@@ -219,7 +205,10 @@
             messagingSenderId: "8257070386",
             appId: "1:8257070386:web:74d861728b8378d86f232b"
         };
-        firebase.initializeApp(firebaseConfig);
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const auth = firebase.auth();
         const db = firebase.firestore();
 
@@ -237,17 +226,20 @@
                         currentUserData = doc.data();
                         document.getElementById('user-coins').innerText = Number(currentUserData.coins || 0).toLocaleString();
                         document.getElementById('post-comment-btn').disabled = false;
-                        document.getElementById('post-comment-btn').onclick = postComment;
                     }
                 });
             }
-            loadMangaDetails();
-            loadChapters();
-            loadComments();
+            if(mangaId) {
+                loadMangaDetails();
+                loadChapters();
+                loadComments();
+            } else {
+                document.getElementById('manga-content').innerHTML = "<p style='text-align:center; padding:50px;'>Manga ID not found.</p>";
+            }
         });
 
         function loadMangaDetails() {
-            db.collection("mangas").doc(mangaId).onSnapshot(async (doc) => {
+            db.collection("mangas").doc(mangaId).onSnapshot(doc => {
                 if (doc.exists) {
                     const manga = doc.data();
                     const avgRating = manga.rating || 0;
@@ -268,12 +260,9 @@
                         </div>
                         <div class="details-container">
                             <div class="section-label">Synopsis</div>
-                            <div class="manga-desc" id="manga-desc-text">
-                                ${manga.desc || 'No description available.'}
-                            </div>
+                            <div class="manga-desc" id="manga-desc-text">${manga.desc || 'No description available.'}</div>
                             <span class="see-more" id="see-more-btn" onclick="toggleDesc()">See more</span>
                             <div class="genre-container">${genreHtml}</div>
-                            
                             <div class="stats-row">
                                 <div class="total-ch-box">
                                     <span class="stat-lbl">Total Chapters</span>
@@ -290,7 +279,6 @@
                                     <i class="fas fa-star"></i> Rating
                                 </button>
                             </div>
-
                             <div class="info-grid">
                                 <div class="info-item"><label>Title Type</label><span>${manga.type || 'MANHWA'}</span></div>
                                 <div class="info-item"><label>Title Status</label><span class="status-badge">${manga.status || 'Ongoing'}</span></div>
@@ -302,7 +290,6 @@
             });
         }
 
-        // See more function
         function toggleDesc() {
             const desc = document.getElementById('manga-desc-text');
             const btn = document.getElementById('see-more-btn');
@@ -316,16 +303,18 @@
             if (!stars || isNaN(stars) || stars < 1 || stars > 5) return;
             
             const mangaRef = db.collection("mangas").doc(mangaId);
-            await db.runTransaction(async (transaction) => {
-                const mDoc = await transaction.get(mangaRef);
-                const count = mDoc.data().ratingCount || 0;
-                const rate = mDoc.data().rating || 0;
-                transaction.update(mangaRef, { 
-                    rating: ((rate * count) + parseInt(stars)) / (count + 1), 
-                    ratingCount: count + 1 
+            try {
+                await db.runTransaction(async (transaction) => {
+                    const mDoc = await transaction.get(mangaRef);
+                    const count = mDoc.data().ratingCount || 0;
+                    const rate = mDoc.data().rating || 0;
+                    transaction.update(mangaRef, { 
+                        rating: ((rate * count) + parseInt(stars)) / (count + 1), 
+                        ratingCount: count + 1 
+                    });
                 });
-            });
-            alert("Thanks for rating!");
+                alert("Thanks for rating!");
+            } catch(e) { console.error(e); }
         }
 
         function switchTab(tab) {
@@ -346,14 +335,9 @@
 
         function renderChapters() {
             const list = document.getElementById('chapter-list');
-            let sorted = [...allChapters].sort((a, b) => 
-                currentSort === 'desc' ? b.order - a.order : a.order - b.order
-            );
-
+            let sorted = [...allChapters].sort((a, b) => currentSort === 'desc' ? b.order - a.order : a.order - b.order);
             const query = document.getElementById('ch-search').value.toLowerCase();
-            if(query) {
-                sorted = sorted.filter(ch => ch.name.toLowerCase().includes(query));
-            }
+            if(query) sorted = sorted.filter(ch => ch.name.toLowerCase().includes(query));
 
             list.innerHTML = sorted.length ? "" : "<p style='text-align:center; color:#444; padding:20px;'>No chapters found.</p>";
             sorted.forEach(ch => {
@@ -380,15 +364,17 @@
 
         async function postComment() {
             const text = document.getElementById('comment-text').value.trim();
-            if (!text) return;
-            await db.collection("mangas").doc(mangaId).collection("comments").add({
-                userId: auth.currentUser.uid,
-                userName: currentUserData.name || "User",
-                userPfp: currentUserData.pfp || "https://via.placeholder.com/50",
-                text: text,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            document.getElementById('comment-text').value = "";
+            if (!text || !auth.currentUser) return;
+            try {
+                await db.collection("mangas").doc(mangaId).collection("comments").add({
+                    userId: auth.currentUser.uid,
+                    userName: currentUserData.name || "User",
+                    userPfp: currentUserData.pfp || "https://via.placeholder.com/50",
+                    text: text,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                document.getElementById('comment-text').value = "";
+            } catch(e) { console.error(e); }
         }
 
         function loadComments() {
@@ -412,7 +398,7 @@
         }
 
         async function deleteComment(id) {
-            if(confirm("Are you sure to delete this comment?")) {
+            if(confirm("Are you sure?")) {
                 await db.collection("mangas").doc(mangaId).collection("comments").doc(id).delete();
             }
         }
