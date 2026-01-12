@@ -57,6 +57,25 @@
         .ad-item { background: #0f172a; padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--glass); margin-bottom: 12px; }
         .ad-item img { width: 80px; height: 45px; border-radius: 8px; }
         .del-ad { background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 45px; margin-top: 0; }
+
+        /* Story List Styles */
+        .story-list { margin-top: 30px; border-top: 1px solid var(--glass); padding-top: 20px; }
+        .story-item { 
+            background: rgba(15, 23, 42, 0.4); padding: 15px; border-radius: 15px; 
+            display: flex; align-items: center; gap: 15px; margin-bottom: 10px; border: 1px solid var(--glass);
+        }
+        .story-item img { width: 50px; height: 70px; border-radius: 8px; object-fit: cover; }
+        .story-info { flex: 1; }
+        .story-info h4 { margin: 0; font-size: 14px; color: white; }
+        .story-info p { margin: 3px 0 0; font-size: 10px; color: #94a3b8; }
+        .story-actions { display: flex; gap: 8px; }
+        .edit-btn { background: var(--warning); padding: 8px 12px; font-size: 12px; border-radius: 8px; width: auto; margin: 0; }
+        .delete-btn { background: var(--danger); padding: 8px 12px; font-size: 12px; border-radius: 8px; width: auto; margin: 0; }
+        .copy-btn { background: var(--accent); padding: 8px 12px; font-size: 12px; border-radius: 8px; width: auto; margin: 0; }
+
+        /* Chapter List Inner Styles */
+        .ch-list-inner { margin-top: 20px; border-top: 1px solid var(--glass); padding-top: 15px; }
+        .ch-item-admin { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; margin-bottom: 8px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -89,38 +108,75 @@
         </div>
 
         <div id="manga-section" class="form-box">
-            <h2><i class="fas fa-plus-circle"></i> Create Story</h2>
-            <label>Manga Title</label>
+            <h2 id="manga-form-title"><i class="fas fa-plus-circle"></i> Create Story</h2>
+            <input type="hidden" id="edit-manga-id"> <label>Manga Title</label>
             <input type="text" id="m-title" placeholder="eg. Solo Leveling">
             <label>Cover Image URL</label>
             <input type="text" id="m-cover" placeholder="Link from ImgBB">
-            <label>Type</label>
-            <select id="m-type">
-                <option value="jp">Manga (Japan)</option>
-                <option value="kr">Manhwa (Korea)</option>
-                <option value="cn">Manhua (China)</option>
-                <option value="18plus">Adult (18+)</option>
-            </select>
-            <label>Genres</label>
+            
+            <div style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label>Type (eg. Manhwa)</label>
+                    <input type="text" id="m-type" placeholder="Manhwa">
+                </div>
+                <div style="flex: 1;">
+                    <label>Status (eg. Ongoing)</label>
+                    <input type="text" id="m-status" placeholder="Ongoing">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label>Translator</label>
+                    <input type="text" id="m-translator" placeholder="Rawkuma">
+                </div>
+                <div style="flex: 1;">
+                    <label>Release Year</label>
+                    <input type="number" id="m-year" placeholder="2024">
+                </div>
+            </div>
+
+            <label>Genres (comma separated)</label>
             <input type="text" id="m-genres" placeholder="Action, Adventure">
             <label>Description</label>
             <textarea id="m-desc" rows="3"></textarea>
-            <button onclick="saveManga()" id="m-save-btn">Upload to Server</button>
+            
+            <div id="manga-btns-container">
+                <button onclick="saveManga()" id="m-save-btn">Upload to Server</button>
+            </div>
+
+            <div class="story-list">
+                <h2 style="font-size: 16px;"><i class="fas fa-list"></i> Manage Stories</h2>
+                <div id="all-mangas-list">
+                    <p style="text-align: center; font-size: 12px; color: #666;">Loading stories...</p>
+                </div>
+            </div>
         </div>
 
         <div id="chapter-section" class="form-box" style="display: none;">
-            <h2><i class="fas fa-upload"></i> Publish Chapter</h2>
+            <h2 id="chapter-form-title"><i class="fas fa-upload"></i> Publish Chapter</h2>
+            <input type="hidden" id="edit-chapter-id">
             <label>Manga Doc ID</label>
-            <input type="text" id="c-manga-id">
+            <input type="text" id="c-manga-id" oninput="listenToChapters()">
             <label>Chapter Name</label>
             <input type="text" id="c-name" placeholder="Chapter 01">
+            <label>Chapter Thumbnail URL</label>
+            <input type="text" id="c-thumb" placeholder="Thumbnail link from ImgBB">
             <div style="display: flex; gap: 15px;">
                 <div style="flex: 1;"><label>Price (Coins)</label><input type="number" id="c-price" value="0"></div>
                 <div style="flex: 1;"><label>Order</label><input type="number" id="c-order" placeholder="1"></div>
             </div>
             <label>Image Links (One per line)</label>
             <textarea id="c-images" rows="8"></textarea>
-            <button onclick="saveChapter()" id="c-save-btn" style="background: var(--success);"><i class="fas fa-check"></i> Release Now</button>
+            
+            <div id="chapter-btns-container">
+                <button onclick="saveChapter()" id="c-save-btn" style="background: var(--success);"><i class="fas fa-check"></i> Release Now</button>
+            </div>
+
+            <div class="ch-list-inner">
+                <h2 style="font-size: 15px;"><i class="fas fa-history"></i> Existing Chapters</h2>
+                <div id="admin-chapter-list"><p style="font-size: 11px; color: #555;">Enter Manga ID to see chapters...</p></div>
+            </div>
         </div>
 
         <div id="member-section" class="form-box" style="display: none;">
@@ -182,6 +238,7 @@
                 document.getElementById('stats-date').valueAsDate = new Date();
                 fetchStats();
                 listenToAds();
+                listenToMangas(); 
             } else {
                 let email = prompt("Admin Email:");
                 let pass = prompt("Password:");
@@ -224,14 +281,13 @@
             });
         }
 
-        // --- Modified Actions with Pricing ---
         async function addCoinsToUser() {
             const uid = document.getElementById('v-uid').value.trim();
             const amount = parseInt(document.getElementById('v-coins-amount').value);
             if(!uid || isNaN(amount)) return alert("Fill data!");
             try {
                 await db.collection("users").doc(uid).update({ coins: firebase.firestore.FieldValue.increment(amount) });
-                await logSale(`Coins (${amount})`, amount); // 1 coin = 1ks
+                await logSale(`Coins (${amount})`, amount);
                 alert("Coins Added!");
             } catch(e) { alert(e.message); }
         }
@@ -260,7 +316,6 @@
             } catch(e) { alert(e.message); }
         }
 
-        // --- Original Functions (Ads, Manga, Chapter) ---
         async function saveAd() {
             const img = document.getElementById('ad-image').value;
             const link = document.getElementById('ad-link').value;
@@ -280,27 +335,174 @@
 
         async function deleteAd(id) { if(confirm("Delete?")) await db.collection("ads").doc(id).delete(); }
 
+        // --- MANGA MANAGEMENT ---
+        function listenToMangas() {
+            db.collection("mangas").orderBy("updatedAt", "desc").onSnapshot(snap => {
+                const list = document.getElementById('all-mangas-list');
+                list.innerHTML = "";
+                if(snap.empty) { list.innerHTML = "<p style='text-align:center; font-size:12px; color:#666;'>No stories found.</p>"; return; }
+                snap.forEach(doc => {
+                    const m = doc.data();
+                    list.innerHTML += `
+                        <div class="story-item">
+                            <img src="${m.cover}">
+                            <div class="story-info">
+                                <h4>${m.title}</h4>
+                                <p>ID: ${doc.id}</p>
+                            </div>
+                            <div class="story-actions">
+                                <button class="copy-btn" onclick="copyId('${doc.id}')"><i class="fas fa-copy"></i></button>
+                                <button class="edit-btn" onclick="editManga('${doc.id}')"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" onclick="deleteManga('${doc.id}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
         async function saveManga() {
+            const editId = document.getElementById('edit-manga-id').value;
             const title = document.getElementById('m-title').value;
-            const docRef = await db.collection("mangas").add({
+            if(!title) return alert("Title required!");
+            const data = {
                 title, cover: document.getElementById('m-cover').value,
-                type: document.getElementById('m-type').value,
-                genres: document.getElementById('m-genres').value.split(','),
+                type: document.getElementById('m-type').value || 'Manhwa',
+                status: document.getElementById('m-status').value || 'Ongoing',
+                translator: document.getElementById('m-translator').value || 'Rawkuma',
+                year: document.getElementById('m-year').value || '2026',
+                genres: document.getElementById('m-genres').value.split(',').map(g => g.trim()),
                 desc: document.getElementById('m-desc').value,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert("Created!"); document.getElementById('c-manga-id').value = docRef.id; switchTab('chapter');
+            };
+            try {
+                if(editId) { await db.collection("mangas").doc(editId).update(data); alert("Story Updated!"); resetMangaForm(); } 
+                else { 
+                    data.rating = 0; data.ratingCount = 0;
+                    const docRef = await db.collection("mangas").add(data);
+                    alert("Story Created!"); document.getElementById('c-manga-id').value = docRef.id; switchTab('chapter');
+                }
+            } catch(e) { alert(e.message); }
+        }
+
+        async function editManga(id) {
+            const doc = await db.collection("mangas").doc(id).get();
+            const m = doc.data();
+            document.getElementById('edit-manga-id').value = id;
+            document.getElementById('m-title').value = m.title;
+            document.getElementById('m-cover').value = m.cover;
+            document.getElementById('m-type').value = m.type;
+            document.getElementById('m-status').value = m.status;
+            document.getElementById('m-translator').value = m.translator;
+            document.getElementById('m-year').value = m.year;
+            document.getElementById('m-genres').value = m.genres.join(', ');
+            document.getElementById('m-desc').value = m.desc;
+            document.getElementById('manga-form-title').innerHTML = `<i class="fas fa-edit"></i> Edit: ${m.title}`;
+            document.getElementById('manga-btns-container').innerHTML = `<div style="display:flex; gap:10px;"><button onclick="saveManga()" style="flex:2;">Update Manga</button><button onclick="resetMangaForm()" style="background:var(--danger); flex:1;">Cancel</button></div>`;
+            window.scrollTo(0, 0);
+        }
+
+        function resetMangaForm() {
+            document.getElementById('edit-manga-id').value = "";
+            document.getElementById('m-title').value = ""; document.getElementById('m-cover').value = "";
+            document.getElementById('m-type').value = ""; document.getElementById('m-status').value = "";
+            document.getElementById('m-translator').value = ""; document.getElementById('m-year').value = "";
+            document.getElementById('m-genres').value = ""; document.getElementById('m-desc').value = "";
+            document.getElementById('manga-form-title').innerHTML = `<i class="fas fa-plus-circle"></i> Create Story`;
+            document.getElementById('manga-btns-container').innerHTML = `<button onclick="saveManga()" id="m-save-btn">Upload to Server</button>`;
+        }
+
+        async function deleteManga(id) { if(confirm("Are you sure?")) { await db.collection("mangas").doc(id).delete(); alert("Story Deleted!"); } }
+        function copyId(id) { navigator.clipboard.writeText(id); alert("ID Copied!"); }
+
+        // --- CHAPTER MANAGEMENT (EDIT/DELETE ADDED) ---
+        let chUnsubscribe = null;
+        function listenToChapters() {
+            const mangaId = document.getElementById('c-manga-id').value.trim();
+            const listDiv = document.getElementById('admin-chapter-list');
+            if(chUnsubscribe) chUnsubscribe();
+            if(!mangaId) { listDiv.innerHTML = "Enter Manga ID..."; return; }
+
+            chUnsubscribe = db.collection("mangas").doc(mangaId).collection("chapters").orderBy("order", "desc").onSnapshot(snap => {
+                listDiv.innerHTML = "";
+                if(snap.empty) { listDiv.innerHTML = "No chapters found."; return; }
+                snap.forEach(doc => {
+                    const ch = doc.data();
+                    listDiv.innerHTML += `
+                        <div class="ch-item-admin">
+                            <span style="flex:1;"><b>${ch.name}</b> (Order: ${ch.order})</span>
+                            <button class="edit-btn" style="padding:5px 10px;" onclick="editChapter('${doc.id}')">Edit</button>
+                            <button class="delete-btn" style="padding:5px 10px;" onclick="deleteChapter('${doc.id}')">Del</button>
+                        </div>`;
+                });
+            }, err => { listDiv.innerHTML = "Invalid Manga ID or Error."; });
         }
 
         async function saveChapter() {
-            await db.collection("mangas").doc(document.getElementById('c-manga-id').value).collection("chapters").add({
+            const mangaId = document.getElementById('c-manga-id').value.trim();
+            const editChId = document.getElementById('edit-chapter-id').value;
+            if(!mangaId) return alert("Manga ID required!");
+
+            const data = {
                 name: document.getElementById('c-name').value,
+                thumb: document.getElementById('c-thumb').value || '',
                 images: document.getElementById('c-images').value.split('\n').filter(l => l.trim()),
                 price: parseInt(document.getElementById('c-price').value) || 0,
                 order: parseInt(document.getElementById('c-order').value) || 0,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert("Chapter Released!");
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                if(editChId) {
+                    await db.collection("mangas").doc(mangaId).collection("chapters").doc(editChId).update(data);
+                    alert("Chapter Updated!");
+                    resetChapterForm();
+                } else {
+                    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection("mangas").doc(mangaId).collection("chapters").add(data);
+                    alert("Chapter Released!");
+                    resetChapterForm();
+                }
+            } catch(e) { alert(e.message); }
+        }
+
+        async function editChapter(chId) {
+            const mangaId = document.getElementById('c-manga-id').value.trim();
+            const doc = await db.collection("mangas").doc(mangaId).collection("chapters").doc(chId).get();
+            const ch = doc.data();
+
+            document.getElementById('edit-chapter-id').value = chId;
+            document.getElementById('c-name').value = ch.name;
+            document.getElementById('c-thumb').value = ch.thumb || "";
+            document.getElementById('c-price').value = ch.price;
+            document.getElementById('c-order').value = ch.order;
+            document.getElementById('c-images').value = ch.images.join('\n');
+
+            document.getElementById('chapter-form-title').innerHTML = `<i class="fas fa-edit"></i> Edit: ${ch.name}`;
+            document.getElementById('chapter-btns-container').innerHTML = `
+                <div style="display:flex; gap:10px;">
+                    <button onclick="saveChapter()" style="background:var(--success); flex:2;">Update Chapter</button>
+                    <button onclick="resetChapterForm()" style="background:var(--danger); flex:1;">Cancel</button>
+                </div>`;
+            window.scrollTo(0, 0);
+        }
+
+        async function deleteChapter(chId) {
+            const mangaId = document.getElementById('c-manga-id').value.trim();
+            if(confirm("Delete this chapter?")) {
+                await db.collection("mangas").doc(mangaId).collection("chapters").doc(chId).delete();
+                alert("Chapter Deleted!");
+            }
+        }
+
+        function resetChapterForm() {
+            document.getElementById('edit-chapter-id').value = "";
+            document.getElementById('c-name').value = "";
+            document.getElementById('c-thumb').value = "";
+            document.getElementById('c-price').value = "0";
+            document.getElementById('c-order').value = "";
+            document.getElementById('c-images').value = "";
+            document.getElementById('chapter-form-title').innerHTML = `<i class="fas fa-upload"></i> Publish Chapter`;
+            document.getElementById('chapter-btns-container').innerHTML = `<button onclick="saveChapter()" id="c-save-btn" style="background: var(--success);"><i class="fas fa-check"></i> Release Now</button>`;
         }
     </script>
 </body>
