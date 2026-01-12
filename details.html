@@ -11,7 +11,7 @@
             --accent: #8b5cf6; 
             --bg: #0f172a; 
             --card-bg: #1e293b;
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* --- Global Protection System --- */
@@ -95,7 +95,7 @@
             font-weight: 600; border: 1px solid rgba(139, 92, 246, 0.3);
         }
 
-        /* --- New Actions Bar --- */
+        /* --- New Actions Bar (Bookmark Removed) --- */
         .action-bar { display: flex; gap: 10px; margin-top: 15px; }
         .action-btn { 
             flex: 1; background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
@@ -103,16 +103,16 @@
             display: flex; flex-direction: column; align-items: center; gap: 5px;
             transition: 0.3s; cursor: pointer;
         }
-        .action-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(139, 92, 246, 0.1); }
         .action-btn i { font-size: 16px; }
 
         /* --- Rating System --- */
-        .rating-box { padding: 0 20px; margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+        .rating-box { padding: 0 20px; margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+        .stars-container { display: flex; align-items: center; gap: 10px; }
         .stars { color: #fbbf24; font-size: 18px; display: flex; gap: 4px; }
-        .stars i { cursor: default; } /* Changed to default as it's now display only */
+        .stars.interactive i { cursor: pointer; transition: 0.2s; }
+        .stars.interactive i:active { transform: scale(1.3); }
         .rating-count { font-size: 12px; color: #64748b; font-weight: bold; }
 
-        /* Review Badge for comments */
         .review-badge {
             background: var(--accent); color: white; font-size: 9px; 
             padding: 2px 8px; border-radius: 4px; font-weight: bold; 
@@ -179,12 +179,19 @@
             margin-bottom: 20px; display: flex; gap: 14px;
             border: 1px solid rgba(255,255,255,0.02);
             animation: fadeInUp 0.4s ease backwards;
+            position: relative;
         }
         .comment-pfp { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--glass); }
         .comment-content { flex: 1; }
         .comment-user { font-size: 14px; font-weight: bold; color: var(--accent); margin-bottom: 6px; display: block; }
         .comment-text { font-size: 14px; color: #e2e8f0; line-height: 1.6; -webkit-user-select: text; user-select: text; word-break: break-word; }
         .comment-time { font-size: 11px; color: #64748b; margin-top: 10px; display: block; font-style: italic; }
+
+        .delete-comment-btn {
+            position: absolute; top: 15px; right: 15px;
+            color: #ef4444; font-size: 12px; cursor: pointer;
+            opacity: 0.6; padding: 5px;
+        }
 
         .loading { text-align: center; padding: 100px 20px; color: #64748b; }
     </style>
@@ -225,7 +232,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // --- Security Layer ---
         document.onkeydown = (e) => {
             if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
         };
@@ -250,7 +256,6 @@
 
         if (!mangaId) window.location.href = 'index.html';
 
-        // --- Auth & Data Sync ---
         auth.onAuthStateChanged(user => {
             const coinBox = document.getElementById('coin-box');
             const vipBadge = document.getElementById('vip-status');
@@ -266,14 +271,12 @@
                         document.getElementById('user-coins').innerText = Number(currentUserData.coins || 0).toLocaleString();
                         vipBadge.style.display = userVIP ? 'flex' : 'none';
                         
-                        // Enable Comments
                         commentInput.placeholder = "Write a comment...";
                         postBtn.disabled = false;
                         postBtn.onclick = postComment;
 
                         loadMangaDetails();
                         loadChapters();
-                        checkBookmark();
                     }
                 });
             } else {
@@ -283,14 +286,19 @@
             loadComments();
         });
 
-        // --- Load Manga Details ---
         function loadMangaDetails() {
-            db.collection("mangas").doc(mangaId).onSnapshot((doc) => {
+            db.collection("mangas").doc(mangaId).onSnapshot(async (doc) => {
                 if (doc.exists) {
                     const manga = doc.data();
                     const avgRating = manga.rating || 0;
                     const ratingCount = manga.ratingCount || 0;
                     
+                    let hasRated = false;
+                    if(auth.currentUser){
+                        const rateCheck = await db.collection("mangas").doc(mangaId).collection("userRatings").doc(auth.currentUser.uid).get();
+                        hasRated = rateCheck.exists;
+                    }
+
                     let genreHtml = (manga.genres || []).map(g => `<span class="genre-badge">${g}</span>`).join('');
 
                     document.getElementById('manga-content').innerHTML = `
@@ -301,9 +309,6 @@
                                 <div class="manga-title">${manga.title}</div>
                                 <div class="genre-container">${genreHtml}</div>
                                 <div class="action-bar">
-                                    <div class="action-btn" id="bookmark-btn" onclick="toggleBookmark()">
-                                        <i class="far fa-bookmark"></i><span>Bookmark</span>
-                                    </div>
                                     <div class="action-btn" onclick="shareManga('${manga.title}')">
                                         <i class="fas fa-share-alt"></i><span>Share</span>
                                     </div>
@@ -311,8 +316,15 @@
                             </div>
                         </div>
                         <div class="rating-box">
-                            <div class="stars" id="star-rating">${renderStars(avgRating)}</div>
-                            <div class="rating-count">(${avgRating.toFixed(1)}) • ${ratingCount} reviews</div>
+                            <div class="stars-container">
+                                <div class="stars ${!hasRated && auth.currentUser ? 'interactive' : ''}" id="star-rating">
+                                    ${renderStars(avgRating, !hasRated)}
+                                </div>
+                                <div class="rating-count">(${avgRating.toFixed(1)}) • ${ratingCount} reviews</div>
+                            </div>
+                            <div style="font-size:10px; color:var(--accent); font-weight:bold;">
+                                ${hasRated ? 'You already rated this.' : (auth.currentUser ? 'Tap stars to rate' : 'Login to rate')}
+                            </div>
                         </div>
                         <div class="desc-section">
                             <div class="manga-desc">${manga.desc || 'No description available.'}</div>
@@ -321,49 +333,40 @@
             });
         }
 
-        // --- Bookmark Logic ---
-        async function toggleBookmark() {
-            if (!auth.currentUser) return alert("Please login to bookmark!");
-            const btn = document.getElementById('bookmark-btn');
-            const ref = db.collection("users").doc(auth.currentUser.uid).collection("bookmarks").doc(mangaId);
-            const doc = await ref.get();
-
-            if (doc.exists) {
-                await ref.delete();
-                btn.classList.remove('active');
-                btn.querySelector('i').className = 'far fa-bookmark';
-            } else {
-                await ref.set({ 
-                    bookmarkedAt: new Date(),
-                    title: document.querySelector('.manga-title').innerText,
-                    cover: document.querySelector('.manga-cover').src
-                });
-                btn.classList.add('active');
-                btn.querySelector('i').className = 'fas fa-bookmark';
-            }
-        }
-
-        async function checkBookmark() {
-            if (!auth.currentUser) return;
-            const doc = await db.collection("users").doc(auth.currentUser.uid).collection("bookmarks").doc(mangaId).get();
-            if (doc.exists) {
-                const btn = document.getElementById('bookmark-btn');
-                btn.classList.add('active');
-                btn.querySelector('i').className = 'fas fa-bookmark';
-            }
-        }
-
-        // --- Star Rating System (Display Only) ---
-        function renderStars(rating) {
+        function renderStars(rating, interactive) {
             let html = '';
             for (let i = 1; i <= 5; i++) {
-                // Removed onclick as per your request - now only displays stars
-                html += `<i class="${i <= Math.round(rating) ? 'fas' : 'far'} fa-star"></i>`;
+                const clickAttr = interactive ? `onclick="giveRating(${i})"` : '';
+                html += `<i class="${i <= Math.round(rating) ? 'fas' : 'far'} fa-star" ${clickAttr}></i>`;
             }
             return html;
         }
 
-        // --- Share API ---
+        async function giveRating(stars) {
+            if (!auth.currentUser) return;
+            if (!confirm(`Do you want to rate this ${stars} stars?`)) return;
+
+            const userRef = db.collection("mangas").doc(mangaId).collection("userRatings").doc(auth.currentUser.uid);
+            const mangaRef = db.collection("mangas").doc(mangaId);
+
+            try {
+                await db.runTransaction(async (transaction) => {
+                    const mDoc = await transaction.get(mangaRef);
+                    const currentRating = mDoc.data().rating || 0;
+                    const currentCount = mDoc.data().ratingCount || 0;
+
+                    const newCount = currentCount + 1;
+                    const newRating = ((currentRating * currentCount) + stars) / newCount;
+
+                    transaction.set(userRef, { stars: stars, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    transaction.update(mangaRef, { rating: newRating, ratingCount: newCount });
+                });
+                alert("Thank you for your rating!");
+            } catch (e) {
+                alert("Error submitting rating.");
+            }
+        }
+
         function shareManga(title) {
             if (navigator.share) {
                 navigator.share({
@@ -377,7 +380,6 @@
             }
         }
 
-        // --- Chapters Sorting ---
         function toggleSort() {
             sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
             document.getElementById('sort-btn').innerHTML = `<i class="fas fa-sort-amount-${sortOrder === 'asc' ? 'up' : 'down'}"></i> ${sortOrder === 'asc' ? 'Oldest' : 'Newest'}`;
@@ -407,19 +409,27 @@
             });
         }
 
-        // --- Comments Logic ---
         async function postComment() {
             const text = document.getElementById('comment-text').value.trim();
-            if (!text) return;
+            if (!text || !auth.currentUser) return;
             
             await db.collection("mangas").doc(mangaId).collection("comments").add({
                 userId: auth.currentUser.uid,
-                userName: currentUserData.name,
+                userName: currentUserData.name || "User",
                 userPfp: currentUserData.pfp || "https://i.ibb.co/XfR4R4Jx/IMG-20260107-143629-039.jpg",
                 text: text,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             document.getElementById('comment-text').value = "";
+        }
+
+        async function deleteComment(commentId) {
+            if (!confirm("Are you sure you want to delete this comment?")) return;
+            try {
+                await db.collection("mangas").doc(mangaId).collection("comments").doc(commentId).delete();
+            } catch (e) {
+                alert("Error deleting comment.");
+            }
         }
 
         function loadComments() {
@@ -428,14 +438,14 @@
                 list.innerHTML = snap.empty ? "<p style='color:#64748b; font-size:12px; text-align:center;'>No comments yet. Be the first!</p>" : "";
                 snap.forEach(doc => {
                     const c = doc.data();
-                    let reviewHeader = c.isReview ? `<span class="review-badge">REVIEW • ${c.starValue} Stars</span>` : '';
-                    let itemStyle = c.isReview ? 'border: 1px solid rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.05);' : '';
+                    const commentId = doc.id;
+                    const isMyComment = auth.currentUser && auth.currentUser.uid === c.userId;
 
                     list.innerHTML += `
-                        <div class="comment-item" style="${itemStyle}">
+                        <div class="comment-item">
+                            ${isMyComment ? `<i class="fas fa-trash delete-comment-btn" onclick="deleteComment('${commentId}')"></i>` : ''}
                             <img src="${c.userPfp}" class="comment-pfp">
                             <div class="comment-content">
-                                ${reviewHeader}
                                 <span class="comment-user">${c.userName}</span>
                                 <div class="comment-text">${c.text}</div>
                                 <span class="comment-time">${c.createdAt ? formatDate(c.createdAt) : 'Just now'}</span>
@@ -451,7 +461,10 @@
             return d.toLocaleDateString();
         }
 
-        loadMangaDetails();
+        if(!auth.currentUser) {
+            loadMangaDetails();
+            loadChapters();
+        }
     </script>
 </body>
 </html>
