@@ -8,222 +8,200 @@
     <style>
         :root { 
             --glass: rgba(255, 255, 255, 0.05); 
-            --accent: #8b5cf6; 
-            --bg: #0f172a; 
-            --card-bg: #1e293b;
-            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --accent: #8b5cf6; /* ပြောင်းလဲထားသော ခရမ်းရောင် */
+            --bg: #0a0a0a; 
+            --card-bg: #151515;
+            --transition: all 0.3s ease;
         }
 
-        /* --- Global Protection System --- */
+        /* --- Global Protection --- */
         * { 
             -webkit-user-select: none; -ms-user-select: none; user-select: none; 
             -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
         }
 
         body { 
             font-family: 'Segoe UI', Roboto, sans-serif; 
-            margin: 0; background: var(--bg); color: white; 
+            margin: 0; background: var(--bg); color: #e0e0e0; 
             min-height: 100vh; overflow-x: hidden;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Nav Bar */
         nav { 
-            background: rgba(15, 23, 42, 0.8); 
+            background: rgba(10, 10, 10, 0.8); 
             backdrop-filter: blur(15px); 
             padding: 10px 15px; position: sticky; top: 0; z-index: 1000; 
-            display: flex; align-items: center; gap: 12px; 
-            border-bottom: 1px solid var(--glass); 
-            height: 60px; box-sizing: border-box;
+            display: flex; align-items: center; gap: 12px; height: 60px;
         }
-        .back-btn { 
-            font-size: 20px; color: white; text-decoration: none; 
-            transition: var(--transition); width: 35px; height: 35px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 50%;
-        }
-        .back-btn:hover { background: var(--glass); color: var(--accent); }
-
-        .vip-nav-badge {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #000; font-size: 10px; padding: 4px 10px; border-radius: 20px;
-            font-weight: 900; box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
-            display: none; align-items: center; gap: 5px; animation: fadeInUp 0.5s ease;
-        }
+        .back-btn { font-size: 20px; color: white; text-decoration: none; }
 
         .coin-display {
             display: flex; align-items: center; gap: 8px;
-            background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3);
-            padding: 5px 12px; border-radius: 20px; color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1); padding: 5px 12px; border-radius: 20px; color: #fbbf24;
             font-weight: 800; font-size: 14px; margin-left: auto;
-            animation: fadeInUp 0.5s ease;
         }
 
         /* Manga Header */
         .manga-header { 
-            padding: 40px 20px; display: flex; gap: 20px; 
-            position: relative; overflow: hidden; 
-            min-height: 250px; align-items: flex-end;
+            position: relative; width: 100%; height: 450px;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            padding: 20px; overflow: hidden;
         }
 
         .header-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover; background-position: center;
-            filter: blur(25px) brightness(0.4);
-            transform: scale(1.1); z-index: -1;
+            filter: brightness(0.6); z-index: -1;
+        }
+        .header-bg::after {
+            content: ''; position: absolute; bottom: 0; width: 100%; height: 60%;
+            background: linear-gradient(to top, var(--bg), transparent);
         }
 
-        .manga-cover { 
-            width: 130px; height: 190px; object-fit: cover; 
-            border-radius: 12px; pointer-events: none;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.8); 
-            border: 2px solid rgba(255,255,255,0.1);
-            animation: fadeInUp 0.6s ease;
+        .type-tag {
+            background: var(--accent); color: white; padding: 2px 8px;
+            border-radius: 4px; font-size: 10px; font-weight: bold; width: fit-content;
+            margin-bottom: 8px; text-transform: uppercase;
         }
 
-        .manga-info { flex: 1; z-index: 1; animation: fadeInUp 0.8s ease; }
-        .manga-title { font-size: 24px; font-weight: 800; margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); color: #f8fafc; }
+        .manga-title-main { font-size: 28px; font-weight: 800; color: white; margin-bottom: 5px; line-height: 1.2; }
+        .manga-sub { font-size: 12px; color: #aaa; margin-bottom: 20px; font-style: italic; }
+        
+        .read-now-btn {
+            background: var(--accent); color: white; border: none; padding: 14px;
+            border-radius: 10px; font-weight: bold; width: 100%; font-size: 16px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            text-decoration: none; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
 
-        .genre-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
+        /* Synopsis & Content */
+        .details-container { padding: 0 20px; }
+        .section-label { font-size: 18px; font-weight: bold; margin: 25px 0 10px; color: white; }
+        
+        /* See More Functionality */
+        .manga-desc { font-size: 14px; color: #bbb; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; transition: all 0.5s ease; }
+        .manga-desc.expanded { -webkit-line-clamp: unset; display: block; }
+        .see-more { color: var(--accent); font-weight: bold; cursor: pointer; display: block; margin-top: 5px; font-size: 13px; }
+
+        .genre-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
         .genre-badge {
-            background: rgba(139, 92, 246, 0.15); color: #c084fc; 
-            padding: 4px 12px; border-radius: 20px; font-size: 11px; 
-            font-weight: 600; border: 1px solid rgba(139, 92, 246, 0.3);
+            background: #1a1a1a; color: #ddd; padding: 6px 15px; border-radius: 20px;
+            font-size: 12px; border: 1px solid #333;
         }
 
-        /* --- New Actions Bar (Bookmark Removed) --- */
-        .action-bar { display: flex; gap: 10px; margin-top: 15px; }
-        .action-btn { 
-            flex: 1; background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 10px; border-radius: 12px; font-size: 13px;
-            display: flex; flex-direction: column; align-items: center; gap: 5px;
-            transition: 0.3s; cursor: pointer;
-        }
-        .action-btn i { font-size: 16px; }
+        /* Stats & Rating */
+        .stats-row { display: flex; align-items: center; gap: 20px; margin: 20px 0; }
+        .total-ch-box { border-right: 1px solid #333; padding-right: 20px; }
+        .stat-val { font-size: 18px; font-weight: 800; color: white; display: block; }
+        .stat-lbl { font-size: 11px; color: #666; }
 
-        /* --- Rating System --- */
-        .rating-box { padding: 0 20px; margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
-        .stars-container { display: flex; align-items: center; gap: 10px; }
-        .stars { color: #fbbf24; font-size: 18px; display: flex; gap: 4px; }
-        .stars.interactive i { cursor: pointer; transition: 0.2s; }
-        .stars.interactive i:active { transform: scale(1.3); }
-        .rating-count { font-size: 12px; color: #64748b; font-weight: bold; }
-
-        .review-badge {
-            background: var(--accent); color: white; font-size: 9px; 
-            padding: 2px 8px; border-radius: 4px; font-weight: bold; 
-            margin-bottom: 5px; display: inline-block; text-transform: uppercase;
+        .rating-box { display: flex; align-items: center; gap: 10px; }
+        .big-rating { font-size: 28px; font-weight: 800; color: var(--accent); }
+        .stars-container { color: #fbbf24; font-size: 14px; }
+        .rating-btn {
+            background: var(--accent); color: white; padding: 10px 20px; border-radius: 8px;
+            font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; border: none;
+            margin-left: auto; cursor: pointer;
         }
 
-        /* Description Box */
-        .desc-section { padding: 25px 20px; background: linear-gradient(to bottom, transparent, var(--bg)); }
-        .manga-desc { font-size: 14px; color: #cbd5e1; line-height: 1.7; text-align: justify; }
-
-        /* Chapters Section */
-        .chapter-section { 
-            padding: 25px 20px; background: var(--bg); border-radius: 30px 30px 0 0;
-            margin-top: -20px; position: relative; z-index: 2;
-            box-shadow: 0 -20px 40px rgba(0,0,0,0.5);
+        /* Info Grid */
+        .info-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            background: transparent; padding: 10px 0; margin: 20px 0;
         }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .section-title { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 12px; letter-spacing: 0.5px; margin: 0; }
-        .section-title::before { content: ''; width: 4px; height: 22px; background: var(--accent); border-radius: 10px; box-shadow: 0 0 10px var(--accent); }
-        
-        .sort-btn { background: var(--glass); border: none; color: white; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+        .info-item label { display: block; font-size: 10px; color: #555; text-transform: uppercase; margin-bottom: 5px; }
+        .info-item span { font-size: 11px; font-weight: bold; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+        .status-badge { background: rgba(74, 222, 128, 0.1); color: #4ade80 !important; padding: 2px 6px; border-radius: 4px; font-size: 10px !important; }
 
-        .chapter-list { display: flex; flex-direction: column; gap: 14px; padding-bottom: 30px; }
-        .chapter-item { 
-            background: var(--card-bg); padding: 18px; border-radius: 18px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            text-decoration: none; color: white; border: 1px solid var(--glass); 
-            transition: var(--transition);
+        /* Chapter Tabs */
+        .tab-nav { display: flex; gap: 20px; border-bottom: 1px solid #222; }
+        .tab-btn { 
+            padding: 12px 0; background: none; border: none; color: #555; 
+            font-weight: bold; font-size: 15px; cursor: pointer; position: relative;
+            display: flex; align-items: center; gap: 8px;
         }
-        .chapter-item:active { transform: scale(0.96); background: rgba(139, 92, 246, 0.1); border-color: var(--accent); }
-
-        .chapter-info-box { display: flex; flex-direction: column; gap: 4px; }
-        .chapter-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 12px; color: #f1f5f9; }
-        .chapter-name i { color: var(--accent); font-size: 18px; }
-        .chapter-date { font-size: 11px; color: #64748b; margin-left: 30px; font-weight: 500; }
-
-        .price-badge { 
-            padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 800;
-            border: 1px solid #fbbf24; color: #fbbf24; background: rgba(251, 191, 36, 0.1);
-            display: flex; align-items: center; gap: 5px;
+        .tab-btn.active { color: var(--accent); }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; 
+            height: 2px; background: var(--accent);
         }
-        .free-badge { color: #10b981; border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
-        .vip-unlocked { color: #fbbf24; border-color: #fbbf24; background: rgba(251, 191, 36, 0.15); border-style: dashed; }
-        
-        /* --- Comments Section Optimized --- */
-        .comments-section { padding: 20px; border-top: 1px solid var(--glass); margin-bottom: 50px; }
-        .comment-input-box { margin-bottom: 30px; overflow: hidden; }
+
+        /* Filter Box */
+        .filter-section {
+            display: flex; gap: 10px; margin: 20px 0; align-items: center;
+        }
+        .search-ch {
+            flex: 1; background: #151515; border: 1px solid #222;
+            padding: 12px; border-radius: 8px; color: white; outline: none;
+        }
+        .sort-btn {
+            background: #151515; border: 1px solid #222; color: #666;
+            width: 45px; height: 45px; border-radius: 8px; display: flex;
+            align-items: center; justify-content: center; cursor: pointer;
+        }
+        .sort-btn.active { color: var(--accent); border-color: var(--accent); }
+
+        /* Chapter Card */
+        .chapter-list { margin-top: 10px; padding-bottom: 30px; }
+        .chapter-card {
+            display: flex; align-items: center; gap: 15px; background: var(--card-bg);
+            padding: 12px; border-radius: 12px; text-decoration: none; margin-bottom: 12px;
+            border: 1px solid transparent; transition: var(--transition);
+        }
+        .chapter-card:active { transform: scale(0.98); background: #1a1a1a; border-color: #333; }
+        .ch-thumb { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; background: #222; }
+        .ch-info { flex: 1; }
+        .ch-title { display: block; color: white; font-weight: bold; margin-bottom: 5px; font-size: 15px; }
+        .ch-date { font-size: 12px; color: #666; }
+
+        .hidden { display: none; }
         .comment-input-box textarea { 
-            width: 100%; background: var(--card-bg); border: 1px solid var(--glass); 
-            border-radius: 12px; padding: 15px; color: white; outline: none; resize: none;
-            -webkit-user-select: text; user-select: text; box-sizing: border-box;
-            transition: 0.3s;
+            width: 100%; background: #151515; border: 1px solid #222; 
+            border-radius: 10px; padding: 15px; color: white; margin-top: 15px; outline: none;
         }
-        .comment-input-box textarea:focus { border-color: var(--accent); background: rgba(255,255,255,0.05); }
-        .comment-btn { 
-            background: var(--accent); border: none; color: white; padding: 10px 24px; 
-            border-radius: 10px; font-weight: bold; margin-top: 12px; float: right;
-            cursor: pointer; transition: 0.3s;
-        }
-        .comment-btn:active { transform: scale(0.95); opacity: 0.8; }
-        
-        .comment-item { 
-            background: rgba(255,255,255,0.03); padding: 16px; border-radius: 16px; 
-            margin-bottom: 20px; display: flex; gap: 14px;
-            border: 1px solid rgba(255,255,255,0.02);
-            animation: fadeInUp 0.4s ease backwards;
-            position: relative;
-        }
-        .comment-pfp { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--glass); }
-        .comment-content { flex: 1; }
-        .comment-user { font-size: 14px; font-weight: bold; color: var(--accent); margin-bottom: 6px; display: block; }
-        .comment-text { font-size: 14px; color: #e2e8f0; line-height: 1.6; -webkit-user-select: text; user-select: text; word-break: break-word; }
-        .comment-time { font-size: 11px; color: #64748b; margin-top: 10px; display: block; font-style: italic; }
+        .comment-btn { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 8px; margin-top: 10px; float: right; font-weight: bold; }
 
-        .delete-comment-btn {
-            position: absolute; top: 15px; right: 15px;
-            color: #ef4444; font-size: 12px; cursor: pointer;
-            opacity: 0.6; padding: 5px;
-        }
+        /* Comment Delete Style */
+        .del-comment { color: #ef4444; font-size: 12px; cursor: pointer; margin-top: 5px; display: inline-block; }
 
-        .loading { text-align: center; padding: 100px 20px; color: #64748b; }
+        .loading { text-align: center; padding: 100px 0; color: #444; }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
     <nav>
         <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <div id="vip-status" class="vip-nav-badge"><i class="fas fa-crown"></i> VIP</div>
         <div class="coin-display" id="coin-box" style="display: none;">
             <i class="fas fa-coins"></i><span id="user-coins">0</span>
         </div>
     </nav>
 
     <div id="manga-content">
-        <div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+        <div class="loading"><i class="fas fa-circle-notch fa-spin fa-2x"></i></div>
     </div>
 
-    <div class="chapter-section">
-        <div class="section-header">
-            <h3 class="section-title">Chapters</h3>
-            <button class="sort-btn" id="sort-btn" onclick="toggleSort()"><i class="fas fa-sort-amount-down"></i> Newest</button>
+    <div class="details-container">
+        <div class="tab-nav">
+            <button class="tab-btn active" id="tab-ch-btn" onclick="switchTab('chapters')"><i class="fas fa-book"></i> Chapters</button>
+            <button class="tab-btn" id="tab-cm-btn" onclick="switchTab('comments')"><i class="fas fa-comments"></i> Comments</button>
         </div>
-        <div class="chapter-list" id="chapter-list"></div>
 
-        <div class="comments-section">
-            <h3 class="section-title" style="margin-bottom: 20px;">Comments</h3>
+        <div id="tab-chapters">
+            <div class="filter-section">
+                <input type="text" class="search-ch" id="ch-search" placeholder="Filter by chapter name, title..." oninput="filterChapters()">
+                <div class="sort-btn" id="sort-up" onclick="sortChapters('asc')"><i class="fas fa-arrow-up"></i></div>
+                <div class="sort-btn active" id="sort-down" onclick="sortChapters('desc')"><i class="fas fa-arrow-down"></i></div>
+            </div>
+            <div class="chapter-list" id="chapter-list"></div>
+        </div>
+
+        <div id="tab-comments" class="hidden">
             <div class="comment-input-box" id="comment-auth-gate">
-                <textarea id="comment-text" rows="3" placeholder="Login to join the conversation..."></textarea>
+                <textarea id="comment-text" rows="3" placeholder="Join the conversation..."></textarea>
                 <button class="comment-btn" id="post-comment-btn" disabled>Post Comment</button>
             </div>
-            <div id="comments-list"></div>
+            <div id="comments-list" style="margin-top: 70px;"></div>
         </div>
     </div>
 
@@ -232,10 +210,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        document.onkeydown = (e) => {
-            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
-        };
-
+        // --- Firebase Config (Do Not Edit) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDkC9yCwozUjgTfFZ140qG112cU8GDCh44",
             authDomain: "rawkuma-8f1ba.firebaseapp.com",
@@ -250,39 +225,24 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const mangaId = urlParams.get('id');
-        let userVIP = false;
         let currentUserData = null;
-        let sortOrder = 'desc';
-
-        if (!mangaId) window.location.href = 'index.html';
+        let allChapters = [];
+        let currentSort = 'desc';
 
         auth.onAuthStateChanged(user => {
-            const coinBox = document.getElementById('coin-box');
-            const vipBadge = document.getElementById('vip-status');
-            const commentInput = document.getElementById('comment-text');
-            const postBtn = document.getElementById('post-comment-btn');
-
             if (user) {
-                coinBox.style.display = 'flex';
+                document.getElementById('coin-box').style.display = 'flex';
                 db.collection("users").doc(user.uid).onSnapshot(doc => {
                     if (doc.exists) {
                         currentUserData = doc.data();
-                        userVIP = currentUserData.membership === "VIP";
                         document.getElementById('user-coins').innerText = Number(currentUserData.coins || 0).toLocaleString();
-                        vipBadge.style.display = userVIP ? 'flex' : 'none';
-                        
-                        commentInput.placeholder = "Write a comment...";
-                        postBtn.disabled = false;
-                        postBtn.onclick = postComment;
-
-                        loadMangaDetails();
-                        loadChapters();
+                        document.getElementById('post-comment-btn').disabled = false;
+                        document.getElementById('post-comment-btn').onclick = postComment;
                     }
                 });
-            } else {
-                loadMangaDetails();
-                loadChapters();
             }
+            loadMangaDetails();
+            loadChapters();
             loadComments();
         });
 
@@ -292,178 +252,179 @@
                     const manga = doc.data();
                     const avgRating = manga.rating || 0;
                     const ratingCount = manga.ratingCount || 0;
-                    
-                    let hasRated = false;
-                    if(auth.currentUser){
-                        const rateCheck = await db.collection("mangas").doc(mangaId).collection("userRatings").doc(auth.currentUser.uid).get();
-                        hasRated = rateCheck.exists;
-                    }
-
                     let genreHtml = (manga.genres || []).map(g => `<span class="genre-badge">${g}</span>`).join('');
 
                     document.getElementById('manga-content').innerHTML = `
                         <div class="manga-header">
                             <div class="header-bg" style="background-image: url('${manga.cover}')"></div>
-                            <img src="${manga.cover}" class="manga-cover">
-                            <div class="manga-info">
-                                <div class="manga-title">${manga.title}</div>
-                                <div class="genre-container">${genreHtml}</div>
-                                <div class="action-bar">
-                                    <div class="action-btn" onclick="shareManga('${manga.title}')">
-                                        <i class="fas fa-share-alt"></i><span>Share</span>
+                            <div style="z-index: 1;">
+                                <div class="type-tag">${manga.type || 'Manhwa'}</div>
+                                <div class="manga-title-main">${manga.title}</div>
+                                <div class="manga-sub">${manga.subTitle || 'Rawkuma Translation'}</div>
+                                <a href="#" onclick="startReading()" class="read-now-btn">
+                                    <i class="fas fa-book-open"></i> Read Now
+                                </a>
+                            </div>
+                        </div>
+                        <div class="details-container">
+                            <div class="section-label">Synopsis</div>
+                            <div class="manga-desc" id="manga-desc-text">
+                                ${manga.desc || 'No description available.'}
+                            </div>
+                            <span class="see-more" id="see-more-btn" onclick="toggleDesc()">See more</span>
+                            <div class="genre-container">${genreHtml}</div>
+                            
+                            <div class="stats-row">
+                                <div class="total-ch-box">
+                                    <span class="stat-lbl">Total Chapters</span>
+                                    <span class="stat-val" id="total-ch-count">0 Chapters</span>
+                                </div>
+                                <div class="rating-box">
+                                    <span class="big-rating">${avgRating.toFixed(1)}</span>
+                                    <div>
+                                        <div class="stars-container">${'★'.repeat(Math.round(avgRating))}${'☆'.repeat(5-Math.round(avgRating))}</div>
+                                        <span class="stat-lbl">${ratingCount} ratings</span>
                                     </div>
                                 </div>
+                                <button class="rating-btn" onclick="submitStarRating()">
+                                    <i class="fas fa-star"></i> Rating
+                                </button>
                             </div>
-                        </div>
-                        <div class="rating-box">
-                            <div class="stars-container">
-                                <div class="stars ${!hasRated && auth.currentUser ? 'interactive' : ''}" id="star-rating">
-                                    ${renderStars(avgRating, !hasRated)}
-                                </div>
-                                <div class="rating-count">(${avgRating.toFixed(1)}) • ${ratingCount} reviews</div>
+
+                            <div class="info-grid">
+                                <div class="info-item"><label>Title Type</label><span>${manga.type || 'MANHWA'}</span></div>
+                                <div class="info-item"><label>Title Status</label><span class="status-badge">${manga.status || 'Ongoing'}</span></div>
+                                <div class="info-item"><label>Translator</label><span>${manga.translator || 'N/A'}</span></div>
+                                <div class="info-item"><label>Release Year</label><span>${manga.year || 'N/A'}</span></div>
                             </div>
-                            <div style="font-size:10px; color:var(--accent); font-weight:bold;">
-                                ${hasRated ? 'You already rated this.' : (auth.currentUser ? 'Tap stars to rate' : 'Login to rate')}
-                            </div>
-                        </div>
-                        <div class="desc-section">
-                            <div class="manga-desc">${manga.desc || 'No description available.'}</div>
                         </div>`;
                 }
             });
         }
 
-        function renderStars(rating, interactive) {
-            let html = '';
-            for (let i = 1; i <= 5; i++) {
-                const clickAttr = interactive ? `onclick="giveRating(${i})"` : '';
-                html += `<i class="${i <= Math.round(rating) ? 'fas' : 'far'} fa-star" ${clickAttr}></i>`;
-            }
-            return html;
+        // See more function
+        function toggleDesc() {
+            const desc = document.getElementById('manga-desc-text');
+            const btn = document.getElementById('see-more-btn');
+            desc.classList.toggle('expanded');
+            btn.innerText = desc.classList.contains('expanded') ? "See less" : "See more";
         }
 
-        async function giveRating(stars) {
-            if (!auth.currentUser) return;
-            if (!confirm(`Do you want to rate this ${stars} stars?`)) return;
-
-            const userRef = db.collection("mangas").doc(mangaId).collection("userRatings").doc(auth.currentUser.uid);
+        async function submitStarRating() {
+            if (!auth.currentUser) return alert("Please login to rate!");
+            let stars = prompt("Enter rating (1-5):", "5");
+            if (!stars || isNaN(stars) || stars < 1 || stars > 5) return;
+            
             const mangaRef = db.collection("mangas").doc(mangaId);
-
-            try {
-                await db.runTransaction(async (transaction) => {
-                    const mDoc = await transaction.get(mangaRef);
-                    const currentRating = mDoc.data().rating || 0;
-                    const currentCount = mDoc.data().ratingCount || 0;
-
-                    const newCount = currentCount + 1;
-                    const newRating = ((currentRating * currentCount) + stars) / newCount;
-
-                    transaction.set(userRef, { stars: stars, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                    transaction.update(mangaRef, { rating: newRating, ratingCount: newCount });
+            await db.runTransaction(async (transaction) => {
+                const mDoc = await transaction.get(mangaRef);
+                const count = mDoc.data().ratingCount || 0;
+                const rate = mDoc.data().rating || 0;
+                transaction.update(mangaRef, { 
+                    rating: ((rate * count) + parseInt(stars)) / (count + 1), 
+                    ratingCount: count + 1 
                 });
-                alert("Thank you for your rating!");
-            } catch (e) {
-                alert("Error submitting rating.");
-            }
+            });
+            alert("Thanks for rating!");
         }
 
-        function shareManga(title) {
-            if (navigator.share) {
-                navigator.share({
-                    title: title,
-                    text: `Check out ${title} on Rawkuma!`,
-                    url: window.location.href
-                });
-            } else {
-                alert("Link copied to clipboard!");
-                navigator.clipboard.writeText(window.location.href);
-            }
-        }
-
-        function toggleSort() {
-            sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-            document.getElementById('sort-btn').innerHTML = `<i class="fas fa-sort-amount-${sortOrder === 'asc' ? 'up' : 'down'}"></i> ${sortOrder === 'asc' ? 'Oldest' : 'Newest'}`;
-            loadChapters();
+        function switchTab(tab) {
+            document.getElementById('tab-ch-btn').classList.toggle('active', tab === 'chapters');
+            document.getElementById('tab-cm-btn').classList.toggle('active', tab === 'comments');
+            document.getElementById('tab-chapters').classList.toggle('hidden', tab !== 'chapters');
+            document.getElementById('tab-comments').classList.toggle('hidden', tab !== 'comments');
         }
 
         function loadChapters() {
-            const list = document.getElementById('chapter-list');
-            db.collection("mangas").doc(mangaId).collection("chapters").orderBy("order", sortOrder).onSnapshot(snap => {
-                list.innerHTML = snap.empty ? "<div class='loading'>No Chapters.</div>" : "";
-                snap.forEach(doc => {
-                    const ch = doc.data();
-                    const isFree = !ch.price || ch.price === 0;
-                    let priceLabel = isFree ? 'FREE' : `<i class="fas fa-coins"></i> ${ch.price}`;
-                    let badgeClass = isFree ? 'free-badge' : '';
-                    if (userVIP && !isFree) { priceLabel = '<i class="fas fa-crown"></i> UNLOCKED'; badgeClass = 'vip-unlocked'; }
-
-                    list.innerHTML += `
-                        <a href="reader.html?mangaId=${mangaId}&chapterId=${doc.id}" class="chapter-item">
-                            <div class="chapter-info-box">
-                                <div class="chapter-name"><i class="fas fa-play-circle"></i> ${ch.name}</div>
-                                <div class="chapter-date">${formatDate(ch.updatedAt || ch.createdAt)}</div>
-                            </div>
-                            <div class="price-badge ${badgeClass}">${priceLabel}</div>
-                        </a>`;
-                });
+            db.collection("mangas").doc(mangaId).collection("chapters").onSnapshot(snap => {
+                allChapters = [];
+                snap.forEach(doc => allChapters.push({ id: doc.id, ...doc.data() }));
+                document.getElementById('total-ch-count').innerText = `${allChapters.length} Chapters`;
+                renderChapters();
             });
         }
 
+        function renderChapters() {
+            const list = document.getElementById('chapter-list');
+            let sorted = [...allChapters].sort((a, b) => 
+                currentSort === 'desc' ? b.order - a.order : a.order - b.order
+            );
+
+            const query = document.getElementById('ch-search').value.toLowerCase();
+            if(query) {
+                sorted = sorted.filter(ch => ch.name.toLowerCase().includes(query));
+            }
+
+            list.innerHTML = sorted.length ? "" : "<p style='text-align:center; color:#444; padding:20px;'>No chapters found.</p>";
+            sorted.forEach(ch => {
+                list.innerHTML += `
+                    <a href="reader.html?mangaId=${mangaId}&chapterId=${ch.id}" class="chapter-card">
+                        <img src="${ch.thumb || 'https://via.placeholder.com/70'}" class="ch-thumb">
+                        <div class="ch-info">
+                            <span class="ch-title">${ch.name}</span>
+                            <span class="ch-date">${formatDate(ch.createdAt)}</span>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color:#222"></i>
+                    </a>`;
+            });
+        }
+
+        function sortChapters(dir) {
+            currentSort = dir;
+            document.getElementById('sort-up').classList.toggle('active', dir === 'asc');
+            document.getElementById('sort-down').classList.toggle('active', dir === 'desc');
+            renderChapters();
+        }
+
+        function filterChapters() { renderChapters(); }
+
         async function postComment() {
             const text = document.getElementById('comment-text').value.trim();
-            if (!text || !auth.currentUser) return;
-            
+            if (!text) return;
             await db.collection("mangas").doc(mangaId).collection("comments").add({
                 userId: auth.currentUser.uid,
                 userName: currentUserData.name || "User",
-                userPfp: currentUserData.pfp || "https://i.ibb.co/XfR4R4Jx/IMG-20260107-143629-039.jpg",
+                userPfp: currentUserData.pfp || "https://via.placeholder.com/50",
                 text: text,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             document.getElementById('comment-text').value = "";
         }
 
-        async function deleteComment(commentId) {
-            if (!confirm("Are you sure you want to delete this comment?")) return;
-            try {
-                await db.collection("mangas").doc(mangaId).collection("comments").doc(commentId).delete();
-            } catch (e) {
-                alert("Error deleting comment.");
-            }
-        }
-
         function loadComments() {
             db.collection("mangas").doc(mangaId).collection("comments").orderBy("createdAt", "desc").onSnapshot(snap => {
                 const list = document.getElementById('comments-list');
-                list.innerHTML = snap.empty ? "<p style='color:#64748b; font-size:12px; text-align:center;'>No comments yet. Be the first!</p>" : "";
+                list.innerHTML = "";
                 snap.forEach(doc => {
                     const c = doc.data();
-                    const commentId = doc.id;
-                    const isMyComment = auth.currentUser && auth.currentUser.uid === c.userId;
-
+                    const isOwner = auth.currentUser && auth.currentUser.uid === c.userId;
                     list.innerHTML += `
-                        <div class="comment-item">
-                            ${isMyComment ? `<i class="fas fa-trash delete-comment-btn" onclick="deleteComment('${commentId}')"></i>` : ''}
-                            <img src="${c.userPfp}" class="comment-pfp">
-                            <div class="comment-content">
-                                <span class="comment-user">${c.userName}</span>
-                                <div class="comment-text">${c.text}</div>
-                                <span class="comment-time">${c.createdAt ? formatDate(c.createdAt) : 'Just now'}</span>
-                            </div>
-                        </div>`;
+                    <div style="margin-bottom:20px; display:flex; gap:12px; background:rgba(255,255,255,0.02); padding:10px; border-radius:10px;">
+                        <img src="${c.userPfp}" style="width:35px; height:35px; border-radius:50%; object-fit:cover;">
+                        <div style="flex:1;">
+                            <div style="font-weight:bold; color:var(--accent); font-size:12px;">${c.userName}</div>
+                            <div style="font-size:13px; margin-top:4px; color:#ccc;">${c.text}</div>
+                            ${isOwner ? `<span class="del-comment" onclick="deleteComment('${doc.id}')">Delete</span>` : ''}
+                        </div>
+                    </div>`;
                 });
             });
         }
 
-        function formatDate(ts) {
-            if (!ts) return "";
-            const d = ts.toDate ? ts.toDate() : new Date(ts);
-            return d.toLocaleDateString();
+        async function deleteComment(id) {
+            if(confirm("Are you sure to delete this comment?")) {
+                await db.collection("mangas").doc(mangaId).collection("comments").doc(id).delete();
+            }
         }
 
-        if(!auth.currentUser) {
-            loadMangaDetails();
-            loadChapters();
+        function formatDate(ts) {
+            if (!ts) return "Recently";
+            return ts.toDate().toLocaleDateString();
+        }
+        
+        function startReading() {
+            const firstCh = document.querySelector('.chapter-card');
+            if(firstCh) firstCh.click();
         }
     </script>
 </body>
