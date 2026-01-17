@@ -315,6 +315,10 @@
             const userId = auth.currentUser.uid;
             const mangaRef = db.collection("mangas").doc(mangaId);
 
+            let stars = prompt("Enter rating (1-5):", "5");
+            if (!stars || isNaN(stars) || stars < 1 || stars > 5) return;
+            const newStarVal = parseFloat(stars);
+
             try {
                 await db.runTransaction(async (transaction) => {
                     const mDoc = await transaction.get(mangaRef);
@@ -323,27 +327,27 @@
                     const data = mDoc.data();
                     const ratedUsers = data.ratedUsers || [];
 
-                    // အသုံးပြုသူ ပေးပြီးသားလား စစ်ဆေးခြင်း
                     if (ratedUsers.includes(userId)) {
                         throw "You have already rated this manga!";
                     }
 
-                    let stars = prompt("Enter rating (1-5):", "5");
-                    if (!stars || isNaN(stars) || stars < 1 || stars > 5) return;
-
                     const count = data.ratingCount || 0;
                     const rate = data.rating || 0;
+                    const newAvg = ((rate * count) + newStarVal) / (count + 1);
                     
                     transaction.update(mangaRef, { 
-                        rating: ((rate * count) + parseInt(stars)) / (count + 1), 
+                        rating: newAvg, 
                         ratingCount: count + 1,
-                        ratedUsers: firebase.firestore.FieldValue.arrayUnion(userId) // User ID ကို သိမ်းလိုက်ခြင်း
+                        ratedUsers: firebase.firestore.FieldValue.arrayUnion(userId)
                     });
                 });
                 alert("Thanks for rating!");
             } catch (error) {
                 if (typeof error === 'string') alert(error);
-                else console.error("Rating Error:", error);
+                else {
+                    console.error("Rating Error:", error);
+                    alert("Rating failed. Please try again.");
+                }
             }
         }
 
