@@ -44,6 +44,11 @@
         .manga-container { display: flex; flex-direction: column; align-items: center; margin-top: 55px; min-height: 100vh; position: relative; }
         .manga-image { width: 100%; max-width: 850px; display: block; pointer-events: none; user-select: none; animation: fadeIn 0.6s ease; }
 
+        /* Image Loading & Error Styles */
+        .img-wrapper { width: 100%; max-width: 850px; min-height: 300px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.01); position: relative; }
+        .img-loader { position: absolute; color: var(--accent); font-size: 20px; }
+        .img-error { color: #ef4444; text-align: center; padding: 20px; font-size: 14px; display: flex; flex-direction: column; gap: 10px; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Navigation Buttons */
@@ -141,6 +146,13 @@
 
         document.getElementById('nav-back-link').href = `details.html?id=${mangaId}`;
 
+        // Save scroll position
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 0) {
+                localStorage.setItem(`scroll_${mangaId}_${chapterId}`, window.pageYOffset);
+            }
+        });
+
         function createWatermark(email) {
             const grid = document.getElementById('watermark-grid');
             grid.innerHTML = "";
@@ -193,7 +205,6 @@
                     const userDoc = await db.collection("users").doc(user.uid).get();
                     const userData = userDoc.data();
                     
-                    // --- VIP Check Logic (New) ---
                     const isVIP = userData?.membership === "VIP";
                     const isPurchased = (userData?.purchasedChapters || []).includes(chapterId);
 
@@ -203,13 +214,42 @@
                 }
 
                 container.innerHTML = "";
-                (chapter.images || []).forEach(url => {
+                const imageUrls = chapter.images || [];
+                let loadedCount = 0;
+
+                imageUrls.forEach((url, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'img-wrapper';
+                    wrapper.innerHTML = `<div class="img-loader"><i class="fas fa-circle-notch fa-spin"></i></div>`;
+                    
                     const img = new Image();
                     img.src = url;
                     img.className = 'manga-image';
-                    container.appendChild(img);
+                    img.style.display = 'none';
+
+                    img.onload = () => {
+                        wrapper.querySelector('.img-loader').remove();
+                        img.style.display = 'block';
+                        loadedCount++;
+                        // Restore scroll position after some images are loaded
+                        if (loadedCount === 1) {
+                            const savedPos = localStorage.getItem(`scroll_${mangaId}_${chapterId}`);
+                            if (savedPos) window.scrollTo(0, parseInt(savedPos));
+                        }
+                    };
+
+                    img.onerror = () => {
+                        wrapper.innerHTML = `<div class="img-error">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                            <span>ပုံတင်ရန်မအောင်မြင်ပါ။ လိုင်းမကောင်း၍ဖြစ်နိုင်ပါသည်။</span>
+                            <button onclick="this.parentElement.parentElement.querySelector('img').src='${url}'" style="background:var(--accent); border:none; color:white; padding:5px 10px; border-radius:5px;">Retry</button>
+                        </div>`;
+                    };
+
+                    wrapper.appendChild(img);
+                    container.appendChild(wrapper);
                 });
-                window.scrollTo(0,0);
+
             } catch (err) { container.innerHTML = "Error loading content."; }
         }
 
@@ -242,6 +282,7 @@
         function nextChapter() { const idx = allChapters.findIndex(ch => ch.id === chapterId); if (idx < allChapters.length - 1) changeChapter(allChapters[idx + 1].id); }
 
         function changeChapter(id) {
+            localStorage.removeItem(`scroll_${mangaId}_${chapterId}`);
             chapterId = id;
             window.history.pushState({}, '', `?mangaId=${mangaId}&chapterId=${id}`);
             document.getElementById('chapter-selector').value = id;
